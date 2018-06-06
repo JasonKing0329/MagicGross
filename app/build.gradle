@@ -1,0 +1,75 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
+
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "com.king.app.gross"
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    signingConfigs {
+        releaseConfig {
+            storeFile file("../keystore/myapp_key.keystore")
+            storePassword "1010520"
+            keyAlias "myapp"
+            keyPassword "1010520"
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.releaseConfig
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.releaseConfig
+        }
+    }
+
+    greendao {
+        schemaVersion 1
+    }
+
+    dataBinding {
+        enabled = true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.android.support:appcompat-v7:${SUPPORT_V7_VERSION}"
+    implementation "com.android.support:recyclerview-v7:${SUPPORT_V7_VERSION}"
+    implementation "com.android.support:design:${SUPPORT_V7_VERSION}"
+    implementation "com.android.support:cardview-v7:${SUPPORT_V7_VERSION}"
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    /*gson*/
+    implementation "com.google.code.gson:gson:${GSON_VERSION}"
+
+    /*rxjava*/
+    implementation "io.reactivex.rxjava2:rxjava:${RXJAVA_VERSION}"
+    implementation "io.reactivex.rxjava2:rxandroid:${RXANDROID_VERSION}"
+
+    /*rx permission*/
+    implementation "com.tbruyelle.rxpermissions2:rxpermissions:${RXPERMISSION_VERSION}"
+
+    /*green dao*/
+    implementation 'org.greenrobot:greendao:3.2.2'
+
+    /*glide*/
+    implementation 'com.github.bumptech.glide:glide:4.6.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
+
+    implementation 'com.king.lib:jactionbar:1.0.2'
+
+    implementation 'android.arch.lifecycle:runtime:1.1.1'
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
+    annotationProcessor 'android.arch.lifecycle:compiler:1.1.1'
+}

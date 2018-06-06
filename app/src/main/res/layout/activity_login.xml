@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="model"
+            type="com.king.app.gross.viewmodel.LoginViewModel"/>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".page.login.LoginActivity">
+
+        <com.king.app.jactionbar.JActionbar
+            android:id="@+id/actionbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:theme="@style/EtActionSearch"
+            android:background="@color/actionbar_bg"
+            app:showIconBack="false"
+            app:title="Login"
+            app:titleSize="18dp"
+            app:supportSearch="false"/>
+
+        <LinearLayout
+            android:id="@+id/group_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/actionbar"
+            android:orientation="vertical"
+            android:visibility="@{model.groupLoginVisibility}"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp">
+            <EditText
+                android:id="@+id/et_pwd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:text="@{model.etPwdText}"
+                app:addTextChangedListener="@{model.pwdTextWatcher}"/>
+            <Button
+                android:id="@+id/btn_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{model.onClickLogin}"
+                android:text="Login"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+</layout>
