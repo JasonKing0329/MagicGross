@@ -20,11 +20,18 @@ public class Movie {
 
     private String nameChn;
 
-    @Generated(hash = 647948982)
-    public Movie(Long id, String name, String nameChn) {
+    private String subName;
+
+    private String subChnName;
+
+    @Generated(hash = 1056981733)
+    public Movie(Long id, String name, String nameChn, String subName,
+            String subChnName) {
         this.id = id;
         this.name = name;
         this.nameChn = nameChn;
+        this.subName = subName;
+        this.subChnName = subChnName;
     }
 
     @Generated(hash = 1263461133)
@@ -54,4 +61,21 @@ public class Movie {
     public void setNameChn(String nameChn) {
         this.nameChn = nameChn;
     }
+
+    public String getSubName() {
+        return this.subName;
+    }
+
+    public void setSubName(String subName) {
+        this.subName = subName;
+    }
+
+    public String getSubChnName() {
+        return this.subChnName;
+    }
+
+    public void setSubChnName(String subChnName) {
+        this.subChnName = subChnName;
+    }
+
 }

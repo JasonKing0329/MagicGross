@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" >
+    <data>
+
+    </data>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/group_dialog"
+        android:background="@drawable/shape_dialog_bg">
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            android:textSize="20dp"
+            android:textColor="@color/colorPrimary"/>
+        <ImageView
+            android:id="@+id/iv_close"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginRight="6dp"
+            android:padding="10dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_close_3f51b5_24dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"/>
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="6dp"
+            android:padding="10dp"
+            android:layout_toLeftOf="@id/iv_close"
+            android:visibility="gone"
+            android:src="@drawable/ic_delete_3f51b5_24dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"/>
+        <FrameLayout
+            android:id="@+id/group_ft_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_title"
+            android:layout_marginTop="10dp"/>
+    </RelativeLayout>
+</layout>
