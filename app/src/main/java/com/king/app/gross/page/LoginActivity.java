@@ -8,6 +8,7 @@ import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityLoginBinding;
 import com.king.app.gross.model.FingerPrintController;
+import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.viewmodel.LoginViewModel;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -24,8 +25,9 @@ public class LoginActivity extends MvvmActivity<ActivityLoginBinding, LoginViewM
 
     @Override
     protected void initView() {
-        binding.setModel(viewModel);
-        viewModel.fingerprintObserver.observe(this, aBoolean -> {
+        SettingProperty.setEnableFingerPrint(true);
+        mBinding.setModel(mModel);
+        mModel.fingerprintObserver.observe(this, aBoolean -> {
             fingerPrint = new FingerPrintController(LoginActivity.this);
             if (fingerPrint.isSupported()) {
                 if (fingerPrint.hasRegistered()) {
@@ -38,7 +40,7 @@ public class LoginActivity extends MvvmActivity<ActivityLoginBinding, LoginViewM
                 showMessageLong("设备不支持指纹识别");
             }
         });
-        viewModel.loginObserver.observe(this, success -> {
+        mModel.loginObserver.observe(this, success -> {
             if (success) {
                 startHome();
             }
@@ -67,7 +69,7 @@ public class LoginActivity extends MvvmActivity<ActivityLoginBinding, LoginViewM
     }
 
     private void initCreate() {
-        viewModel.initCreate();
+        mModel.initCreate();
     }
 
     private void startFingerPrintDialog() {

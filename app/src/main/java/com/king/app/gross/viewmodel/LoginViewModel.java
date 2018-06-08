@@ -12,7 +12,7 @@ import android.view.View;
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConfig;
-import com.king.app.gross.model.SettingProperty;
+import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.DBExportor;
 import com.king.app.gross.utils.MD5Util;
 

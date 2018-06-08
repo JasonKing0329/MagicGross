@@ -17,14 +17,14 @@ import android.view.ViewGroup;
  */
 public abstract class BaseBindingFragment<T extends ViewDataBinding> extends BaseFragment {
 
-    protected T binding;
+    protected T mBinding;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, getContentLayoutRes(), container, false);
+        mBinding = DataBindingUtil.inflate(inflater, getContentLayoutRes(), container, false);
         initView();
-        return binding.getRoot();
+        return mBinding.getRoot();
     }
 
     protected abstract void initView();

@@ -24,14 +24,17 @@ public class Movie {
 
     private String subChnName;
 
-    @Generated(hash = 1056981733)
+    private double usToYuan;
+
+    @Generated(hash = 354994842)
     public Movie(Long id, String name, String nameChn, String subName,
-            String subChnName) {
+            String subChnName, double usToYuan) {
         this.id = id;
         this.name = name;
         this.nameChn = nameChn;
         this.subName = subName;
         this.subChnName = subChnName;
+        this.usToYuan = usToYuan;
     }
 
     @Generated(hash = 1263461133)
@@ -76,6 +79,14 @@ public class Movie {
 
     public void setSubChnName(String subChnName) {
         this.subChnName = subChnName;
+    }
+
+    public double getUsToYuan() {
+        return this.usToYuan;
+    }
+
+    public void setUsToYuan(double usToYuan) {
+        this.usToYuan = usToYuan;
     }
 
 }

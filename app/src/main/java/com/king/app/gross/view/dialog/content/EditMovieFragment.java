@@ -30,12 +30,13 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
 
     @Override
     protected void initView() {
-        binding.tvOk.setOnClickListener(view -> updateMovie());
+        mBinding.tvOk.setOnClickListener(view -> updateMovie());
         if (mEditMovie != null) {
-            binding.etName.setText(mEditMovie.getName());
-            binding.etNameSub.setText(mEditMovie.getSubName());
-            binding.etNameChn.setText(mEditMovie.getNameChn());
-            binding.etNameChnSub.setText(mEditMovie.getSubChnName());
+            mBinding.etName.setText(mEditMovie.getName());
+            mBinding.etNameSub.setText(mEditMovie.getSubName());
+            mBinding.etNameChn.setText(mEditMovie.getNameChn());
+            mBinding.etNameChnSub.setText(mEditMovie.getSubChnName());
+            mBinding.etExchange.setText(String.valueOf(mEditMovie.getUsToYuan()));
         }
     }
 
@@ -44,10 +45,21 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
     }
 
     private void updateMovie() {
-        String name = binding.etName.getText().toString();
-        String nameChn = binding.etNameChn.getText().toString();
+        String name = mBinding.etName.getText().toString();
+        String nameChn = mBinding.etNameChn.getText().toString();
         if (TextUtils.isEmpty(name.trim()) && TextUtils.isEmpty(nameChn.trim())) {
             showMessageShort("英文名与中文名不能同时为空");
+            return;
+        }
+        double exchange;
+        try {
+            exchange = Double.parseDouble(mBinding.etExchange.getText().toString());
+        } catch (Exception e) {
+            showMessageShort("Wrong exchange");
+            return;
+        }
+        if (exchange == 0) {
+            showMessageShort("Wrong exchange");
             return;
         }
 
@@ -56,8 +68,9 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         }
         mEditMovie.setName(name);
         mEditMovie.setNameChn(nameChn);
-        mEditMovie.setSubName(binding.etNameSub.getText().toString());
-        mEditMovie.setSubChnName(binding.etNameChnSub.getText().toString());
+        mEditMovie.setSubName(mBinding.etNameSub.getText().toString());
+        mEditMovie.setSubChnName(mBinding.etNameChnSub.getText().toString());
+        mEditMovie.setUsToYuan(exchange);
         MApplication.getInstance().getDaoSession().getMovieDao().insertOrReplace(mEditMovie);
 
         dismiss();

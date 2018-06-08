@@ -16,18 +16,18 @@ import android.view.ViewGroup;
  */
 public abstract class MvvmFragment<T extends ViewDataBinding, VM extends BaseViewModel> extends BaseFragment {
 
-    protected T binding;
+    protected T mBinding;
 
-    protected VM viewModel;
+    protected VM mModel;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        binding = DataBindingUtil.inflate(inflater, getContentLayoutRes(), container, false);
-        viewModel = createViewModel();
-        if (viewModel != null) {
-            viewModel.loadingObserver.observe(this, new Observer<Boolean>() {
+        mBinding = DataBindingUtil.inflate(inflater, getContentLayoutRes(), container, false);
+        mModel = createViewModel();
+        if (mModel != null) {
+            mModel.loadingObserver.observe(this, new Observer<Boolean>() {
                 @Override
                 public void onChanged(@Nullable Boolean show) {
                     if (show) {
@@ -38,7 +38,7 @@ public abstract class MvvmFragment<T extends ViewDataBinding, VM extends BaseVie
                     }
                 }
             });
-            viewModel.messageObserver.observe(this, new Observer<String>() {
+            mModel.messageObserver.observe(this, new Observer<String>() {
                 @Override
                 public void onChanged(@Nullable String message) {
                     showMessageLong(message);
@@ -46,7 +46,7 @@ public abstract class MvvmFragment<T extends ViewDataBinding, VM extends BaseVie
             });
         }
 
-        View view = binding.getRoot();
+        View view = mBinding.getRoot();
         onCreate(view);
         onCreateData();
         return view;
@@ -60,8 +60,8 @@ public abstract class MvvmFragment<T extends ViewDataBinding, VM extends BaseVie
 
     @Override
     public void onDestroyView() {
-        if (viewModel != null) {
-            viewModel.onDestroy();
+        if (mModel != null) {
+            mModel.onDestroy();
         }
         super.onDestroyView();
     }

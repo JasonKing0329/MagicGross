@@ -1,8 +1,9 @@
-package com.king.app.gross.model;
+package com.king.app.gross.model.setting;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.google.gson.Gson;
 import com.king.app.gross.base.MApplication;
 
 /**
@@ -73,4 +74,19 @@ public class SettingProperty {
         return getBoolean("enable_finger_print");
     }
 
+    public static void setEditGrossPref(EditGrossPref pref) {
+        setString("pref_edit_gross", new Gson().toJson(pref));
+    }
+
+    public static EditGrossPref getEditGrossPref() {
+        String pref = getString("pref_edit_gross");
+        EditGrossPref bean = null;
+        try {
+            bean = new Gson().fromJson(pref, EditGrossPref.class);
+        } catch (Exception e) { }
+        if (bean == null) {
+            bean = new EditGrossPref();
+        }
+        return bean;
+    }
 }

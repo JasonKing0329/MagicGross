@@ -40,6 +40,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".page.MovieListActivity"/>
+        <activity android:name=".page.MovieGrossActivity"/>
     </application>
 
 </manifest>

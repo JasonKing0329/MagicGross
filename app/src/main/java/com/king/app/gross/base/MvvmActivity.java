@@ -1,6 +1,5 @@
 package com.king.app.gross.base;
 
-import android.arch.lifecycle.Observer;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.os.Bundle;
@@ -13,33 +12,25 @@ import android.support.annotation.Nullable;
  */
 public abstract class MvvmActivity<T extends ViewDataBinding, VM extends BaseViewModel> extends BaseActivity {
 
-    protected T binding;
+    protected T mBinding;
 
-    protected VM viewModel;
+    protected VM mModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, getContentView());
-        viewModel = createViewModel();
-        if (viewModel != null) {
-            viewModel.loadingObserver.observe(this, new Observer<Boolean>() {
-                @Override
-                public void onChanged(@Nullable Boolean show) {
-                    if (show) {
-                        showProgress("loading...");
-                    }
-                    else {
-                        dismissProgress();
-                    }
+        mBinding = DataBindingUtil.setContentView(this, getContentView());
+        mModel = createViewModel();
+        if (mModel != null) {
+            mModel.loadingObserver.observe(this, show -> {
+                if (show) {
+                    showProgress("loading...");
+                }
+                else {
+                    dismissProgress();
                 }
             });
-            viewModel.messageObserver.observe(this, new Observer<String>() {
-                @Override
-                public void onChanged(@Nullable String message) {
-                    showMessageLong(message);
-                }
-            });
+            mModel.messageObserver.observe(this, message -> showMessageLong(message));
         }
 
         initView();
@@ -60,8 +51,8 @@ public abstract class MvvmActivity<T extends ViewDataBinding, VM extends BaseVie
 
     @Override
     protected void onDestroy() {
-        if (viewModel != null) {
-            viewModel.onDestroy();
+        if (mModel != null) {
+            mModel.onDestroy();
         }
         super.onDestroy();
     }

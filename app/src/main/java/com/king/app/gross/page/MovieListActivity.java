@@ -1,12 +1,10 @@
 package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
-import android.view.View;
 
 import com.king.app.gross.R;
-import com.king.app.gross.base.BaseRecyclerAdapter;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityMovieListBinding;
 import com.king.app.gross.model.entity.Movie;
@@ -37,14 +35,14 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
 
     @Override
     protected void initView() {
-        binding.setModel(viewModel);
-        binding.executePendingBindings();
+        mBinding.setModel(mModel);
+        mBinding.executePendingBindings();
 
         GridLayoutManager manager = new GridLayoutManager(this, 2);
-        binding.rvMovies.setLayoutManager(manager);
+        mBinding.rvMovies.setLayoutManager(manager);
 
-        binding.actionbar.setOnBackListener(() -> onBackPressed());
-        binding.actionbar.setOnMenuItemListener(menuId -> {
+        mBinding.actionbar.setOnBackListener(() -> onBackPressed());
+        mBinding.actionbar.setOnMenuItemListener(menuId -> {
             switch (menuId) {
                 case R.id.menu_add:
                     editMovie(null);
@@ -52,15 +50,15 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                 case R.id.menu_delete:
                     adapter.setSelectionMode(true);
                     adapter.notifyDataSetChanged();
-                    binding.actionbar.showConfirmStatus(menuId);
+                    mBinding.actionbar.showConfirmStatus(menuId);
                     break;
                 case R.id.menu_edit:
                     isEditMode = true;
-                    binding.actionbar.showConfirmStatus(menuId);
+                    mBinding.actionbar.showConfirmStatus(menuId);
                     break;
             }
         });
-        binding.actionbar.setOnConfirmListener(new OnConfirmListener() {
+        mBinding.actionbar.setOnConfirmListener(new OnConfirmListener() {
             @Override
             public boolean disableInstantDismissConfirm() {
                 return false;
@@ -75,7 +73,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
             public boolean onConfirm(int actionId) {
                 switch (actionId) {
                     case R.id.menu_delete:
-                        viewModel.delete();
+                        mModel.delete();
                         return false;
                     case R.id.menu_edit:
                         isEditMode = false;
@@ -90,7 +88,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                     case R.id.menu_delete:
                         adapter.setSelectionMode(false);
                         adapter.notifyDataSetChanged();
-                        binding.actionbar.cancelConfirmStatus();
+                        mBinding.actionbar.cancelConfirmStatus();
                         break;
                     case R.id.menu_edit:
                         isEditMode = false;
@@ -108,26 +106,29 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
 
     @Override
     protected void initData() {
-        viewModel.moviesObserver.observe(this, list -> showMovies(list));
-        viewModel.deleteObserver.observe(this, delete -> {
+        mModel.moviesObserver.observe(this, list -> showMovies(list));
+        mModel.deleteObserver.observe(this, delete -> {
             adapter.setSelectionMode(false);
-            binding.actionbar.cancelConfirmStatus();
-            viewModel.loadMovies();
+            mBinding.actionbar.cancelConfirmStatus();
+            mModel.loadMovies();
         });
-        viewModel.loadMovies();
+        mModel.loadMovies();
     }
 
     private void showMovies(List<Movie> list) {
         if (adapter == null) {
             adapter = new MovieListAdapter();
             adapter.setList(list);
-            adapter.setCheckMap(viewModel.getCheckMap());
+            adapter.setCheckMap(mModel.getCheckMap());
             adapter.setOnItemClickListener((view, position, data) -> {
                 if (isEditMode) {
                     editMovie(data);
                 }
+                else {
+                    showMovieGross(data);
+                }
             });
-            binding.rvMovies.setAdapter(adapter);
+            mBinding.rvMovies.setAdapter(adapter);
         }
         else {
             adapter.setList(list);
@@ -142,8 +143,14 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                 .setTitle(movie == null ? "New movie":"Edit movie")
                 .setContentFragment(content)
                 .build();
-        dialog.setOnDismissListener(dialog1 -> viewModel.loadMovies());
+        dialog.setOnDismissListener(dialog1 -> mModel.loadMovies());
         dialog.show(getSupportFragmentManager(), "EditMovie");
+    }
+
+    private void showMovieGross(Movie data) {
+        Intent intent = new Intent().setClass(this, MovieGrossActivity.class);
+        intent.putExtra(MovieGrossActivity.EXTRA_MOVIE_ID, data.getId());
+        startActivity(intent);
     }
 
 }

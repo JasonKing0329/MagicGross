@@ -107,13 +107,30 @@
             app:layout_constraintStart_toEndOf="@+id/tv_title_chn"
             app:layout_constraintTop_toBottomOf="@+id/et_name_chn" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            app:layout_constraintEnd_toEndOf="parent"
+        <TextView
+            android:id="@+id/tv_title_exchange"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="36dp"
+            android:text="Us to Yuan"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name_chn_sub" />
+
+        <EditText
+            android:id="@+id/et_exchange"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:inputType="numberDecimal"
+            app:layout_constraintBottom_toTopOf="@+id/tv_ok"
+            app:layout_constraintStart_toEndOf="@+id/tv_title_exchange"
             app:layout_constraintTop_toBottomOf="@+id/et_name_chn_sub"
-            app:layout_constraintBottom_toTopOf="@+id/tv_ok"/>
+            app:layout_constraintVertical_bias="0.012" />
 
         <TextView
             android:id="@+id/tv_ok"
@@ -122,5 +139,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
     </android.support.constraint.ConstraintLayout>
 </layout>
