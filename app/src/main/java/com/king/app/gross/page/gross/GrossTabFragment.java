@@ -1,5 +1,7 @@
 package com.king.app.gross.page.gross;
 
+import android.support.v4.view.ViewPager;
+
 import com.king.app.gross.R;
 import com.king.app.gross.base.BaseBindingFragment;
 import com.king.app.gross.base.IFragmentHolder;
@@ -49,5 +51,25 @@ public class GrossTabFragment extends BaseBindingFragment<FragmentGrossTabBindin
         mBinding.tabLayout.addTab(mBinding.tabLayout.newTab().setText(AppConstants.REGION_TITLES[Region.WORLDWIDE.ordinal()]));
         mBinding.tabLayout.setupWithViewPager(mBinding.viewpager);
 
+        mBinding.viewpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                pagerAdapter.getItem(position).onPageSelected();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+    }
+
+    public void onDateTypeChanged() {
+        pagerAdapter.getItem(mBinding.viewpager.getCurrentItem()).onDateTypeChanged();
     }
 }

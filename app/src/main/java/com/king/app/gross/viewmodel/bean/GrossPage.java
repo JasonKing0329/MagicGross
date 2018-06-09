@@ -1,5 +1,6 @@
 package com.king.app.gross.viewmodel.bean;
 
+import com.king.app.gross.conf.GrossDateType;
 import com.king.app.gross.conf.Region;
 
 import java.util.List;
@@ -14,5 +15,9 @@ public class GrossPage {
 
     public Region region;
 
+    public GrossDateType dateType;
+
     public List<SimpleGross> list;
+
+    public List<WeekGross> weekList;
 }

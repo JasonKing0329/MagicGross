@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <import type="com.king.app.gross.viewmodel.bean.WeekGross"/>
+        <variable
+            name="gross"
+            type="WeekGross"/>
+    </data>
+    <LinearLayout
+        android:orientation="horizontal" android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+        <TextView
+            android:id="@+id/tv_week"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(gross.week)}"/>
+        <TextView
+            android:id="@+id/tv_day_range"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(gross.dayRange)}"/>
+        <TextView
+            android:id="@+id/tv_gross"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{gross.gross}"/>
+        <TextView
+            android:id="@+id/tv_drop"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{gross.drop}"/>
+        <TextView
+            android:id="@+id/tv_sum"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@{gross.grossSum}"/>
+    </LinearLayout>
+</layout>
