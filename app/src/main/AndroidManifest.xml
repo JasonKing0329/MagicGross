@@ -39,6 +39,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".page.HomeActivity"/>
         <activity android:name=".page.MovieListActivity"/>
         <activity android:name=".page.MovieGrossActivity"/>
     </application>

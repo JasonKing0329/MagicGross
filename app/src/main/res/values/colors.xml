@@ -20,4 +20,5 @@
 
     <color name="white">#ffffff</color>
     <color name="tab_text_focus">#FFD600</color>
+    <color name="tag_rank_type">#FF375BF1</color>
 </resources>

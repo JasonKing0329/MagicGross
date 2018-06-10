@@ -9,6 +9,7 @@ import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityLoginBinding;
 import com.king.app.gross.model.FingerPrintController;
 import com.king.app.gross.model.setting.SettingProperty;
+import com.king.app.gross.viewmodel.HomeViewModel;
 import com.king.app.gross.viewmodel.LoginViewModel;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -98,7 +99,7 @@ public class LoginActivity extends MvvmActivity<ActivityLoginBinding, LoginViewM
     }
 
     private void startHome() {
-        Intent intent = new Intent(this, MovieListActivity.class);
+        Intent intent = new Intent(this, HomeActivity.class);
         startActivity(intent);
         finish();
     }

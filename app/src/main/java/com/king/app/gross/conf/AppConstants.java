@@ -10,4 +10,8 @@ public class AppConstants {
     public static final String[] REGION_TITLES = new String[] {
             "North America", "China", "Oversea except China", "Oversea", "World Wide"
     };
+
+    public static final String[] RANK_TYPE_TITLES = new String[] {
+            "Total", "Opening", "后劲指数", "首周", "第二周", "10天", "20天", "30天"
+    };
 }

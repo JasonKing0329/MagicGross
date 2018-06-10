@@ -2,12 +2,8 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".page.MovieListActivity">
-    <data>
-        <variable
-            name="model"
-            type="com.king.app.gross.viewmodel.MovieListViewModel"/>
-    </data>
+    tools:context=".page.HomeActivity">
+
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -15,28 +11,25 @@
             android:id="@+id/actionbar"
             android:layout_width="0dp"
             android:layout_height="?android:attr/actionBarSize"
-            android:theme="@style/EtActionSearch"
             android:background="@color/actionbar_bg"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:rippleColor="#33000000"
-            app:showIconBack="true"
-            app:menu="@menu/movie_list"
-            app:iconPadding="8dp"
-            app:iconSize="40dp"
-            app:iconColor="@color/white"
-            app:title="Movies"
-            app:titleSize="18dp"
-            app:supportSearch="false"/>
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_movies"
+            app:title="Home"
+            app:showIconBack="false"
+            app:menu="@menu/home"
+            app:maxShowIcon="4"
+            app:iconColor="@color/white"/>
+
+        <FrameLayout
+            android:id="@+id/group_ft"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/actionbar"
             app:layout_constraintBottom_toBottomOf="parent"
-            tools:listitem="@layout/adapter_movie_list"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/actionbar"
+            app:layout_constraintVertical_bias="1.0" />
     </android.support.constraint.ConstraintLayout>
 </layout>
