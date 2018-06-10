@@ -17,12 +17,12 @@
             android:id="@+id/tv_day"
             android:layout_width="30dp"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf(gross.day)}"/>
+            android:text="@{gross.day}"/>
         <TextView
             android:id="@+id/tv_day_of_week"
             android:layout_width="30dp"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf(gross.dayOfWeek)}"/>
+            android:text="@{gross.dayOfWeek}"/>
         <TextView
             android:id="@+id/tv_gross"
             android:layout_width="70dp"

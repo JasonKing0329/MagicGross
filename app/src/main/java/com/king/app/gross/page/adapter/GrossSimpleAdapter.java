@@ -21,6 +21,7 @@ public class GrossSimpleAdapter extends BaseBindingAdapter<AdapterGrossSimpleBin
     @Override
     protected void onBindItem(AdapterGrossSimpleBinding binding, int position, SimpleGross bean) {
         binding.setGross(bean);
+        binding.executePendingBindings();
     }
 
 }

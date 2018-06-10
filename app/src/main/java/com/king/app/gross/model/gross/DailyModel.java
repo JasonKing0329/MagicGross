@@ -68,8 +68,14 @@ public class DailyModel {
                 sum += nGross;
 
                 SimpleGross sg = new SimpleGross();
-                sg.setDay(gross.getDay());
-                sg.setDayOfWeek(gross.getDayOfWeek());
+                if (gross.getIsLeftAfterDay() > 0) {
+                    sg.setDay("Left");
+                    sg.setDayOfWeek("");
+                }
+                else {
+                    sg.setDay(String.valueOf(gross.getDay()));
+                    sg.setDayOfWeek(String.valueOf(gross.getDayOfWeek()));
+                }
                 if (i > 0) {
                     long last = getOverseaGross(i - 1, chnList, overseaList);
                     double drop = (double) (nGross - last) / (double) last;
@@ -140,8 +146,14 @@ public class DailyModel {
                 sum += nGross;
 
                 SimpleGross sg = new SimpleGross();
-                sg.setDay(gross.getDay());
-                sg.setDayOfWeek(gross.getDayOfWeek());
+                if (gross.getIsLeftAfterDay() > 0) {
+                    sg.setDay("Left");
+                    sg.setDayOfWeek("");
+                }
+                else {
+                    sg.setDay(String.valueOf(gross.getDay()));
+                    sg.setDayOfWeek(String.valueOf(gross.getDayOfWeek()));
+                }
                 if (i > 0) {
                     long last = getWorldGross(i - 1, naList, chnList, overseaList);
                     double drop = (double) (nGross - last) / (double) last;
@@ -188,8 +200,14 @@ public class DailyModel {
 
                 SimpleGross sg = new SimpleGross();
                 sg.setBean(gross);
-                sg.setDay(gross.getDay());
-                sg.setDayOfWeek(gross.getDayOfWeek());
+                if (gross.getIsLeftAfterDay() > 0) {
+                    sg.setDay("Left");
+                    sg.setDayOfWeek("");
+                }
+                else {
+                    sg.setDay(String.valueOf(gross.getDay()));
+                    sg.setDayOfWeek(String.valueOf(gross.getDayOfWeek()));
+                }
                 if (i > 0) {
                     long last = grosses.get(i - 1).getGross();
                     double drop = (double) (gross.getGross() - last) / (double) last;

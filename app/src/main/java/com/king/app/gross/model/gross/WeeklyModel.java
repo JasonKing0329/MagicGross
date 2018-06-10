@@ -53,7 +53,7 @@ public class WeeklyModel {
                     .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
                     .orderAsc(GrossDao.Properties.Day)
                     .build().list();
-            List<Gross> combineList = getWorldWideGross(chnList, overseaList);
+            List<Gross> combineList = getOverseaGross(chnList, overseaList);
 
             List<WeekGross> list = getListFrom(combineList);
             e.onNext(list);
@@ -142,7 +142,7 @@ public class WeeklyModel {
      * @param overseaList
      * @return
      */
-    private List<Gross> getWorldWideGross(List<Gross> chnList, List<Gross> overseaList) {
+    private List<Gross> getOverseaGross(List<Gross> chnList, List<Gross> overseaList) {
         List<Gross> result = new ArrayList<>();
         int size = Math.max(chnList.size(), overseaList.size());
         for (int i = 0; i < size; i ++) {

@@ -14,6 +14,7 @@ import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.model.gross.DailyModel;
+import com.king.app.gross.model.gross.WeekendModel;
 import com.king.app.gross.model.gross.WeeklyModel;
 import com.king.app.gross.utils.DebugLog;
 import com.king.app.gross.viewmodel.bean.GrossPage;
@@ -49,6 +50,8 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private WeeklyModel weeklyModel;
 
+    private WeekendModel weekendModel;
+
     public MovieGrossViewModel(@NonNull Application application) {
         super(application);
         mDateType = GrossDateType.DAILY;
@@ -69,6 +72,7 @@ public class MovieGrossViewModel extends BaseViewModel {
 
             dailyModel = new DailyModel(mMovie);
             weeklyModel = new WeeklyModel(mMovie);
+            weekendModel = new WeekendModel(mMovie);
         } catch (Exception e) {
             e.printStackTrace();
             messageObserver.setValue(e.getMessage());
@@ -375,13 +379,96 @@ public class MovieGrossViewModel extends BaseViewModel {
     }
 
     private void loadWeekendRegion(Region region) {
+        weekendModel.queryWeekendGross(region.ordinal())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<WeekGross>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(List<WeekGross> weekGrosses) {
+                        GrossPage page = new GrossPage();
+                        page.dateType = GrossDateType.WEEKEND;
+                        page.region = region;
+                        page.weekList = weekGrosses;
+                        grossObserver.setValue(page);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     private void loadWeekendWorldWide() {
+        weekendModel.queryWeeklyWorldWide()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<WeekGross>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
 
+                    @Override
+                    public void onNext(List<WeekGross> weekGrosses) {
+                        GrossPage page = new GrossPage();
+                        page.dateType = GrossDateType.WEEKEND;
+                        page.region = Region.WORLDWIDE;
+                        page.weekList = weekGrosses;
+                        grossObserver.setValue(page);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     private void loadWeekendOversea() {
+        weekendModel.queryWeekendOversea()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<WeekGross>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(List<WeekGross> weekGrosses) {
+                        GrossPage page = new GrossPage();
+                        page.dateType = GrossDateType.WEEKEND;
+                        page.region = Region.OVERSEA;
+                        page.weekList = weekGrosses;
+                        grossObserver.setValue(page);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     public void editGross(SimpleGross data) {

@@ -10,8 +10,8 @@ import com.king.app.gross.model.entity.Gross;
  */
 public class SimpleGross {
 
-    private int day;
-    private int dayOfWeek;
+    private String day;
+    private String dayOfWeek;
     private String grossDay;
     private String dropDay;
     private String dropWeek;
@@ -19,19 +19,19 @@ public class SimpleGross {
 
     private Gross bean;
 
-    public int getDay() {
+    public String getDay() {
         return day;
     }
 
-    public void setDay(int day) {
+    public void setDay(String day) {
         this.day = day;
     }
 
-    public int getDayOfWeek() {
+    public String getDayOfWeek() {
         return dayOfWeek;
     }
 
-    public void setDayOfWeek(int dayOfWeek) {
+    public void setDayOfWeek(String dayOfWeek) {
         this.dayOfWeek = dayOfWeek;
     }
 
