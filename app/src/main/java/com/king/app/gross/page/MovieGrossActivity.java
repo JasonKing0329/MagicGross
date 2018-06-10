@@ -103,7 +103,7 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
         content.setOnGrossListener(gross1 -> mModel.onGrossChanged(gross1));
         editDialog = new DraggableDialogFragment.Builder()
                 .setTitle("Gross")
-                .setShowDelete(true)
+                .setShowDelete(gross != null)
                 .setOnDeleteListener(view -> warningDelete(gross))
                 .setContentFragment(content)
                 .build();

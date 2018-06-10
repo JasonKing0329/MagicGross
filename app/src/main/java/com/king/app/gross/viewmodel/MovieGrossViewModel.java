@@ -17,12 +17,14 @@ import com.king.app.gross.model.gross.DailyModel;
 import com.king.app.gross.model.gross.WeekendModel;
 import com.king.app.gross.model.gross.WeeklyModel;
 import com.king.app.gross.utils.DebugLog;
+import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.GrossPage;
 import com.king.app.gross.viewmodel.bean.SimpleGross;
 import com.king.app.gross.viewmodel.bean.WeekGross;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -187,24 +189,97 @@ public class MovieGrossViewModel extends BaseViewModel {
         }
     }
 
+    private Observable<GrossPage> toGrossPage(Region region, GrossDateType dateType, List<SimpleGross> list) {
+        return Observable.create(e -> {
+            GrossPage page = new GrossPage();
+            page.dateType = dateType;
+            page.region = region;
+            page.list = list;
+            long opening = dailyModel.queryOpeningGross(region.ordinal());
+            if (region == Region.CHN) {
+                page.opening = FormatUtil.formatChnGross(opening);
+            }
+            else {
+                page.opening = FormatUtil.formatUsGross(opening);
+            }
+            long total = dailyModel.queryTotalGross(region.ordinal());
+            if (region == Region.CHN) {
+                page.total = FormatUtil.formatChnGross(total);
+            }
+            else {
+                page.total = FormatUtil.formatUsGross(total);
+            }
+            page.rate = FormatUtil.pointZ((double) total / (double) opening);
+            e.onNext(page);
+        });
+    }
+
+    private Observable<GrossPage> toDailyGrossPage(Region region, GrossDateType dateType, List<SimpleGross> list) {
+        return Observable.create(e -> {
+            GrossPage page = new GrossPage();
+            page.dateType = dateType;
+            page.region = region;
+            page.list = list;
+            long opening = dailyModel.queryOpeningGross(region.ordinal());
+            if (region == Region.CHN) {
+                page.opening = FormatUtil.formatChnGross(opening);
+            }
+            else {
+                page.opening = FormatUtil.formatUsGross(opening);
+            }
+            long total = dailyModel.queryTotalGross(region.ordinal());
+            if (region == Region.CHN) {
+                page.total = FormatUtil.formatChnGross(total);
+            }
+            else {
+                page.total = FormatUtil.formatUsGross(total);
+            }
+            page.rate = FormatUtil.pointZ((double) total / (double) opening);
+            e.onNext(page);
+        });
+    }
+
+    private Observable<GrossPage> toWeekGrossPage(Region region, GrossDateType dateType, List<WeekGross> list) {
+        return Observable.create(e -> {
+            GrossPage page = new GrossPage();
+            page.dateType = dateType;
+            page.region = region;
+            page.weekList = list;
+            long opening = dailyModel.queryOpeningGross(region.ordinal());
+            if (region == Region.CHN) {
+                page.opening = FormatUtil.formatChnGross(opening);
+            }
+            else {
+                page.opening = FormatUtil.formatUsGross(opening);
+            }
+            long total = dailyModel.queryTotalGross(region.ordinal());
+            if (region == Region.CHN) {
+                page.total = FormatUtil.formatChnGross(total);
+            }
+            else {
+                page.total = FormatUtil.formatUsGross(total);
+            }
+            if (opening > 0) {
+                page.rate = FormatUtil.pointZ((double) total / (double) opening);
+            }
+            e.onNext(page);
+        });
+    }
+
     private void loadDailyRegion(Region region) {
         dailyModel.queryGross(region.ordinal())
                 .flatMap(list -> dailyModel.toSimpleGross(list))
+                .flatMap(list -> toDailyGrossPage(region, GrossDateType.DAILY, list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<SimpleGross>>() {
+                .subscribe(new Observer<GrossPage>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<SimpleGross> simpleGrosses) {
-                        GrossPage page = new GrossPage();
-                        page.dateType = GrossDateType.DAILY;
-                        page.region = region;
-                        page.list = simpleGrosses;
-
+                    public void onNext(GrossPage page) {
                         grossObserver.setValue(page);
                     }
 
@@ -223,20 +298,17 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private void loadDailyWorldWide() {
         dailyModel.queryWorldWide()
+                .flatMap(list -> toDailyGrossPage(Region.WORLDWIDE, GrossDateType.DAILY, list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<SimpleGross>>() {
+                .subscribe(new Observer<GrossPage>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<SimpleGross> simpleGrosses) {
-                        GrossPage page = new GrossPage();
-                        page.region = Region.WORLDWIDE;
-                        page.dateType = GrossDateType.DAILY;
-                        page.list = simpleGrosses;
+                    public void onNext(GrossPage page) {
                         grossObserver.setValue(page);
                     }
 
@@ -255,20 +327,17 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private void loadDailyOversea() {
         dailyModel.queryOversea()
+                .flatMap(list -> toDailyGrossPage(Region.OVERSEA, GrossDateType.DAILY, list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<SimpleGross>>() {
+                .subscribe(new Observer<GrossPage>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<SimpleGross> simpleGrosses) {
-                        GrossPage page = new GrossPage();
-                        page.dateType = GrossDateType.DAILY;
-                        page.region = Region.OVERSEA;
-                        page.list = simpleGrosses;
+                    public void onNext(GrossPage page) {
                         grossObserver.setValue(page);
                     }
 
@@ -287,20 +356,17 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private void loadWeeklyRegion(Region region) {
         weeklyModel.queryWeeklyGross(region.ordinal())
+                .flatMap(list -> toWeekGrossPage(region, GrossDateType.WEEKLY, list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<WeekGross>>() {
+                .subscribe(new Observer<GrossPage>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<WeekGross> weekGrosses) {
-                        GrossPage page = new GrossPage();
-                        page.dateType = GrossDateType.WEEKLY;
-                        page.region = region;
-                        page.weekList = weekGrosses;
+                    public void onNext(GrossPage page) {
                         grossObserver.setValue(page);
                     }
 
@@ -318,20 +384,17 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private void loadWeeklyOversea() {
         weeklyModel.queryWeeklyOversea()
+                .flatMap(list -> toWeekGrossPage(Region.OVERSEA, GrossDateType.WEEKLY, list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<WeekGross>>() {
+                .subscribe(new Observer<GrossPage>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<WeekGross> weekGrosses) {
-                        GrossPage page = new GrossPage();
-                        page.dateType = GrossDateType.WEEKLY;
-                        page.region = Region.OVERSEA;
-                        page.weekList = weekGrosses;
+                    public void onNext(GrossPage page) {
                         grossObserver.setValue(page);
                     }
 
@@ -349,20 +412,17 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private void loadWeeklyWorldWide() {
         weeklyModel.queryWeeklyWorldWide()
+                .flatMap(list -> toWeekGrossPage(Region.WORLDWIDE, GrossDateType.WEEKLY, list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<WeekGross>>() {
+                .subscribe(new Observer<GrossPage>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<WeekGross> weekGrosses) {
-                        GrossPage page = new GrossPage();
-                        page.dateType = GrossDateType.WEEKLY;
-                        page.region = Region.WORLDWIDE;
-                        page.weekList = weekGrosses;
+                    public void onNext(GrossPage page) {
                         grossObserver.setValue(page);
                     }
 
@@ -380,20 +440,17 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private void loadWeekendRegion(Region region) {
         weekendModel.queryWeekendGross(region.ordinal())
+                .flatMap(list -> toWeekGrossPage(region, GrossDateType.WEEKEND, list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<WeekGross>>() {
+                .subscribe(new Observer<GrossPage>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<WeekGross> weekGrosses) {
-                        GrossPage page = new GrossPage();
-                        page.dateType = GrossDateType.WEEKEND;
-                        page.region = region;
-                        page.weekList = weekGrosses;
+                    public void onNext(GrossPage page) {
                         grossObserver.setValue(page);
                     }
 
@@ -411,20 +468,17 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private void loadWeekendWorldWide() {
         weekendModel.queryWeeklyWorldWide()
+                .flatMap(list -> toWeekGrossPage(Region.WORLDWIDE, GrossDateType.WEEKEND, list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<WeekGross>>() {
+                .subscribe(new Observer<GrossPage>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<WeekGross> weekGrosses) {
-                        GrossPage page = new GrossPage();
-                        page.dateType = GrossDateType.WEEKEND;
-                        page.region = Region.WORLDWIDE;
-                        page.weekList = weekGrosses;
+                    public void onNext(GrossPage page) {
                         grossObserver.setValue(page);
                     }
 
@@ -442,20 +496,17 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private void loadWeekendOversea() {
         weekendModel.queryWeekendOversea()
+                .flatMap(list -> toWeekGrossPage(Region.OVERSEA, GrossDateType.WEEKEND, list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<WeekGross>>() {
+                .subscribe(new Observer<GrossPage>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<WeekGross> weekGrosses) {
-                        GrossPage page = new GrossPage();
-                        page.dateType = GrossDateType.WEEKEND;
-                        page.region = Region.OVERSEA;
-                        page.weekList = weekGrosses;
+                    public void onNext(GrossPage page) {
                         grossObserver.setValue(page);
                     }
 

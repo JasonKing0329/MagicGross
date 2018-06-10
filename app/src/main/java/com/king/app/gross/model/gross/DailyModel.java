@@ -233,4 +233,97 @@ public class DailyModel {
         });
     }
 
+    public long queryOpeningGross(int region) {
+        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
+        long sum = 0;
+        if (region < Region.OVERSEA.ordinal()) {
+            List<Gross> list = dao.queryBuilder()
+                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(GrossDao.Properties.Region.eq(region))
+                    .where(GrossDao.Properties.Day.lt(4))
+                    .orderAsc(GrossDao.Properties.Day)
+                    .build().list();
+            for (Gross gross:list) {
+                sum += gross.getGross();
+            }
+        }
+        else {
+            List<Gross> list = dao.queryBuilder()
+                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
+                    .where(GrossDao.Properties.Day.lt(4))
+                    .orderAsc(GrossDao.Properties.Day)
+                    .build().list();
+            for (Gross gross:list) {
+                sum += (gross.getGross() / mMovie.getUsToYuan());
+            }
+            list = dao.queryBuilder()
+                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
+                    .where(GrossDao.Properties.Day.lt(4))
+                    .orderAsc(GrossDao.Properties.Day)
+                    .build().list();
+            for (Gross gross:list) {
+                sum += gross.getGross();
+            }
+
+            if (region == Region.WORLDWIDE.ordinal()) {
+                list = dao.queryBuilder()
+                        .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                        .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
+                        .where(GrossDao.Properties.Day.lt(4))
+                        .orderAsc(GrossDao.Properties.Day)
+                        .build().list();
+                for (Gross gross:list) {
+                    sum += gross.getGross();
+                }
+            }
+        }
+        return sum;
+    }
+
+    public long queryTotalGross(int region) {
+        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
+        long sum = 0;
+        if (region < Region.OVERSEA.ordinal()) {
+            List<Gross> list = dao.queryBuilder()
+                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(GrossDao.Properties.Region.eq(region))
+                    .orderAsc(GrossDao.Properties.Day)
+                    .build().list();
+            for (Gross gross:list) {
+                sum += gross.getGross();
+            }
+        }
+        else {
+            List<Gross> list = dao.queryBuilder()
+                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
+                    .orderAsc(GrossDao.Properties.Day)
+                    .build().list();
+            for (Gross gross:list) {
+                sum += (gross.getGross() / mMovie.getUsToYuan());
+            }
+            list = dao.queryBuilder()
+                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
+                    .orderAsc(GrossDao.Properties.Day)
+                    .build().list();
+            for (Gross gross:list) {
+                sum += gross.getGross();
+            }
+
+            if (region == Region.WORLDWIDE.ordinal()) {
+                list = dao.queryBuilder()
+                        .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                        .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
+                        .orderAsc(GrossDao.Properties.Day)
+                        .build().list();
+                for (Gross gross:list) {
+                    sum += gross.getGross();
+                }
+            }
+        }
+        return sum;
+    }
 }

@@ -91,6 +91,9 @@ public class GrossSimpleFragment extends BaseBindingFragment<FragmentGrossSimple
                     updateDailyData(grossPage);
                     break;
             }
+            mBinding.tvOpening.setText(grossPage.opening);
+            mBinding.tvTotal.setText(grossPage.total);
+            mBinding.tvRate.setText(grossPage.rate);
         }
     }
 

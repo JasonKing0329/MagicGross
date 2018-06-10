@@ -2,7 +2,6 @@ package com.king.app.gross.utils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Locale;
 
 /**
  * Desc:
@@ -49,6 +48,17 @@ public class FormatUtil {
      */
     public static String pointZZ(Double beforeFloat) {
         NumberFormat formatter = new DecimalFormat("####0.00");
+        return formatter.format(beforeFloat) + "";
+    }
+
+    /**
+     * 金额转换
+     *
+     * @param beforeFloat 转换前的金额
+     * @return 转换后的金额 小数点后保留一位 XX.0
+     */
+    public static String pointZ(Double beforeFloat) {
+        NumberFormat formatter = new DecimalFormat("####0.0");
         return formatter.format(beforeFloat) + "";
     }
 

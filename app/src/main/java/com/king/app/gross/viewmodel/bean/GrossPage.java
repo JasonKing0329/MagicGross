@@ -20,4 +20,10 @@ public class GrossPage {
     public List<SimpleGross> list;
 
     public List<WeekGross> weekList;
+
+    public String opening;
+
+    public String total;
+
+    public String rate;
 }
