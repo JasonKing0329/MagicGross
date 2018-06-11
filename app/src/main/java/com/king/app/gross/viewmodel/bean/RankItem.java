@@ -12,10 +12,10 @@ public class RankItem {
 
     private String rank;
     private String name;
-    private String subName;
     private String value;
     private Movie movie;
     private double sortValue;
+    private String year;
 
     public String getRank() {
         return rank;
@@ -41,14 +41,6 @@ public class RankItem {
         this.value = value;
     }
 
-    public String getSubName() {
-        return subName;
-    }
-
-    public void setSubName(String subName) {
-        this.subName = subName;
-    }
-
     public Movie getMovie() {
         return movie;
     }
@@ -63,5 +55,13 @@ public class RankItem {
 
     public void setSortValue(double sortValue) {
         this.sortValue = sortValue;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
     }
 }

@@ -5,8 +5,10 @@ import android.text.TextUtils;
 import com.king.app.gross.R;
 import com.king.app.gross.base.IFragmentHolder;
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.FragmentEditMovieBinding;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.view.dialog.DatePickerFragment;
 
 /**
  * Desc:
@@ -17,6 +19,8 @@ import com.king.app.gross.model.entity.Movie;
 public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovieBinding> {
 
     private Movie mEditMovie;
+
+    private String mDebutDate;
 
     @Override
     protected void bindFragmentHolder(IFragmentHolder holder) {
@@ -37,7 +41,21 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
             mBinding.etNameChn.setText(mEditMovie.getNameChn());
             mBinding.etNameChnSub.setText(mEditMovie.getSubChnName());
             mBinding.etExchange.setText(String.valueOf(mEditMovie.getUsToYuan()));
+            mDebutDate = mEditMovie.getDebut();
+            mBinding.btnDebut.setText(mEditMovie.getDebut());
+            mBinding.cbIsReal.setChecked(mEditMovie.getIsReal() == AppConstants.MOVIE_REAL);
         }
+        mBinding.btnDebut.setOnClickListener(view -> selectDate());
+    }
+
+    private void selectDate() {
+        DatePickerFragment fragment = new DatePickerFragment();
+        fragment.setDate(mDebutDate);
+        fragment.setOnDateSetListener((view, year, month, dayOfMonth) -> {
+            mDebutDate = year + "-" + (month + 1) + "-" + dayOfMonth;
+            mBinding.btnDebut.setText(mDebutDate);
+        });
+        fragment.show(getChildFragmentManager(), "DatePickerFragment");
     }
 
     public void setEditMovie(Movie mEditMovie) {
@@ -62,6 +80,10 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
             showMessageShort("Wrong exchange");
             return;
         }
+        if (TextUtils.isEmpty(mDebutDate)) {
+            showMessageShort("Please select date");
+            return;
+        }
 
         if (mEditMovie == null) {
             mEditMovie = new Movie();
@@ -71,6 +93,9 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         mEditMovie.setSubName(mBinding.etNameSub.getText().toString());
         mEditMovie.setSubChnName(mBinding.etNameChnSub.getText().toString());
         mEditMovie.setUsToYuan(exchange);
+        mEditMovie.setIsReal(mBinding.cbIsReal.isChecked() ? AppConstants.MOVIE_REAL:AppConstants.MOVIE_VIRTUAL);
+        mEditMovie.setDebut(mDebutDate);
+        mEditMovie.setYear(Integer.parseInt(mDebutDate.substring(0, 4)));
         MApplication.getInstance().getDaoSession().getMovieDao().insertOrReplace(mEditMovie);
 
         dismiss();

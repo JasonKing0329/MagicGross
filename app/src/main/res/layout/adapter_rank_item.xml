@@ -10,8 +10,9 @@
         android:orientation="horizontal" android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
+        android:background="@color/white"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
         <TextView
@@ -19,24 +20,18 @@
             android:layout_width="30dp"
             android:layout_height="wrap_content"
             android:text="@{item.rank}"/>
-        <LinearLayout
+        <TextView
+            android:id="@+id/tv_year"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="@{item.year}"/>
+        <TextView
+            android:id="@+id/tv_name"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_height="wrap_content">
-            <TextView
-                android:id="@+id/tv_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@{item.name}"/>
-            <TextView
-                android:id="@+id/tv_name_sub"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12dp"
-                android:textColor="@color/text_second"
-                android:text="@{item.subName}"/>
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:text="@{item.name}"/>
         <TextView
             android:id="@+id/tv_value"
             android:layout_width="90dp"

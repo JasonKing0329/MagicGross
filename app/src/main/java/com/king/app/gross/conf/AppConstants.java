@@ -7,6 +7,9 @@ package com.king.app.gross.conf;
  */
 public class AppConstants {
 
+    public static final int MOVIE_REAL = 1;
+    public static final int MOVIE_VIRTUAL = 0;
+
     public static final String[] REGION_TITLES = new String[] {
             "North America", "China", "Oversea except China", "Oversea", "World Wide"
     };

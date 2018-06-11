@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
 
 import java.util.ArrayList;
@@ -127,7 +128,18 @@ public class MovieListViewModel extends BaseViewModel {
                 }
             }
             if (list.size() > 0) {
+                // delete from table movie
                 MApplication.getInstance().getDaoSession().getMovieDao().deleteInTx(list);
+                // delete data in table gross
+                for (Movie movie:list) {
+                    MApplication.getInstance().getDaoSession().getGrossDao()
+                            .queryBuilder()
+                            .where(GrossDao.Properties.MovieId.eq(movie.getId()))
+                            .buildDelete()
+                            .executeDeleteWithoutDetachingEntities();
+                }
+                MApplication.getInstance().getDaoSession().getMovieDao().detachAll();
+                MApplication.getInstance().getDaoSession().getGrossDao().detachAll();
             }
             e.onNext(true);
         });

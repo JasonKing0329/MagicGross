@@ -39,13 +39,19 @@
                     android:textColor="@color/text_second"
                     android:gravity="center"/>
                 <TextView
+                    android:id="@+id/tv_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14dp"
+                    android:textColor="@color/actionbar_bg"
+                    android:gravity="center"/>
+                <TextView
                     android:id="@+id/tv_name_chn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:textSize="16dp"
-                    android:textColor="@color/text_sub"
-                    android:layout_marginTop="15dp"/>
+                    android:textColor="@color/text_sub"/>
             </LinearLayout>
             <CheckBox
                 android:id="@+id/cb_check"

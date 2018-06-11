@@ -113,7 +113,10 @@ public class RankViewModel extends BaseViewModel {
             List<RankItem> items = new ArrayList<>();
             for (Movie movie:movies) {
                 RankItem item = rankModel.convertMovie(movie, mRegion, mRankType);
-                items.add(item);
+                // real的影片基本上只有na或者只有chn，所以数据为0的movie不出现在rank列表中
+                if (item.getSortValue() > 0) {
+                    items.add(item);
+                }
             }
             e.onNext(items);
         });

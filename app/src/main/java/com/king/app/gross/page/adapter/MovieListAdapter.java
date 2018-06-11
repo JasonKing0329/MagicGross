@@ -52,6 +52,7 @@ public class MovieListAdapter extends BaseRecyclerAdapter<MovieListAdapter.Movie
         else {
             holder.tvNameChn.setText(data.getNameChn() + "：" + data.getSubChnName());
         }
+        holder.tvDate.setText(data.getDebut());
         holder.cbCheck.setVisibility(isSelectionMode ? View.VISIBLE:View.GONE);
         holder.cbCheck.setChecked(checkMap.get(data.getId()) != null);
     }
@@ -85,6 +86,7 @@ public class MovieListAdapter extends BaseRecyclerAdapter<MovieListAdapter.Movie
         TextView tvName;
         TextView tvNameChn;
         TextView tvNameSub;
+        TextView tvDate;
         CheckBox cbCheck;
 
         public MovieHolder(View itemView) {
@@ -94,6 +96,7 @@ public class MovieListAdapter extends BaseRecyclerAdapter<MovieListAdapter.Movie
             tvName = itemView.findViewById(R.id.tv_name);
             tvNameSub = itemView.findViewById(R.id.tv_name_sub);
             tvNameChn = itemView.findViewById(R.id.tv_name_chn);
+            tvDate = itemView.findViewById(R.id.tv_date);
             cbCheck = itemView.findViewById(R.id.cb_check);
         }
     }

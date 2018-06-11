@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.model.entity.DaoMaster;
 import com.king.app.gross.model.entity.DaoSession;
+import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.utils.DebugLog;
 
 import org.greenrobot.greendao.database.Database;
@@ -71,6 +72,13 @@ public class MApplication extends Application {
         @Override
         public void onUpgrade(Database db, int oldVersion, int newVersion) {
             DebugLog.e(" oldVersion=" + oldVersion + ", newVersion=" + newVersion);
+            switch (oldVersion) {
+                case 1:
+                    db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.Debut.columnName + " TEXT");
+                    db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.IsReal.columnName + " INTEGER");
+                    db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.Year.columnName + " INTEGER");
+                    break;
+            }
         }
     }
 }

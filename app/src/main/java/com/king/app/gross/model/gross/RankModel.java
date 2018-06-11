@@ -1,5 +1,7 @@
 package com.king.app.gross.model.gross;
 
+import android.text.TextUtils;
+
 import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.RankType;
 import com.king.app.gross.conf.Region;
@@ -24,9 +26,24 @@ public class RankModel {
 
     public RankItem convertMovie(Movie movie, Region region, RankType mRankType) {
         RankItem item = new RankItem();
-        item.setName(movie.getName());
-        item.setSubName(movie.getSubName());
         item.setMovie(movie);
+        if (region == Region.CHN) {
+            item.setName(movie.getNameChn());
+            if (!TextUtils.isEmpty(movie.getSubChnName())) {
+                item.setName(movie.getNameChn() + "：" + movie.getSubChnName());
+            }
+        }
+        else {
+            item.setName(movie.getName());
+            if (!TextUtils.isEmpty(movie.getSubName())) {
+                item.setName(movie.getName() + ": " + movie.getSubName());
+            }
+        }
+        try {
+            item.setYear(movie.getDebut().substring(0, 4));
+        } catch (Exception e) {
+            item.setYear("--");
+        }
         switch (mRankType) {
             case TOTAL:
                 loadTotalValue(movie, region, item);

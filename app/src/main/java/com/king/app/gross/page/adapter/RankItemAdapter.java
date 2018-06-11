@@ -1,5 +1,8 @@
 package com.king.app.gross.page.adapter;
 
+import android.text.TextUtils;
+import android.view.View;
+
 import com.king.app.gross.R;
 import com.king.app.gross.base.BaseBindingAdapter;
 import com.king.app.gross.databinding.AdapterRankItemBinding;

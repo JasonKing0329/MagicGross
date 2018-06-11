@@ -26,15 +26,25 @@ public class Movie {
 
     private double usToYuan;
 
-    @Generated(hash = 354994842)
+    private int year;
+
+    private String debut;
+
+    private int isReal;
+
+    @Generated(hash = 486510295)
     public Movie(Long id, String name, String nameChn, String subName,
-            String subChnName, double usToYuan) {
+            String subChnName, double usToYuan, int year, String debut,
+            int isReal) {
         this.id = id;
         this.name = name;
         this.nameChn = nameChn;
         this.subName = subName;
         this.subChnName = subChnName;
         this.usToYuan = usToYuan;
+        this.year = year;
+        this.debut = debut;
+        this.isReal = isReal;
     }
 
     @Generated(hash = 1263461133)
@@ -87,6 +97,30 @@ public class Movie {
 
     public void setUsToYuan(double usToYuan) {
         this.usToYuan = usToYuan;
+    }
+
+    public int getYear() {
+        return this.year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public String getDebut() {
+        return this.debut;
+    }
+
+    public void setDebut(String debut) {
+        this.debut = debut;
+    }
+
+    public int getIsReal() {
+        return this.isReal;
+    }
+
+    public void setIsReal(int isReal) {
+        this.isReal = isReal;
     }
 
 }
