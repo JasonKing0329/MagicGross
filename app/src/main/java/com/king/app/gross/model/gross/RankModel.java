@@ -9,6 +9,9 @@ import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.RankItem;
 
+import org.greenrobot.greendao.query.QueryBuilder;
+import org.greenrobot.greendao.query.WhereCondition;
+
 import java.util.List;
 
 /**
@@ -34,125 +37,177 @@ public class RankModel {
             case RATE:
                 loadRateValue(movie, region, item);
                 break;
+            case FIRST_WEEK:
+                loadFirstWeekValue(movie, region, item);
+                break;
+            case SECOND_WEEK:
+                loadSecondWeekValue(movie, region, item);
+                break;
+            case THIRD_WEEK:
+                loadThirdWeekValue(movie, region, item);
+                break;
+            case FOURTH_WEEK:
+                loadFourthWeekValue(movie, region, item);
+                break;
+            case FIFTH_WEEK:
+                loadFifthWeekValue(movie, region, item);
+                break;
+            case LEFT_AFTER_35:
+                loadLeftValue(movie, region, item);
+                break;
+            case DAYS_10:
+                load10DaysValue(movie, region, item);
+                break;
+            case DAYS_20:
+                load20DaysValue(movie, region, item);
+                break;
+            case DAYS_30:
+                load30DaysValue(movie, region, item);
+                break;
         }
         return item;
     }
 
-    private void loadTotalValue(Movie movie, Region region, RankItem item) {
-        long gross = queryTotalGross(movie, region.ordinal());
-        item.setSortValue(gross);
+    private void formatGross(Region region, RankItem item, long gross) {
         if (region == Region.CHN) {
             item.setValue(FormatUtil.formatChnGross(gross));
         }
         else {
             item.setValue(FormatUtil.formatUsGross(gross));
         }
+    }
+
+    private void loadTotalValue(Movie movie, Region region, RankItem item) {
+        long gross = queryGrossByDay(movie, region.ordinal(), null);
+        item.setSortValue(gross);
+        formatGross(region, item, gross);
     }
 
     private void loadOpeningValue(Movie movie, Region region, RankItem item) {
-        long gross = queryOpeningGross(movie, region.ordinal());
+        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(3));
         item.setSortValue(gross);
-        if (region == Region.CHN) {
-            item.setValue(FormatUtil.formatChnGross(gross));
-        }
-        else {
-            item.setValue(FormatUtil.formatUsGross(gross));
-        }
+        formatGross(region, item, gross);
     }
 
     private void loadRateValue(Movie movie, Region region, RankItem item) {
-        long total = queryTotalGross(movie, region.ordinal());
-        long opening = queryOpeningGross(movie, region.ordinal());
+        long total = queryGrossByDay(movie, region.ordinal(), null);
+        long opening = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(3));
         item.setSortValue((double) total / (double) opening);
         item.setValue(FormatUtil.pointZ(item.getSortValue()));
     }
 
-    public long queryOpeningGross(Movie mMovie, int region) {
-        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
-        long sum = 0;
-        if (region < Region.OVERSEA.ordinal()) {
-            List<Gross> list = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(region))
-                    .where(GrossDao.Properties.Day.lt(4))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
-            for (Gross gross:list) {
-                sum += gross.getGross();
-            }
-        }
-        else {
-            List<Gross> list = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
-                    .where(GrossDao.Properties.Day.lt(4))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
-            for (Gross gross:list) {
-                sum += (gross.getGross() / mMovie.getUsToYuan());
-            }
-            list = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
-                    .where(GrossDao.Properties.Day.lt(4))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
-            for (Gross gross:list) {
-                sum += gross.getGross();
-            }
-
-            if (region == Region.WORLDWIDE.ordinal()) {
-                list = dao.queryBuilder()
-                        .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                        .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
-                        .where(GrossDao.Properties.Day.lt(4))
-                        .orderAsc(GrossDao.Properties.Day)
-                        .build().list();
-                for (Gross gross:list) {
-                    sum += gross.getGross();
-                }
-            }
-        }
-        return sum;
+    private void loadFirstWeekValue(Movie movie, Region region, RankItem item) {
+        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(7));
+        item.setSortValue(gross);
+        formatGross(region, item, gross);
     }
 
-    private long queryTotalGross(Movie mMovie, int region) {
+    private void loadSecondWeekValue(Movie movie, Region region, RankItem item) {
+        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.gt(7), GrossDao.Properties.Day.le(14));
+        item.setSortValue(gross);
+        formatGross(region, item, gross);
+    }
+
+    private void loadThirdWeekValue(Movie movie, Region region, RankItem item) {
+        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.gt(14), GrossDao.Properties.Day.le(21));
+        item.setSortValue(gross);
+        formatGross(region, item, gross);
+    }
+
+    private void loadFourthWeekValue(Movie movie, Region region, RankItem item) {
+        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.gt(21), GrossDao.Properties.Day.le(28));
+        item.setSortValue(gross);
+        formatGross(region, item, gross);
+    }
+
+    private void loadFifthWeekValue(Movie movie, Region region, RankItem item) {
+        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.gt(28), GrossDao.Properties.Day.le(35));
+        item.setSortValue(gross);
+        formatGross(region, item, gross);
+    }
+
+    private void load10DaysValue(Movie movie, Region region, RankItem item) {
+        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(10));
+        item.setSortValue(gross);
+        formatGross(region, item, gross);
+    }
+
+    private void load20DaysValue(Movie movie, Region region, RankItem item) {
+        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(20));
+        item.setSortValue(gross);
+        formatGross(region, item, gross);
+    }
+
+    private void load30DaysValue(Movie movie, Region region, RankItem item) {
+        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(30));
+        item.setSortValue(gross);
+        formatGross(region, item, gross);
+    }
+
+    private void loadLeftValue(Movie movie, Region region, RankItem item) {
+        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.IsLeftAfterDay.gt(0));
+        item.setSortValue(gross);
+        formatGross(region, item, gross);
+    }
+
+    private long queryGrossByDay(Movie mMovie, int region, WhereCondition... dayConditions) {
         GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
         long sum = 0;
         if (region < Region.OVERSEA.ordinal()) {
-            List<Gross> list = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(region))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
+            QueryBuilder<Gross> builder = dao.queryBuilder();
+            builder.where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(GrossDao.Properties.Region.eq(region));
+            if (dayConditions != null) {
+                for (WhereCondition condition:dayConditions) {
+                    builder.where(condition);
+                }
+            }
+            builder.orderAsc(GrossDao.Properties.Day);
+            List<Gross> list = builder.build().list();
             for (Gross gross:list) {
                 sum += gross.getGross();
             }
         }
         else {
-            List<Gross> list = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
+            QueryBuilder<Gross> builder = dao.queryBuilder();
+            builder.where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()));
+            if (dayConditions != null) {
+                for (WhereCondition condition:dayConditions) {
+                    builder.where(condition);
+                }
+            }
+            builder.orderAsc(GrossDao.Properties.Day);
+            List<Gross> list = builder.build().list();
             for (Gross gross:list) {
                 sum += (gross.getGross() / mMovie.getUsToYuan());
             }
-            list = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
+
+            builder = dao.queryBuilder();
+            builder.where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()));
+            if (dayConditions != null) {
+                for (WhereCondition condition:dayConditions) {
+                    builder.where(condition);
+                }
+            }
+            builder.orderAsc(GrossDao.Properties.Day);
+            list = builder.build().list();
             for (Gross gross:list) {
                 sum += gross.getGross();
             }
 
             if (region == Region.WORLDWIDE.ordinal()) {
-                list = dao.queryBuilder()
-                        .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                        .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
-                        .orderAsc(GrossDao.Properties.Day)
-                        .build().list();
+                builder = dao.queryBuilder();
+                builder.where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                        .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()));
+                if (dayConditions != null) {
+                    for (WhereCondition condition:dayConditions) {
+                        builder.where(condition);
+                    }
+                }
+                builder.orderAsc(GrossDao.Properties.Day);
+                list = builder.build().list();
                 for (Gross gross:list) {
                     sum += gross.getGross();
                 }

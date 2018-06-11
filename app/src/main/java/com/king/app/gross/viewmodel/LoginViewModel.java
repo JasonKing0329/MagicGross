@@ -14,13 +14,12 @@ import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.DBExportor;
+import com.king.app.gross.utils.FileUtil;
 import com.king.app.gross.utils.MD5Util;
 
 import java.io.File;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -63,7 +62,7 @@ public class LoginViewModel extends BaseViewModel {
 
     public void prepare() {
         loadingObserver.setValue(true);
-        prepareDatas()
+        prepareData()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<Object>() {
@@ -98,25 +97,27 @@ public class LoginViewModel extends BaseViewModel {
                 });
     }
 
-    private Observable<Object> prepareDatas() {
-        return Observable.create(new ObservableOnSubscribe<Object>() {
-            @Override
-            public void subscribe(ObservableEmitter<Object> e) throws Exception {
+    private Observable<Object> prepareData() {
+        return Observable.create(e -> {
 
-                // 创建base目录
-                for (String path: AppConfig.DIRS) {
-                    File file = new File(path);
-                    if (!file.exists()) {
-                        file.mkdir();
-                    }
+            DBExportor.execute();
+
+            // 创建base目录
+            for (String path: AppConfig.DIRS) {
+                File file = new File(path);
+                if (!file.exists()) {
+                    file.mkdir();
                 }
+            }
 
-                // init server url
+            // 检查数据库是否存在
+            FileUtil.copyDbFromAssets(AppConfig.DB_NAME);
+
+            // init server url
 //                BaseUrl.getInstance().setBaseUrl(SettingProperty.getServerBaseUrl());
 
-                e.onNext(new Object());
-                e.onComplete();
-            }
+            e.onNext(new Object());
+            e.onComplete();
         });
     }
 
