@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import com.king.app.gross.R;
 import com.king.app.gross.base.IFragmentHolder;
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.FragmentEditGrossBinding;
 import com.king.app.gross.model.entity.Gross;
@@ -43,49 +44,8 @@ public class EditGrossFragment extends DraggableContentFragment<FragmentEditGros
 
     @Override
     protected void initView() {
-        EditGrossPref pref = SettingProperty.getEditGrossPref();
-        mBinding.tvGrossUs.setVisibility(View.GONE);
-        if (mGross == null) {
-            mBinding.etDay.setText(String.valueOf(pref.getDay() + 1));
-            if (pref.getDayOfWeekIndex() == 6) {
-                mBinding.spDayOfWeek.setSelection(0);
-            }
-            else {
-                mBinding.spDayOfWeek.setSelection(pref.getDayOfWeekIndex() + 1);
-            }
-            mBinding.spRegion.setSelection(pref.getRegionIndex());
-            mBinding.spSymbol.setSelection(pref.getSymbolIndex());
-            mBinding.spUnit.setSelection(pref.getUnitIndex());
-            mBinding.cbLeft.setChecked(false);
-            mBinding.etLeftDay.setVisibility(View.INVISIBLE);
-        }
-        else {
-            mBinding.etDay.setText(String.valueOf(mGross.getDay()));
-            mBinding.spDayOfWeek.setSelection(mGross.getDayOfWeek() - 1);
-            mBinding.spRegion.setSelection(mGross.getRegion());
-            mBinding.spSymbol.setSelection(mGross.getSymbol());
-            if (mGross.getRegion() == Region.CHN.ordinal()) {
-                mBinding.etGross.setText(getChnGross(mGross));
-                mBinding.spSymbol.setSelection(1);
-            }
-            else {
-                mBinding.etGross.setText(getUsGross(mGross));
-                mBinding.spSymbol.setSelection(0);
-            }
-            mBinding.spUnit.setSelection(0);
-            if (mGross.getIsLeftAfterDay() > 0) {
-                mBinding.cbLeft.setChecked(true);
-                mBinding.etLeftDay.setVisibility(View.VISIBLE);
-                mBinding.etLeftDay.setText(String.valueOf(mGross.getIsLeftAfterDay()));
-            }
-            else {
-                mBinding.cbLeft.setChecked(false);
-                mBinding.etLeftDay.setVisibility(View.INVISIBLE);
-            }
-        }
 
         mBinding.tvOk.setOnClickListener(view -> onConfirm());
-        mBinding.cbLeft.setOnCheckedChangeListener((buttonView, isChecked) -> mBinding.etLeftDay.setVisibility(isChecked ? View.VISIBLE:View.INVISIBLE));
 
         mBinding.etGross.addTextChangedListener(new TextWatcher() {
             @Override
@@ -115,6 +75,118 @@ public class EditGrossFragment extends DraggableContentFragment<FragmentEditGros
 
             }
         });
+        mBinding.spRegion.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // oversea和worldwide一般情况下是做na, chn, oversea except china之间的运算，编辑的话直接按照is total处理
+                if (position >= Region.OVERSEA.ordinal()) {
+                    mBinding.cbIsTotal.setChecked(true);
+                    mBinding.cbIsTotal.setEnabled(false);
+                }
+                else {
+                    mBinding.cbIsTotal.setEnabled(true);
+                }
+                onGrossChanged(mBinding.etGross.getText().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        mBinding.cbLeft.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            mBinding.etLeftDay.setVisibility(isChecked ? View.VISIBLE:View.INVISIBLE);
+            if (isChecked) {
+                mBinding.tvTitleDay.setVisibility(View.INVISIBLE);
+                mBinding.tvTitleDow.setVisibility(View.INVISIBLE);
+                mBinding.etDay.setVisibility(View.INVISIBLE);
+                mBinding.spDayOfWeek.setVisibility(View.INVISIBLE);
+                mBinding.etLeftDay.setVisibility(View.VISIBLE);
+            }
+            else {
+                mBinding.tvTitleDay.setVisibility(View.VISIBLE);
+                mBinding.tvTitleDow.setVisibility(View.VISIBLE);
+                mBinding.etDay.setVisibility(View.VISIBLE);
+                mBinding.spDayOfWeek.setVisibility(View.VISIBLE);
+                mBinding.etLeftDay.setVisibility(View.INVISIBLE);
+            }
+        });
+        mBinding.cbIsTotal.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            onIsTotalChanged(isChecked);
+        });
+
+        EditGrossPref pref = SettingProperty.getEditGrossPref();
+        mBinding.tvGrossUs.setVisibility(View.GONE);
+        if (mGross == null) {
+            mBinding.etDay.setText(String.valueOf(pref.getDay() + 1));
+            if (pref.getDayOfWeekIndex() == 6) {
+                mBinding.spDayOfWeek.setSelection(0);
+            }
+            else {
+                mBinding.spDayOfWeek.setSelection(pref.getDayOfWeekIndex() + 1);
+            }
+            mBinding.spRegion.setSelection(pref.getRegionIndex());
+            mBinding.spSymbol.setSelection(pref.getSymbolIndex());
+            mBinding.spUnit.setSelection(pref.getUnitIndex());
+            mBinding.cbLeft.setChecked(false);
+            mBinding.etLeftDay.setVisibility(View.INVISIBLE);
+            mBinding.spTotalType.setVisibility(View.INVISIBLE);
+        }
+        else {
+            mBinding.etDay.setText(String.valueOf(mGross.getDay()));
+            mBinding.spDayOfWeek.setSelection(mGross.getDayOfWeek() - 1);
+            mBinding.spRegion.setSelection(mGross.getRegion());
+            mBinding.spSymbol.setSelection(mGross.getSymbol());
+            if (mGross.getRegion() == Region.CHN.ordinal()) {
+                mBinding.etGross.setText(getChnGross(mGross));
+                mBinding.spSymbol.setSelection(1);
+            }
+            else {
+                mBinding.etGross.setText(getUsGross(mGross));
+                mBinding.spSymbol.setSelection(0);
+            }
+            mBinding.spUnit.setSelection(0);
+            if (mGross.getIsLeftAfterDay() > 0) {
+                mBinding.cbLeft.setChecked(true);
+                mBinding.etLeftDay.setVisibility(View.VISIBLE);
+                mBinding.etLeftDay.setText(String.valueOf(mGross.getIsLeftAfterDay()));
+                mBinding.etDay.setText(String.valueOf(mGross.getIsLeftAfterDay() + 1));
+            }
+            else {
+                mBinding.cbLeft.setChecked(false);
+                mBinding.etLeftDay.setVisibility(View.INVISIBLE);
+            }
+
+            if (mGross.getIsTotal() > 0) {
+                mBinding.spTotalType.setSelection(mGross.getIsTotal() - 1);
+                mBinding.cbIsTotal.setChecked(true);
+            }
+            else {
+                onIsTotalChanged(false);
+            }
+        }
+    }
+
+    private void onIsTotalChanged(boolean isChecked) {
+        if (isChecked) {
+            mBinding.tvTitleDay.setVisibility(View.INVISIBLE);
+            mBinding.tvTitleDow.setVisibility(View.INVISIBLE);
+            mBinding.etDay.setVisibility(View.INVISIBLE);
+            mBinding.spDayOfWeek.setVisibility(View.INVISIBLE);
+            mBinding.cbLeft.setVisibility(View.INVISIBLE);
+            mBinding.etLeftDay.setVisibility(View.INVISIBLE);
+            mBinding.spTotalType.setVisibility(View.VISIBLE);
+        }
+        else {
+            mBinding.tvTitleDay.setVisibility(View.VISIBLE);
+            mBinding.tvTitleDow.setVisibility(View.VISIBLE);
+            mBinding.etDay.setVisibility(View.VISIBLE);
+            mBinding.spDayOfWeek.setVisibility(View.VISIBLE);
+            mBinding.cbLeft.setVisibility(View.VISIBLE);
+            mBinding.etLeftDay.setVisibility(View.VISIBLE);
+            mBinding.spTotalType.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void onGrossChanged(String gross) {
@@ -178,6 +250,10 @@ public class EditGrossFragment extends DraggableContentFragment<FragmentEditGros
             showMessageShort("Gross cannot be empty");
             return;
         }
+
+        mGross.setDay(Integer.parseInt(day));
+        mGross.setDayOfWeek(mBinding.spDayOfWeek.getSelectedItemPosition() + 1);
+
         if (mBinding.cbLeft.isChecked()) {
             String leftDay = mBinding.etLeftDay.getText().toString();
             if (TextUtils.isEmpty(leftDay)) {
@@ -185,10 +261,15 @@ public class EditGrossFragment extends DraggableContentFragment<FragmentEditGros
                 return;
             }
             mGross.setIsLeftAfterDay(Integer.parseInt(leftDay));
+            mGross.setDay(mGross.getIsLeftAfterDay() + 1);
+            mGross.setDayOfWeek(0);
+        }
+        if (mBinding.cbIsTotal.isChecked()) {
+            mGross.setIsTotal(mBinding.spTotalType.getSelectedItemPosition() + 1);
+            mGross.setDay(0);
+            mGross.setDayOfWeek(0);
         }
 
-        mGross.setDay(Integer.parseInt(day));
-        mGross.setDayOfWeek(mBinding.spDayOfWeek.getSelectedItemPosition() + 1);
         mGross.setRegion(mBinding.spRegion.getSelectedItemPosition());
         mGross.setSymbol(mBinding.spSymbol.getSelectedItemPosition());
         try {

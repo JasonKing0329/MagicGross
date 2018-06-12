@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.model.entity.DaoMaster;
 import com.king.app.gross.model.entity.DaoSession;
+import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.utils.DebugLog;
 
@@ -77,6 +78,9 @@ public class MApplication extends Application {
                     db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.Debut.columnName + " TEXT");
                     db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.IsReal.columnName + " INTEGER");
                     db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.Year.columnName + " INTEGER");
+                    break;
+                case 2:
+                    db.execSQL("ALTER TABLE " + GrossDao.TABLENAME + " ADD COLUMN " + GrossDao.Properties.IsTotal.columnName + " INTEGER");
                     break;
             }
         }

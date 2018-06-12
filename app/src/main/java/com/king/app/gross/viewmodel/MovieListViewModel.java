@@ -6,8 +6,12 @@ import android.support.annotation.NonNull;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.model.entity.MovieDao;
+
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -37,10 +39,13 @@ public class MovieListViewModel extends BaseViewModel {
     private List<Movie> mMovieList;
 
     private Map<Long, Boolean> checkMap;
+
+    private int mSortType;
     
     public MovieListViewModel(@NonNull Application application) {
         super(application);
         checkMap = new HashMap<>();
+        mSortType = AppConstants.MOVIE_SORT_DATE;
     }
 
     public void loadMovies() {
@@ -77,7 +82,15 @@ public class MovieListViewModel extends BaseViewModel {
 
     private Observable<List<Movie>> queryMovies() {
         return Observable.create(e -> {
-            List<Movie> list = MApplication.getInstance().getDaoSession().getMovieDao().loadAll();
+            QueryBuilder<Movie> builder = MApplication.getInstance().getDaoSession().getMovieDao()
+                    .queryBuilder();
+            if (mSortType == AppConstants.MOVIE_SORT_DATE) {
+                builder.orderAsc(MovieDao.Properties.Debut);
+            }
+            else {
+                builder.orderAsc(MovieDao.Properties.Name);
+            }
+            List<Movie> list = builder.build().list();
             e.onNext(list);
         });
     }
@@ -143,5 +156,12 @@ public class MovieListViewModel extends BaseViewModel {
             }
             e.onNext(true);
         });
+    }
+
+    public void changeSortType(int sortType) {
+        if (mSortType != sortType) {
+            mSortType = sortType;
+            loadMovies();
+        }
     }
 }

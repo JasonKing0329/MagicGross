@@ -3,9 +3,13 @@ package com.king.app.gross.page;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.PopupMenu;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.ActivityMovieListBinding;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.page.adapter.MovieListAdapter;
@@ -13,6 +17,7 @@ import com.king.app.gross.view.dialog.DraggableDialogFragment;
 import com.king.app.gross.view.dialog.content.EditMovieFragment;
 import com.king.app.gross.viewmodel.MovieListViewModel;
 import com.king.app.jactionbar.OnConfirmListener;
+import com.king.app.jactionbar.PopupMenuProvider;
 
 import java.util.List;
 
@@ -97,6 +102,32 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                 return true;
             }
         });
+
+        mBinding.actionbar.registerPopupMenu(R.id.menu_sort);
+        mBinding.actionbar.setPopupMenuProvider((iconMenuId, anchorView) -> {
+            switch (iconMenuId) {
+                case R.id.menu_sort:
+                    return createSortPopup(anchorView);
+            }
+            return null;
+        });
+    }
+
+    private PopupMenu createSortPopup(View anchorView) {
+        PopupMenu menu = new PopupMenu(this, anchorView);
+        menu.getMenuInflater().inflate(R.menu.movie_sort, menu.getMenu());
+        menu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.menu_sort_date:
+                    mModel.changeSortType(AppConstants.MOVIE_SORT_DATE);
+                    break;
+                case R.id.menu_sort_name:
+                    mModel.changeSortType(AppConstants.MOVIE_SORT_NAME);
+                    break;
+            }
+            return true;
+        });
+        return menu;
     }
 
     @Override

@@ -10,6 +10,12 @@ public class AppConstants {
     public static final int MOVIE_REAL = 1;
     public static final int MOVIE_VIRTUAL = 0;
 
+    public static final int MOVIE_SORT_DATE = 1;
+    public static final int MOVIE_SORT_NAME = 0;
+
+    public static final int GROSS_IS_TOTAL = 1;
+    public static final int GROSS_IS_OPENING = 2;
+
     public static final String[] REGION_TITLES = new String[] {
             "North America", "China", "Oversea except China", "Oversea", "World Wide"
     };

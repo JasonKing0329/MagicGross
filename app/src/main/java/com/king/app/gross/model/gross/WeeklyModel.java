@@ -1,11 +1,13 @@
 package com.king.app.gross.model.gross;
 
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.utils.FormatUtil;
+import com.king.app.gross.viewmodel.bean.SimpleGross;
 import com.king.app.gross.viewmodel.bean.WeekGross;
 
 import java.util.ArrayList;
@@ -26,31 +28,79 @@ public class WeeklyModel {
         this.mMovie = mMovie;
     }
 
+    private List<WeekGross> getIsTotalList(int region) {
+        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
+        List<Gross> grossList = dao.queryBuilder()
+                .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                .where(GrossDao.Properties.Region.eq(region))
+                .where(GrossDao.Properties.IsTotal.notEq(0))
+                .build().list();
+        // 加入过isTotal的数据，只取这一条，不进行day by day的计算
+        if (grossList.size() > 0) {
+            List<WeekGross> list = new ArrayList<>();
+            for (Gross item:grossList) {
+                WeekGross gross = new WeekGross();
+                if (item.getIsTotal() == AppConstants.GROSS_IS_TOTAL) {
+                    gross.setDayRange("Total");
+                }
+                else if (item.getIsTotal() == AppConstants.GROSS_IS_OPENING) {
+                    gross.setDayRange("Opening");
+                }
+                gross.setGrossSum(FormatUtil.formatUsGross(item.getGross()));
+                gross.setWeek("");
+                gross.setDrop("");
+                gross.setGross("");
+                list.add(gross);
+            }
+            return list;
+        }
+        return null;
+    }
+
     public Observable<List<WeekGross>> queryWeeklyGross(int region) {
         return Observable.create(e -> {
             GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
             List<Gross> grossList = dao.queryBuilder()
                     .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
                     .where(GrossDao.Properties.Region.eq(region))
+                    .where(GrossDao.Properties.IsTotal.eq(0))
                     .orderAsc(GrossDao.Properties.Day)
                     .build().list();
 
+            // 优先加载day by day，没有再检查是否有total
+            if (grossList.size() == 0) {
+                List<WeekGross> totals = getIsTotalList(region);
+                if (totals != null) {
+                    e.onNext(totals);
+                    return;
+                }
+            }
+
             List<WeekGross> list = getListFrom(grossList);
+
             e.onNext(list);
         });
     }
 
     public Observable<List<WeekGross>> queryWeeklyOversea() {
         return Observable.create(e -> {
+            // 优先检查是否有is total
+            List<WeekGross> totals = getIsTotalList(Region.OVERSEA.ordinal());
+            if (totals != null) {
+                e.onNext(totals);
+                return;
+            }
             GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
             List<Gross> chnList = dao.queryBuilder()
                     .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
                     .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
+                    .where(GrossDao.Properties.IsTotal.eq(0))
                     .orderAsc(GrossDao.Properties.Day)
                     .build().list();
             List<Gross> overseaList = dao.queryBuilder()
                     .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
                     .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
+                    .where(GrossDao.Properties.IsTotal.eq(0))
                     .orderAsc(GrossDao.Properties.Day)
                     .build().list();
             List<Gross> combineList = getOverseaGross(chnList, overseaList);
@@ -62,20 +112,29 @@ public class WeeklyModel {
 
     public Observable<List<WeekGross>> queryWeeklyWorldWide() {
         return Observable.create(e -> {
+            // 优先检查是否有is total
+            List<WeekGross> totals = getIsTotalList(Region.WORLDWIDE.ordinal());
+            if (totals != null) {
+                e.onNext(totals);
+                return;
+            }
             GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
             List<Gross> naList = dao.queryBuilder()
                     .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
                     .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
+                    .where(GrossDao.Properties.IsTotal.eq(0))
                     .orderAsc(GrossDao.Properties.Day)
                     .build().list();
             List<Gross> chnList = dao.queryBuilder()
                     .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
                     .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
+                    .where(GrossDao.Properties.IsTotal.eq(0))
                     .orderAsc(GrossDao.Properties.Day)
                     .build().list();
             List<Gross> overseaList = dao.queryBuilder()
                     .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
                     .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
+                    .where(GrossDao.Properties.IsTotal.eq(0))
                     .orderAsc(GrossDao.Properties.Day)
                     .build().list();
             List<Gross> combineList = getWorldWideGross(naList, chnList, overseaList);

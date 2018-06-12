@@ -30,9 +30,11 @@ public class Gross {
 
     private int isLeftAfterDay;
 
-    @Generated(hash = 147928116)
+    private int isTotal;
+
+    @Generated(hash = 60630730)
     public Gross(Long id, long movieId, int region, int symbol, int day,
-            int dayOfWeek, long gross, int isLeftAfterDay) {
+            int dayOfWeek, long gross, int isLeftAfterDay, int isTotal) {
         this.id = id;
         this.movieId = movieId;
         this.region = region;
@@ -41,6 +43,7 @@ public class Gross {
         this.dayOfWeek = dayOfWeek;
         this.gross = gross;
         this.isLeftAfterDay = isLeftAfterDay;
+        this.isTotal = isTotal;
     }
 
     @Generated(hash = 757174660)
@@ -109,5 +112,13 @@ public class Gross {
 
     public void setSymbol(int symbol) {
         this.symbol = symbol;
+    }
+
+    public int getIsTotal() {
+        return this.isTotal;
+    }
+
+    public void setIsTotal(int isTotal) {
+        this.isTotal = isTotal;
     }
 }

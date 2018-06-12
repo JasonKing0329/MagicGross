@@ -3,6 +3,7 @@ package com.king.app.gross.model.gross;
 import android.text.TextUtils;
 
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.RankType;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.entity.Gross;
@@ -10,10 +11,12 @@ import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.RankItem;
+import com.king.app.gross.viewmodel.bean.SimpleGross;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.greenrobot.greendao.query.WhereCondition;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -95,20 +98,35 @@ public class RankModel {
     }
 
     private void loadTotalValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), null);
+        // 优先加载is total的数据，没有才按day by day加载
+        long gross = queryGrossByIsTotal(movie, region.ordinal());
+        if (gross == 0) {
+            gross = queryGrossByDay(movie, region.ordinal(), null);
+        }
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
     private void loadOpeningValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(3));
+        // 优先加载is total的数据，没有才按day by day加载
+        long gross = queryOpeningByIsTotal(movie, region.ordinal());
+        if (gross == 0) {
+            gross = queryGrossByDay(movie, region.ordinal(), true, GrossDao.Properties.Day.le(7));
+        }
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
     private void loadRateValue(Movie movie, Region region, RankItem item) {
-        long total = queryGrossByDay(movie, region.ordinal(), null);
-        long opening = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(3));
+        // 优先加载is total的数据，没有才按day by day加载
+        long total = queryGrossByIsTotal(movie, region.ordinal());
+        if (total == 0) {
+            total = queryGrossByDay(movie, region.ordinal(), null);
+        }
+        long opening = queryOpeningByIsTotal(movie, region.ordinal());
+        if (opening == 0) {
+            opening = queryGrossByDay(movie, region.ordinal(), true, GrossDao.Properties.Day.le(7));
+        }
         item.setSortValue((double) total / (double) opening);
         item.setValue(FormatUtil.pointZ(item.getSortValue()));
     }
@@ -168,12 +186,17 @@ public class RankModel {
     }
 
     private long queryGrossByDay(Movie mMovie, int region, WhereCondition... dayConditions) {
+        return queryGrossByDay(mMovie, region, false, dayConditions);
+    }
+
+    private long queryGrossByDay(Movie mMovie, int region, boolean isOpening, WhereCondition... dayConditions) {
         GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
         long sum = 0;
         if (region < Region.OVERSEA.ordinal()) {
             QueryBuilder<Gross> builder = dao.queryBuilder();
             builder.where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(region));
+                    .where(GrossDao.Properties.Region.eq(region))
+                    .where(GrossDao.Properties.IsTotal.eq(0));
             if (dayConditions != null) {
                 for (WhereCondition condition:dayConditions) {
                     builder.where(condition);
@@ -183,12 +206,16 @@ public class RankModel {
             List<Gross> list = builder.build().list();
             for (Gross gross:list) {
                 sum += gross.getGross();
+                if (gross.getDayOfWeek() == 7 && isOpening) {
+                    break;
+                }
             }
         }
         else {
             QueryBuilder<Gross> builder = dao.queryBuilder();
             builder.where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()));
+                    .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
+                    .where(GrossDao.Properties.IsTotal.eq(0));
             if (dayConditions != null) {
                 for (WhereCondition condition:dayConditions) {
                     builder.where(condition);
@@ -196,13 +223,20 @@ public class RankModel {
             }
             builder.orderAsc(GrossDao.Properties.Day);
             List<Gross> list = builder.build().list();
+            if (list.size() == 0) {
+                return 0;
+            }
             for (Gross gross:list) {
                 sum += (gross.getGross() / mMovie.getUsToYuan());
+                if (gross.getDayOfWeek() == 7 && isOpening) {
+                    break;
+                }
             }
 
             builder = dao.queryBuilder();
             builder.where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()));
+                    .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
+                    .where(GrossDao.Properties.IsTotal.eq(0));
             if (dayConditions != null) {
                 for (WhereCondition condition:dayConditions) {
                     builder.where(condition);
@@ -210,14 +244,21 @@ public class RankModel {
             }
             builder.orderAsc(GrossDao.Properties.Day);
             list = builder.build().list();
+            if (list.size() == 0) {
+                return 0;
+            }
             for (Gross gross:list) {
                 sum += gross.getGross();
+                if (gross.getDayOfWeek() == 7 && isOpening) {
+                    break;
+                }
             }
 
             if (region == Region.WORLDWIDE.ordinal()) {
                 builder = dao.queryBuilder();
                 builder.where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                        .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()));
+                        .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
+                        .where(GrossDao.Properties.IsTotal.eq(0));
                 if (dayConditions != null) {
                     for (WhereCondition condition:dayConditions) {
                         builder.where(condition);
@@ -225,11 +266,46 @@ public class RankModel {
                 }
                 builder.orderAsc(GrossDao.Properties.Day);
                 list = builder.build().list();
+                if (list.size() == 0) {
+                    return 0;
+                }
                 for (Gross gross:list) {
                     sum += gross.getGross();
+                    if (gross.getDayOfWeek() == 7 && isOpening) {
+                        break;
+                    }
                 }
             }
         }
         return sum;
     }
+
+    private long queryGrossByIsTotal(Movie movie, int region) {
+        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
+        List<Gross> list = dao.queryBuilder()
+                .where(GrossDao.Properties.MovieId.eq(movie.getId()))
+                .where(GrossDao.Properties.Region.eq(region))
+                .where(GrossDao.Properties.IsTotal.eq(AppConstants.GROSS_IS_TOTAL))
+                .build().list();
+        // 加入过isTotal的数据，只取这一条，不进行day by day的计算
+        if (list.size() > 0) {
+            return list.get(0).getGross();
+        }
+        return 0;
+    }
+
+    private long queryOpeningByIsTotal(Movie movie, int region) {
+        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
+        List<Gross> list = dao.queryBuilder()
+                .where(GrossDao.Properties.MovieId.eq(movie.getId()))
+                .where(GrossDao.Properties.Region.eq(region))
+                .where(GrossDao.Properties.IsTotal.eq(AppConstants.GROSS_IS_OPENING))
+                .build().list();
+        // 加入过isTotal的数据，只取这一条，不进行day by day的计算
+        if (list.size() > 0) {
+            return list.get(0).getGross();
+        }
+        return 0;
+    }
+
 }

@@ -87,7 +87,16 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     public void onGrossChanged(Gross gross) {
         DebugLog.e("region " + gross.getRegion());
-        onGrossRegionChanged(gross.getRegion());
+        // oversea与worldwide的编辑事件只针对于is total的数据，不影响其他部分的运算
+        if (gross.getRegion() == Region.OVERSEA.ordinal()) {
+            loadOversea();
+        }
+        else if (gross.getRegion() == Region.WORLDWIDE.ordinal()) {
+            loadWorldWide();
+        }
+        else {
+            onGrossRegionChanged(gross.getRegion());
+        }
     }
 
     public void onGrossRegionChanged(int region) {
@@ -189,31 +198,6 @@ public class MovieGrossViewModel extends BaseViewModel {
         }
     }
 
-    private Observable<GrossPage> toGrossPage(Region region, GrossDateType dateType, List<SimpleGross> list) {
-        return Observable.create(e -> {
-            GrossPage page = new GrossPage();
-            page.dateType = dateType;
-            page.region = region;
-            page.list = list;
-            long opening = dailyModel.queryOpeningGross(region.ordinal());
-            if (region == Region.CHN) {
-                page.opening = FormatUtil.formatChnGross(opening);
-            }
-            else {
-                page.opening = FormatUtil.formatUsGross(opening);
-            }
-            long total = dailyModel.queryTotalGross(region.ordinal());
-            if (region == Region.CHN) {
-                page.total = FormatUtil.formatChnGross(total);
-            }
-            else {
-                page.total = FormatUtil.formatUsGross(total);
-            }
-            page.rate = FormatUtil.pointZ((double) total / (double) opening);
-            e.onNext(page);
-        });
-    }
-
     private Observable<GrossPage> toDailyGrossPage(Region region, GrossDateType dateType, List<SimpleGross> list) {
         return Observable.create(e -> {
             GrossPage page = new GrossPage();
@@ -234,7 +218,9 @@ public class MovieGrossViewModel extends BaseViewModel {
             else {
                 page.total = FormatUtil.formatUsGross(total);
             }
-            page.rate = FormatUtil.pointZ((double) total / (double) opening);
+            if (opening > 0) {
+                page.rate = FormatUtil.pointZ((double) total / (double) opening);
+            }
             e.onNext(page);
         });
     }
@@ -268,7 +254,6 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private void loadDailyRegion(Region region) {
         dailyModel.queryGross(region.ordinal())
-                .flatMap(list -> dailyModel.toSimpleGross(list))
                 .flatMap(list -> toDailyGrossPage(region, GrossDateType.DAILY, list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -523,7 +508,7 @@ public class MovieGrossViewModel extends BaseViewModel {
     }
 
     public void editGross(SimpleGross data) {
-        // na, chn, oversea_no_chn
+        // na, chn, oversea_no_chn with day by day shouldn't be edited
         if (data.getBean() != null) {
             editObserver.setValue(data.getBean());
         }
