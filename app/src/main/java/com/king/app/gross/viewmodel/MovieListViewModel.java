@@ -164,4 +164,8 @@ public class MovieListViewModel extends BaseViewModel {
             loadMovies();
         }
     }
+
+    public int getSortType() {
+        return mSortType;
+    }
 }

@@ -22,4 +22,9 @@
     <color name="tab_text_focus">#FFD600</color>
     <color name="tag_rank_type">#FF375BF1</color>
     <color name="white_bg">#efefef</color>
+    <color name="divider">#efefef</color>
+
+    <color name="rank_top">#ef4238</color>
+    <color name="rank_second">#fcb205</color>
+    <color name="rank_other">#8f9296</color>
 </resources>

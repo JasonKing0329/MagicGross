@@ -5,7 +5,7 @@
     <android.support.v7.widget.CardView
         android:id="@+id/group_item"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="140dp"
         android:layout_centerInParent="true"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
@@ -59,10 +59,36 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:clickable="false"
-                android:layout_marginLeft="10dp"
-                android:layout_marginBottom="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+            <ImageView
+                android:id="@+id/iv_flag"
+                android:layout_width="45dp"
+                android:layout_height="25dp"
+                android:src="@drawable/flag_rank"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@+id/tv_flag"
+                android:layout_width="40dp"
+                android:layout_height="25dp"
+                android:textColor="@color/white"
+                android:text="2012"
+                android:textSize="12dp"
+                android:gravity="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                android:id="@+id/tv_gross"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="12dp"
+                android:textColor="#800080"
+                android:layout_marginBottom="5dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
 </RelativeLayout>

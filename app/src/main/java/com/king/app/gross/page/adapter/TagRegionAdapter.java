@@ -33,9 +33,8 @@ public class TagRegionAdapter extends BaseBindingAdapter<AdapterRankTagRegionBin
     @Override
     protected void onClickItem(View v, int position) {
         if (position != selection) {
-            notifyItemChanged(selection);
             selection = position;
-            notifyItemChanged(selection);
+            notifyDataSetChanged();
         }
         super.onClickItem(v, position);
     }

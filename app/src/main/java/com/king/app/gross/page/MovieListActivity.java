@@ -150,6 +150,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
         if (adapter == null) {
             adapter = new MovieListAdapter();
             adapter.setList(list);
+            adapter.setSortType(mModel.getSortType());
             adapter.setCheckMap(mModel.getCheckMap());
             adapter.setOnItemClickListener((view, position, data) -> {
                 if (isEditMode) {
@@ -163,6 +164,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
         }
         else {
             adapter.setList(list);
+            adapter.setSortType(mModel.getSortType());
             adapter.notifyDataSetChanged();
         }
     }

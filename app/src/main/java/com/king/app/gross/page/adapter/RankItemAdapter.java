@@ -1,5 +1,6 @@
 package com.king.app.gross.page.adapter;
 
+import android.graphics.PorterDuff;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -25,6 +26,20 @@ public class RankItemAdapter extends BaseBindingAdapter<AdapterRankItemBinding, 
     protected void onBindItem(AdapterRankItemBinding binding, int position, RankItem bean) {
         binding.setItem(bean);
         binding.executePendingBindings();
+
+        binding.divider.setVisibility(position == 0 ? View.GONE:View.VISIBLE);
+
+        int color;
+        if (position == 0) {
+            color = binding.ivRank.getResources().getColor(R.color.rank_top);
+        }
+        else if (position < 3) {
+            color = binding.ivRank.getResources().getColor(R.color.rank_second);
+        }
+        else {
+            color = binding.ivRank.getResources().getColor(R.color.rank_other);
+        }
+        binding.ivRank.setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
 }

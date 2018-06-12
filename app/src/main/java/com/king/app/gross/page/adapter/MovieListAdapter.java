@@ -5,11 +5,16 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.BaseRecyclerAdapter;
+import com.king.app.gross.conf.AppConstants;
+import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.model.gross.DailyModel;
+import com.king.app.gross.utils.FormatUtil;
 
 import java.util.Map;
 
@@ -24,6 +29,8 @@ public class MovieListAdapter extends BaseRecyclerAdapter<MovieListAdapter.Movie
     private boolean isSelectionMode;
 
     private Map<Long, Boolean> checkMap;
+
+    private int mSortType;
 
     @Override
     protected int getItemLayoutRes() {
@@ -55,6 +62,25 @@ public class MovieListAdapter extends BaseRecyclerAdapter<MovieListAdapter.Movie
         holder.tvDate.setText(data.getDebut());
         holder.cbCheck.setVisibility(isSelectionMode ? View.VISIBLE:View.GONE);
         holder.cbCheck.setChecked(checkMap.get(data.getId()) != null);
+
+        holder.tvGross.setText(FormatUtil.formatUsGross(new DailyModel(data).queryTotalGross(Region.NA.ordinal())));
+
+        if (mSortType == AppConstants.MOVIE_SORT_DATE) {
+            if (!TextUtils.isEmpty(data.getDebut())) {
+                holder.tvFlag.setText(data.getDebut().substring(0, 4));
+            }
+            else {
+                holder.tvFlag.setText("#");
+            }
+        }
+        else {
+            if (!TextUtils.isEmpty(data.getName())) {
+                holder.tvFlag.setText(data.getName().substring(0, 1));
+            }
+            else {
+                holder.tvFlag.setText("#");
+            }
+        }
     }
 
     public void setSelectionMode(boolean selectionMode) {
@@ -63,6 +89,10 @@ public class MovieListAdapter extends BaseRecyclerAdapter<MovieListAdapter.Movie
 
     public void setCheckMap(Map<Long, Boolean> checkMap) {
         this.checkMap = checkMap;
+    }
+
+    public void setSortType(int mSortType) {
+        this.mSortType = mSortType;
     }
 
     @Override
@@ -83,10 +113,12 @@ public class MovieListAdapter extends BaseRecyclerAdapter<MovieListAdapter.Movie
 
     public static class MovieHolder extends RecyclerView.ViewHolder {
         CardView groupItem;
+        TextView tvFlag;
         TextView tvName;
         TextView tvNameChn;
         TextView tvNameSub;
         TextView tvDate;
+        TextView tvGross;
         CheckBox cbCheck;
 
         public MovieHolder(View itemView) {
@@ -98,6 +130,8 @@ public class MovieListAdapter extends BaseRecyclerAdapter<MovieListAdapter.Movie
             tvNameChn = itemView.findViewById(R.id.tv_name_chn);
             tvDate = itemView.findViewById(R.id.tv_date);
             cbCheck = itemView.findViewById(R.id.cb_check);
+            tvGross = itemView.findViewById(R.id.tv_gross);
+            tvFlag = itemView.findViewById(R.id.tv_flag);
         }
     }
 }

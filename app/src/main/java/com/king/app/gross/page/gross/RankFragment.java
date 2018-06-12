@@ -2,9 +2,7 @@ package com.king.app.gross.page.gross;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.king.app.gross.R;
@@ -16,9 +14,7 @@ import com.king.app.gross.databinding.FragmentRankBinding;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.page.MovieGrossActivity;
 import com.king.app.gross.page.adapter.RankItemAdapter;
-import com.king.app.gross.page.adapter.TagRankTypeAdapter;
 import com.king.app.gross.page.adapter.TagRegionAdapter;
-import com.king.app.gross.utils.ScreenUtils;
 import com.king.app.gross.viewmodel.RankViewModel;
 
 /**
@@ -51,13 +47,6 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
         mBinding.rvRegion.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         mBinding.rvType.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         mBinding.rvMovies.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-
-        mBinding.rvMovies.addItemDecoration(new RecyclerView.ItemDecoration() {
-            @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-                outRect.top = ScreenUtils.dp2px(3);
-            }
-        });
     }
 
     @Override
@@ -69,7 +58,7 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
             mBinding.rvRegion.setAdapter(adapter);
         });
         mModel.typeTagsObserver.observe(this, typeTags -> {
-            TagRankTypeAdapter adapter = new TagRankTypeAdapter();
+            TagRegionAdapter adapter = new TagRegionAdapter();
             adapter.setList(typeTags);
             adapter.setOnItemClickListener((view, position, data) -> mModel.changeRankType((RankType) data.getBean()));
             mBinding.rvType.setAdapter(adapter);
