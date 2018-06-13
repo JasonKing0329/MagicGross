@@ -40,6 +40,8 @@ public class RankItemAdapter extends BaseBindingAdapter<AdapterRankItemBinding, 
             color = binding.ivRank.getResources().getColor(R.color.rank_other);
         }
         binding.ivRank.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+
+        binding.tvRate.setVisibility(TextUtils.isEmpty(bean.getRate()) ? View.GONE:View.VISIBLE);
     }
 
 }

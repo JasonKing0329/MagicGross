@@ -13,6 +13,7 @@ public class RankItem {
     private String rank;
     private String name;
     private String value;
+    private String rate;
     private Movie movie;
     private double sortValue;
     private String year;
@@ -63,5 +64,13 @@ public class RankItem {
 
     public void setYear(String year) {
         this.year = year;
+    }
+
+    public String getRate() {
+        return rate;
+    }
+
+    public void setRate(String rate) {
+        this.rate = rate;
     }
 }

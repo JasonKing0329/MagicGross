@@ -60,6 +60,12 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:text="@{item.value}"/>
+            <TextView
+                android:id="@+id/tv_rate"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="@{item.rate}"/>
         </LinearLayout>
         <View
             android:id="@+id/divider"

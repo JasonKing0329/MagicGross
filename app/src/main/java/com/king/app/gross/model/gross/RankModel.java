@@ -97,6 +97,24 @@ public class RankModel {
         }
     }
 
+    private long getWorldWideGross(Movie movie) {
+        // 优先加载is total的数据，没有才按day by day加载
+        long gross = queryGrossByIsTotal(movie, Region.WORLDWIDE.ordinal());
+        if (gross == 0) {
+            gross = queryGrossByDay(movie, Region.WORLDWIDE.ordinal(), null);
+        }
+        return gross;
+    }
+
+    private long getWorldWideOpening(Movie movie) {
+        // 优先加载is total的数据，没有才按day by day加载
+        long gross = queryOpeningByIsTotal(movie, Region.WORLDWIDE.ordinal());
+        if (gross == 0) {
+            gross = queryGrossByDay(movie, Region.WORLDWIDE.ordinal(), true, GrossDao.Properties.Day.le(7));
+        }
+        return gross;
+    }
+
     private void loadTotalValue(Movie movie, Region region, RankItem item) {
         // 优先加载is total的数据，没有才按day by day加载
         long gross = queryGrossByIsTotal(movie, region.ordinal());
@@ -105,6 +123,17 @@ public class RankModel {
         }
         item.setSortValue(gross);
         formatGross(region, item, gross);
+
+        if (region != Region.WORLDWIDE) {
+            // 计算相对全球占比
+            long total = getWorldWideGross(movie);
+            if (region == Region.CHN) {
+                item.setRate(FormatUtil.pointZ((double) gross / (double) total / movie.getUsToYuan() * 100d) + "%");
+            }
+            else {
+                item.setRate(FormatUtil.pointZ((double) gross / (double) total * 100d) + "%");
+            }
+        }
     }
 
     private void loadOpeningValue(Movie movie, Region region, RankItem item) {
@@ -115,6 +144,19 @@ public class RankModel {
         }
         item.setSortValue(gross);
         formatGross(region, item, gross);
+
+        if (region != Region.WORLDWIDE) {
+            // 计算相对全球占比
+            long total = getWorldWideOpening(movie);
+            if (total > 0 && gross > 0) {
+                if (region == Region.CHN) {
+                    item.setRate(FormatUtil.pointZ((double) gross / (double) total / movie.getUsToYuan() * 100d) + "%");
+                }
+                else {
+                    item.setRate(FormatUtil.pointZ((double) gross / (double) total * 100d) + "%");
+                }
+            }
+        }
     }
 
     private void loadRateValue(Movie movie, Region region, RankItem item) {

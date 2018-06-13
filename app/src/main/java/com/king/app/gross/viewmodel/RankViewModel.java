@@ -2,7 +2,10 @@ package com.king.app.gross.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
+import android.databinding.ObservableField;
+import android.databinding.ObservableInt;
 import android.support.annotation.NonNull;
+import android.view.View;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
@@ -37,6 +40,9 @@ public class RankViewModel extends BaseViewModel {
     public MutableLiveData<List<RankTag>> typeTagsObserver = new MutableLiveData<>();
     public MutableLiveData<List<RankItem>> itemsObserver = new MutableLiveData<>();
 
+    public ObservableField<String> titleValueText = new ObservableField<>();
+    public ObservableInt titleRateVisibility = new ObservableInt();
+
     private Region mRegion;
 
     private RankType mRankType;
@@ -48,6 +54,7 @@ public class RankViewModel extends BaseViewModel {
         mRegion = Region.NA;
         mRankType = RankType.TOTAL;
         rankModel = new RankModel();
+        updateRankTitle();
         loadRegionTags();
         loadTypeTags();
         loadMovies();
@@ -136,6 +143,7 @@ public class RankViewModel extends BaseViewModel {
         if (mRegion != region) {
             mRegion = region;
             loadMovies();
+            updateRankTitle();
         }
     }
 
@@ -143,6 +151,26 @@ public class RankViewModel extends BaseViewModel {
         if (mRankType != type) {
             mRankType = type;
             loadMovies();
+            updateRankTitle();
+        }
+    }
+
+    private void updateRankTitle() {
+        // 仅total与opening计算相对全球占比
+        if ((mRankType == RankType.TOTAL || mRankType == RankType.OPENING)
+                && mRegion != Region.WORLDWIDE) {
+            titleRateVisibility.set(View.VISIBLE);
+        }
+        else {
+            titleRateVisibility.set(View.GONE);
+        }
+
+        // 后劲指数
+        if (mRankType == RankType.RATE) {
+            titleValueText.set("指数");
+        }
+        else {
+            titleValueText.set("票房");
         }
     }
 

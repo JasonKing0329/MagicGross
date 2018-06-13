@@ -44,6 +44,8 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
 
     @Override
     protected void onCreate(View view) {
+        mBinding.setModel(mModel);
+
         mBinding.rvRegion.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         mBinding.rvType.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         mBinding.rvMovies.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
