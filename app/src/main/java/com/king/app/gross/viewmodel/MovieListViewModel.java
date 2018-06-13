@@ -3,13 +3,20 @@ package com.king.app.gross.viewmodel;
 import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.view.View;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConstants;
+import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
+import com.king.app.gross.model.gross.DailyModel;
+import com.king.app.gross.model.setting.SettingProperty;
+import com.king.app.gross.utils.FormatUtil;
+import com.king.app.gross.viewmodel.bean.MovieGridItem;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
@@ -19,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -32,35 +41,39 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class MovieListViewModel extends BaseViewModel {
     
-    public MutableLiveData<List<Movie>> moviesObserver = new MutableLiveData<>();
+    public MutableLiveData<List<MovieGridItem>> moviesObserver = new MutableLiveData<>();
 
     public MutableLiveData<Boolean> deleteObserver = new MutableLiveData<>();
 
-    private List<Movie> mMovieList;
+    private List<MovieGridItem> mMovieList;
 
     private Map<Long, Boolean> checkMap;
 
     private int mSortType;
-    
+
+    private int mRegionInList;
+
     public MovieListViewModel(@NonNull Application application) {
         super(application);
         checkMap = new HashMap<>();
         mSortType = AppConstants.MOVIE_SORT_DATE;
+        mRegionInList = SettingProperty.getRegionTypeInMovieList();
     }
 
     public void loadMovies() {
         loadingObserver.setValue(true);
         queryMovies()
+                .flatMap(list -> toGridItems(list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<Movie>>() {
+                .subscribe(new Observer<List<MovieGridItem>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<Movie> movies) {
+                    public void onNext(List<MovieGridItem> movies) {
                         mMovieList = movies;
                         loadingObserver.setValue(false);
                         moviesObserver.setValue(movies);
@@ -92,6 +105,50 @@ public class MovieListViewModel extends BaseViewModel {
             }
             List<Movie> list = builder.build().list();
             e.onNext(list);
+        });
+    }
+
+    private Observable<List<MovieGridItem>> toGridItems(List<Movie> list) {
+        return Observable.create(e -> {
+            List<MovieGridItem> results = new ArrayList<>();
+            for (Movie movie:list) {
+                MovieGridItem item = new MovieGridItem();
+                item.setBean(movie);
+                item.setName(movie.getName());
+                item.setSubName(movie.getSubName());
+                item.setDate(movie.getDebut());
+                if (TextUtils.isEmpty(movie.getSubChnName())) {
+                    item.setChnName(movie.getNameChn());
+                }
+                else {
+                    item.setChnName(movie.getNameChn() + "：" + movie.getSubChnName());
+                }
+                if (mSortType == AppConstants.MOVIE_SORT_DATE) {
+                    if (!TextUtils.isEmpty(movie.getDebut())) {
+                        item.setFlag(movie.getDebut().substring(0, 4));
+                    }
+                    else {
+                        item.setFlag("#");
+                    }
+                }
+                else {
+                    if (!TextUtils.isEmpty(movie.getName())) {
+                        item.setFlag(movie.getName().substring(0, 1));
+                    }
+                    else {
+                        item.setFlag("#");
+                    }
+                }
+                if (mRegionInList == Region.CHN.ordinal()) {
+                    item.setGross(FormatUtil.formatChnGross(new DailyModel(movie).queryTotalGross(mRegionInList)));
+                }
+                else {
+                    item.setGross(FormatUtil.formatUsGross(new DailyModel(movie).queryTotalGross(mRegionInList)));
+                }
+
+                results.add(item);
+            }
+            e.onNext(results);
         });
     }
 
@@ -134,9 +191,9 @@ public class MovieListViewModel extends BaseViewModel {
         return Observable.create(e -> {
             List<Movie> list = new ArrayList<>();
             if (mMovieList != null) {
-                for (Movie movie:mMovieList) {
-                    if (checkMap.get(movie.getId()) != null) {
-                        list.add(movie);
+                for (MovieGridItem movie:mMovieList) {
+                    if (checkMap.get(movie.getBean().getId()) != null) {
+                        list.add(movie.getBean());
                     }
                 }
             }
@@ -167,5 +224,17 @@ public class MovieListViewModel extends BaseViewModel {
 
     public int getSortType() {
         return mSortType;
+    }
+
+    public int getMovieNumber() {
+        return mMovieList == null ? 0:mMovieList.size();
+    }
+
+    public void updateRegionInList(int regionInList) {
+        if (mRegionInList != regionInList) {
+            mRegionInList = regionInList;
+            SettingProperty.setRegionTypeInMovieList(regionInList);
+            loadMovies();
+        }
     }
 }

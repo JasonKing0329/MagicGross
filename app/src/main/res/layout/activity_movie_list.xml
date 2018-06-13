@@ -28,6 +28,7 @@
             app:iconColor="@color/white"
             app:title="Movies"
             app:titleSize="18dp"
+            app:maxShowIcon="4"
             app:supportSearch="false"/>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_movies"
@@ -38,5 +39,42 @@
             app:layout_constraintTop_toBottomOf="@id/actionbar"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:listitem="@layout/adapter_movie_list"/>
+
+        <RelativeLayout
+            android:id="@+id/group_select_container"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/select_movie_height"
+            android:paddingBottom="10dp"
+            android:background="@drawable/shape_movie_select_bg"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <ImageView
+                android:id="@+id/iv_close_select"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentRight="true"
+                android:padding="6dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_close_white"/>
+            <TextView
+                android:id="@+id/tv_title_select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select at least 2 and not over 3 movies to compare"
+                android:textSize="16dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_toLeftOf="@id/iv_close_select"
+                android:textColor="@color/colorPrimary" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_selected_movies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_below="@id/tv_title_select"
+                tools:listitem="@layout/adapter_selected_movie"/>
+        </RelativeLayout>
     </android.support.constraint.ConstraintLayout>
 </layout>

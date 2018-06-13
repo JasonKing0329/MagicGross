@@ -60,134 +60,134 @@ public class DailyModel {
     }
 
     public Observable<List<SimpleGross>> queryGross(int region) {
-        return Observable.create(e -> {
-            // 优先加载total，没有再检查是否有day by day
-            List<SimpleGross> totals = getIsTotalList(region);
-            if (totals != null) {
-                e.onNext(totals);
-                return;
-            }
-            List<SimpleGross> list = new ArrayList<>();
-            GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
-            List<Gross> grosses = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(region))
-                    .where(GrossDao.Properties.IsTotal.eq(0))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
-            long sum = 0;
-            for (int i = 0; i < grosses.size(); i ++) {
-                Gross gross = grosses.get(i);
-                sum += gross.getGross();
+        return Observable.create(e -> e.onNext(getGross(region)));
+    }
 
-                SimpleGross sg = new SimpleGross();
-                sg.setBean(gross);
-                if (gross.getIsLeftAfterDay() > 0) {
-                    sg.setDay("Left");
-                    sg.setDayOfWeek("");
-                }
-                else {
-                    sg.setDay(String.valueOf(gross.getDay()));
-                    sg.setDayOfWeek(String.valueOf(gross.getDayOfWeek()));
-                }
-                if (i > 0) {
-                    long last = grosses.get(i - 1).getGross();
-                    double drop = (double) (gross.getGross() - last) / (double) last;
-                    sg.setDropDay(FormatUtil.formatDrop(drop));
-                }
-                if (i > 6) {
-                    long last = grosses.get(i - 7).getGross();
-                    double drop = (double) (gross.getGross() - last) / (double) last;
-                    sg.setDropWeek(FormatUtil.formatDrop(drop));
-                }
-                // 当日都以单位为万显示
-                sg.setGrossDay(FormatUtil.pointZZ((double) gross.getGross() / (double) 10000));
-                // 累计以单位为个位显示
-                if (gross.getRegion() == Region.CHN.ordinal()) {
-                    sg.setGrossSum(FormatUtil.formatChnGross(sum));
-                }
-                else {
-                    sg.setGrossSum(FormatUtil.formatUsGross(sum));
-                }
-                list.add(sg);
+    public List<SimpleGross> getGross(int region) {
+        // 优先加载total，没有再检查是否有day by day
+        List<SimpleGross> totals = getIsTotalList(region);
+        if (totals != null) {
+            return totals;
+        }
+        List<SimpleGross> list = new ArrayList<>();
+        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
+        List<Gross> grosses = dao.queryBuilder()
+                .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                .where(GrossDao.Properties.Region.eq(region))
+                .where(GrossDao.Properties.IsTotal.eq(0))
+                .orderAsc(GrossDao.Properties.Day)
+                .build().list();
+        long sum = 0;
+        for (int i = 0; i < grosses.size(); i ++) {
+            Gross gross = grosses.get(i);
+            sum += gross.getGross();
+
+            SimpleGross sg = new SimpleGross();
+            sg.setBean(gross);
+            if (gross.getIsLeftAfterDay() > 0) {
+                sg.setDay("Left");
+                sg.setDayOfWeek("");
             }
-            e.onNext(list);
-        });
+            else {
+                sg.setDay(String.valueOf(gross.getDay()));
+                sg.setDayOfWeek(String.valueOf(gross.getDayOfWeek()));
+            }
+            if (i > 0) {
+                long last = grosses.get(i - 1).getGross();
+                double drop = (double) (gross.getGross() - last) / (double) last;
+                sg.setDropDay(FormatUtil.formatDrop(drop));
+            }
+            if (i > 6) {
+                long last = grosses.get(i - 7).getGross();
+                double drop = (double) (gross.getGross() - last) / (double) last;
+                sg.setDropWeek(FormatUtil.formatDrop(drop));
+            }
+            // 当日都以单位为万显示
+            sg.setGrossDay(FormatUtil.pointZZ((double) gross.getGross() / (double) 10000));
+            // 累计以单位为个位显示
+            if (gross.getRegion() == Region.CHN.ordinal()) {
+                sg.setGrossSum(FormatUtil.formatChnGross(sum));
+            }
+            else {
+                sg.setGrossSum(FormatUtil.formatUsGross(sum));
+            }
+            list.add(sg);
+        }
+        return list;
     }
 
     public Observable<List<SimpleGross>> queryOversea() {
-        return Observable.create(e -> {
-            // 优先检查是否有is total
-            List<SimpleGross> totals = getIsTotalList(Region.OVERSEA.ordinal());
-            if (totals != null) {
-                e.onNext(totals);
-                return;
-            }
-            List<SimpleGross> list = new ArrayList<>();
+        return Observable.create(e -> e.onNext(getOversea()));
+    }
 
-            GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
-            List<Gross> chnList = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
-                    .where(GrossDao.Properties.IsTotal.eq(0))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
-            if (chnList.size() == 0) {
-                e.onNext(list);
-                return;
-            }
-            List<Gross> overseaList = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
-                    .where(GrossDao.Properties.IsTotal.eq(0))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
-            if (overseaList.size() == 0) {
-                e.onNext(list);
-                return;
-            }
+    public List<SimpleGross> getOversea() {
+        // 优先检查是否有is total
+        List<SimpleGross> totals = getIsTotalList(Region.OVERSEA.ordinal());
+        if (totals != null) {
+            return totals;
+        }
+        List<SimpleGross> list = new ArrayList<>();
 
-            int size = Math.max(overseaList.size(), chnList.size());
+        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
+        List<Gross> chnList = dao.queryBuilder()
+                .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
+                .where(GrossDao.Properties.IsTotal.eq(0))
+                .orderAsc(GrossDao.Properties.Day)
+                .build().list();
+        if (chnList.size() == 0) {
+            return list;
+        }
+        List<Gross> overseaList = dao.queryBuilder()
+                .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
+                .where(GrossDao.Properties.IsTotal.eq(0))
+                .orderAsc(GrossDao.Properties.Day)
+                .build().list();
+        if (overseaList.size() == 0) {
+            return list;
+        }
 
-            long sum = 0;
-            for (int i = 0; i < size; i ++) {
-                Gross gross = null;
-                if (i < chnList.size()) {
-                    gross = chnList.get(i);
-                }
-                if (i < overseaList.size()) {
-                    gross = overseaList.get(i);
-                }
-                long nGross = getOverseaGross(i, chnList, overseaList);
-                sum += nGross;
+        int size = Math.max(overseaList.size(), chnList.size());
 
-                SimpleGross sg = new SimpleGross();
-                if (gross.getIsLeftAfterDay() > 0) {
-                    sg.setDay("Left");
-                    sg.setDayOfWeek("");
-                }
-                else {
-                    sg.setDay(String.valueOf(gross.getDay()));
-                    sg.setDayOfWeek(String.valueOf(gross.getDayOfWeek()));
-                }
-                if (i > 0) {
-                    long last = getOverseaGross(i - 1, chnList, overseaList);
-                    double drop = (double) (nGross - last) / (double) last;
-                    sg.setDropDay(FormatUtil.formatDrop(drop));
-                }
-                if (i > 6) {
-                    long last = getOverseaGross(i - 7, chnList, overseaList);
-                    double drop = (double) (nGross - last) / (double) last;
-                    sg.setDropWeek(FormatUtil.formatDrop(drop));
-                }
-                // 当日都以单位为万显示
-                sg.setGrossDay(FormatUtil.pointZZ((double) nGross / (double) 10000));
-                // 累计以单位为个位显示
-                sg.setGrossSum(FormatUtil.formatUsGross(sum));
-                list.add(sg);
+        long sum = 0;
+        for (int i = 0; i < size; i ++) {
+            Gross gross = null;
+            if (i < chnList.size()) {
+                gross = chnList.get(i);
             }
-            e.onNext(list);
-        });
+            if (i < overseaList.size()) {
+                gross = overseaList.get(i);
+            }
+            long nGross = getOverseaGross(i, chnList, overseaList);
+            sum += nGross;
+
+            SimpleGross sg = new SimpleGross();
+            if (gross.getIsLeftAfterDay() > 0) {
+                sg.setDay("Left");
+                sg.setDayOfWeek("");
+            }
+            else {
+                sg.setDay(String.valueOf(gross.getDay()));
+                sg.setDayOfWeek(String.valueOf(gross.getDayOfWeek()));
+            }
+            if (i > 0) {
+                long last = getOverseaGross(i - 1, chnList, overseaList);
+                double drop = (double) (nGross - last) / (double) last;
+                sg.setDropDay(FormatUtil.formatDrop(drop));
+            }
+            if (i > 6) {
+                long last = getOverseaGross(i - 7, chnList, overseaList);
+                double drop = (double) (nGross - last) / (double) last;
+                sg.setDropWeek(FormatUtil.formatDrop(drop));
+            }
+            // 当日都以单位为万显示
+            sg.setGrossDay(FormatUtil.pointZZ((double) nGross / (double) 10000));
+            // 累计以单位为个位显示
+            sg.setGrossSum(FormatUtil.formatUsGross(sum));
+            list.add(sg);
+        }
+        return list;
     }
 
     private long getOverseaGross(int i, List<Gross> chnList, List<Gross> overseaList) {
@@ -203,90 +203,89 @@ public class DailyModel {
     }
 
     public Observable<List<SimpleGross>> queryWorldWide() {
-        return Observable.create(e -> {
-            // 优先检查是否有is total
-            List<SimpleGross> totals = getIsTotalList(Region.WORLDWIDE.ordinal());
-            if (totals != null) {
-                e.onNext(totals);
-                return;
-            }
-            List<SimpleGross> list = new ArrayList<>();
-            GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
-            List<Gross> naList = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
-                    .where(GrossDao.Properties.IsTotal.eq(0))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
-            if (naList.size() == 0) {
-                e.onNext(list);
-                return;
-            }
-            List<Gross> chnList = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
-                    .where(GrossDao.Properties.IsTotal.eq(0))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
-            if (chnList.size() == 0) {
-                e.onNext(list);
-                return;
-            }
-            List<Gross> overseaList = dao.queryBuilder()
-                    .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
-                    .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
-                    .where(GrossDao.Properties.IsTotal.eq(0))
-                    .orderAsc(GrossDao.Properties.Day)
-                    .build().list();
-            if (overseaList.size() == 0) {
-                e.onNext(list);
-                return;
-            }
-            int size = Math.max(naList.size(), chnList.size());
-            size = Math.max(size, overseaList.size());
+        return Observable.create(e -> e.onNext(getWorldWide()));
+    }
 
-            long sum = 0;
-            for (int i = 0; i < size; i ++) {
-                Gross gross = null;
-                if (i < naList.size()) {
-                    gross = naList.get(i);
-                }
-                if (i < chnList.size()) {
-                    gross = chnList.get(i);
-                }
-                if (i < overseaList.size()) {
-                    gross = overseaList.get(i);
-                }
-                long nGross = getWorldGross(i, naList, chnList, overseaList);
-                sum += nGross;
+    public List<SimpleGross> getWorldWide() {
 
-                SimpleGross sg = new SimpleGross();
-                if (gross.getIsLeftAfterDay() > 0) {
-                    sg.setDay("Left");
-                    sg.setDayOfWeek("");
-                }
-                else {
-                    sg.setDay(String.valueOf(gross.getDay()));
-                    sg.setDayOfWeek(String.valueOf(gross.getDayOfWeek()));
-                }
-                if (i > 0) {
-                    long last = getWorldGross(i - 1, naList, chnList, overseaList);
-                    double drop = (double) (nGross - last) / (double) last;
-                    sg.setDropDay(FormatUtil.formatDrop(drop));
-                }
-                if (i > 6) {
-                    long last = getWorldGross(i - 7, naList, chnList, overseaList);
-                    double drop = (double) (nGross - last) / (double) last;
-                    sg.setDropWeek(FormatUtil.formatDrop(drop));
-                }
-                // 当日都以单位为万显示
-                sg.setGrossDay(FormatUtil.pointZZ((double) nGross / (double) 10000));
-                // 累计以单位为个位显示
-                sg.setGrossSum(FormatUtil.formatUsGross(sum));
-                list.add(sg);
+        // 优先检查是否有is total
+        List<SimpleGross> totals = getIsTotalList(Region.WORLDWIDE.ordinal());
+        if (totals != null) {
+            return totals;
+        }
+        List<SimpleGross> list = new ArrayList<>();
+        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
+        List<Gross> naList = dao.queryBuilder()
+                .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
+                .where(GrossDao.Properties.IsTotal.eq(0))
+                .orderAsc(GrossDao.Properties.Day)
+                .build().list();
+        if (naList.size() == 0) {
+            return list;
+        }
+        List<Gross> chnList = dao.queryBuilder()
+                .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                .where(GrossDao.Properties.Region.eq(Region.CHN.ordinal()))
+                .where(GrossDao.Properties.IsTotal.eq(0))
+                .orderAsc(GrossDao.Properties.Day)
+                .build().list();
+        if (chnList.size() == 0) {
+            return list;
+        }
+        List<Gross> overseaList = dao.queryBuilder()
+                .where(GrossDao.Properties.MovieId.eq(mMovie.getId()))
+                .where(GrossDao.Properties.Region.eq(Region.OVERSEA_NO_CHN.ordinal()))
+                .where(GrossDao.Properties.IsTotal.eq(0))
+                .orderAsc(GrossDao.Properties.Day)
+                .build().list();
+        if (overseaList.size() == 0) {
+            return list;
+        }
+        int size = Math.max(naList.size(), chnList.size());
+        size = Math.max(size, overseaList.size());
+
+        long sum = 0;
+        for (int i = 0; i < size; i ++) {
+            Gross gross = null;
+            if (i < naList.size()) {
+                gross = naList.get(i);
             }
-            e.onNext(list);
-        });
+            if (i < chnList.size()) {
+                gross = chnList.get(i);
+            }
+            if (i < overseaList.size()) {
+                gross = overseaList.get(i);
+            }
+            long nGross = getWorldGross(i, naList, chnList, overseaList);
+            sum += nGross;
+
+            SimpleGross sg = new SimpleGross();
+            if (gross.getIsLeftAfterDay() > 0) {
+                sg.setDay("Left");
+                sg.setDayOfWeek("");
+            }
+            else {
+                sg.setDay(String.valueOf(gross.getDay()));
+                sg.setDayOfWeek(String.valueOf(gross.getDayOfWeek()));
+            }
+            if (i > 0) {
+                long last = getWorldGross(i - 1, naList, chnList, overseaList);
+                double drop = (double) (nGross - last) / (double) last;
+                sg.setDropDay(FormatUtil.formatDrop(drop));
+            }
+            if (i > 6) {
+                long last = getWorldGross(i - 7, naList, chnList, overseaList);
+                double drop = (double) (nGross - last) / (double) last;
+                sg.setDropWeek(FormatUtil.formatDrop(drop));
+            }
+            // 当日都以单位为万显示
+            sg.setGrossDay(FormatUtil.pointZZ((double) nGross / (double) 10000));
+            // 累计以单位为个位显示
+            sg.setGrossSum(FormatUtil.formatUsGross(sum));
+            list.add(sg);
+        }
+        return list;
     }
 
     private long getWorldGross(int i, List<Gross> naList, List<Gross> chnList, List<Gross> overseaList) {

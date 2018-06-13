@@ -132,60 +132,60 @@ public class RankModel {
     }
 
     private void loadFirstWeekValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(7));
+        long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.Day.le(7)});
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
     private void loadSecondWeekValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.gt(7), GrossDao.Properties.Day.le(14));
+        long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.Day.gt(7), GrossDao.Properties.Day.le(14)});
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
     private void loadThirdWeekValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.gt(14), GrossDao.Properties.Day.le(21));
+        long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.Day.gt(14), GrossDao.Properties.Day.le(21)});
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
     private void loadFourthWeekValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.gt(21), GrossDao.Properties.Day.le(28));
+        long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.Day.gt(21), GrossDao.Properties.Day.le(28)});
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
     private void loadFifthWeekValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.gt(28), GrossDao.Properties.Day.le(35));
+        long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.Day.gt(28), GrossDao.Properties.Day.le(35)});
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
     private void load10DaysValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(10));
+        long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.Day.le(10)});
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
     private void load20DaysValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(20));
+        long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.Day.le(20)});
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
     private void load30DaysValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.Day.le(30));
+        long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.Day.le(30)});
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
     private void loadLeftValue(Movie movie, Region region, RankItem item) {
-        long gross = queryGrossByDay(movie, region.ordinal(), GrossDao.Properties.IsLeftAfterDay.gt(0));
+        long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.IsLeftAfterDay.gt(0)});
         item.setSortValue(gross);
         formatGross(region, item, gross);
     }
 
-    private long queryGrossByDay(Movie mMovie, int region, WhereCondition... dayConditions) {
+    private long queryGrossByDay(Movie mMovie, int region, WhereCondition[] dayConditions) {
         return queryGrossByDay(mMovie, region, false, dayConditions);
     }
 

@@ -1,23 +1,34 @@
 package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.support.v7.widget.GridLayoutManager;
-import android.view.MenuItem;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.PopupMenu;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.ActivityMovieListBinding;
+import com.king.app.gross.model.compare.CompareInstance;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.page.adapter.MovieListAdapter;
+import com.king.app.gross.page.adapter.SelectedMovieAdapter;
+import com.king.app.gross.view.dialog.AlertDialogFragment;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
 import com.king.app.gross.view.dialog.content.EditMovieFragment;
 import com.king.app.gross.viewmodel.MovieListViewModel;
+import com.king.app.gross.viewmodel.bean.MovieGridItem;
 import com.king.app.jactionbar.OnConfirmListener;
-import com.king.app.jactionbar.PopupMenuProvider;
 
 import java.util.List;
 
@@ -33,6 +44,8 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
 
     private boolean isEditMode;
 
+    private SelectedMovieAdapter selectedMovieAdapter;
+
     @Override
     protected int getContentView() {
         return R.layout.activity_movie_list;
@@ -43,8 +56,20 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
         mBinding.setModel(mModel);
         mBinding.executePendingBindings();
 
+        mBinding.groupSelectContainer.setVisibility(View.GONE);
+
         GridLayoutManager manager = new GridLayoutManager(this, 2);
         mBinding.rvMovies.setLayoutManager(manager);
+        mBinding.rvMovies.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                // 预留空位应对弹出compare选择框
+                int size = mModel.getMovieNumber() % 2 == 1 ? mModel.getMovieNumber() - 1 : mModel.getMovieNumber() - 2;
+                if (parent.getChildAdapterPosition(view) >= size) {
+                    outRect.bottom = getResources().getDimensionPixelOffset(R.dimen.select_movie_height);
+                }
+            }
+        });
 
         mBinding.actionbar.setOnBackListener(() -> onBackPressed());
         mBinding.actionbar.setOnMenuItemListener(menuId -> {
@@ -60,6 +85,13 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                 case R.id.menu_edit:
                     isEditMode = true;
                     mBinding.actionbar.showConfirmStatus(menuId);
+                    break;
+                case R.id.menu_compare:
+                    showCompare();
+                    mBinding.actionbar.showConfirmStatus(menuId);
+                    break;
+                case R.id.menu_gross_type:
+                    selectGrossType();
                     break;
             }
         });
@@ -83,6 +115,16 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                     case R.id.menu_edit:
                         isEditMode = false;
                         break;
+                    case R.id.menu_compare:
+                        // 目前最多只支持3个
+                        int compareSize = CompareInstance.getInstance().getMovieList().size();
+                        if (compareSize > 3 || compareSize < 2) {
+                            showMessageShort("Please select at least 2 and not over 3 movies to compare");
+                            return false;
+                        }
+                        startActivity(new Intent().setClass(MovieListActivity.this, CompareActivity.class));
+                        hideCompare();
+                        break;
                 }
                 return true;
             }
@@ -98,6 +140,10 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                     case R.id.menu_edit:
                         isEditMode = false;
                         break;
+                    case R.id.menu_compare:
+                        hideCompare();
+                        mBinding.actionbar.cancelConfirmStatus();
+                        break;
                 }
                 return true;
             }
@@ -111,6 +157,68 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
             }
             return null;
         });
+    }
+
+    private void selectGrossType() {
+        new AlertDialogFragment()
+                .setItems(getResources().getStringArray(R.array.region), (dialog, which) -> mModel.updateRegionInList(which))
+                .show(getSupportFragmentManager(), "AlertDialogFragment");
+    }
+
+    private void showCompare() {
+        if (mBinding.groupSelectContainer.getVisibility() == View.GONE) {
+            initCompare();
+            mBinding.groupSelectContainer.setVisibility(View.VISIBLE);
+
+            TranslateAnimation animation = new TranslateAnimation(TranslateAnimation.RELATIVE_TO_SELF, 0, TranslateAnimation.RELATIVE_TO_SELF, 0
+                , TranslateAnimation.RELATIVE_TO_SELF, 1, TranslateAnimation.RELATIVE_TO_SELF, 0);
+            animation.setDuration(500);
+            animation.setInterpolator(new BounceInterpolator());
+            mBinding.groupSelectContainer.startAnimation(animation);
+        }
+    }
+
+    private void hideCompare() {
+        TranslateAnimation animation = new TranslateAnimation(TranslateAnimation.RELATIVE_TO_SELF, 0, TranslateAnimation.RELATIVE_TO_SELF, 0
+                , TranslateAnimation.RELATIVE_TO_SELF, 0, TranslateAnimation.RELATIVE_TO_SELF, 1);
+        animation.setDuration(500);
+        animation.setInterpolator(new AccelerateDecelerateInterpolator());
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mBinding.groupSelectContainer.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        mBinding.groupSelectContainer.startAnimation(animation);
+    }
+
+    private void initCompare() {
+        if (selectedMovieAdapter == null) {
+            mBinding.ivCloseSelect.setOnClickListener(view -> {
+                hideCompare();
+                mBinding.actionbar.cancelConfirmStatus();
+            });
+            mBinding.ivCloseSelect.setColorFilter(getResources().getColor(R.color.actionbar_bg), PorterDuff.Mode.SRC_IN);
+            LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+            mBinding.rvSelectedMovies.setLayoutManager(manager);
+            selectedMovieAdapter = new SelectedMovieAdapter();
+            selectedMovieAdapter.setOnDeleteListener(movie -> {
+                CompareInstance.getInstance().removeCompareMovie(movie);
+                selectedMovieAdapter.setList(CompareInstance.getInstance().getMovieList());
+                selectedMovieAdapter.notifyDataSetChanged();
+            });
+            mBinding.rvSelectedMovies.setAdapter(selectedMovieAdapter);
+        }
     }
 
     private PopupMenu createSortPopup(View anchorView) {
@@ -146,25 +254,28 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
         mModel.loadMovies();
     }
 
-    private void showMovies(List<Movie> list) {
+    private void showMovies(List<MovieGridItem> list) {
         if (adapter == null) {
             adapter = new MovieListAdapter();
             adapter.setList(list);
-            adapter.setSortType(mModel.getSortType());
             adapter.setCheckMap(mModel.getCheckMap());
             adapter.setOnItemClickListener((view, position, data) -> {
                 if (isEditMode) {
-                    editMovie(data);
+                    editMovie(data.getBean());
+                }
+                else if (mBinding.groupSelectContainer.getVisibility() == View.VISIBLE) {
+                    CompareInstance.getInstance().addCompareMovie(data.getBean());
+                    selectedMovieAdapter.setList(CompareInstance.getInstance().getMovieList());
+                    selectedMovieAdapter.notifyDataSetChanged();
                 }
                 else {
-                    showMovieGross(data);
+                    showMovieGross(data.getBean());
                 }
             });
             mBinding.rvMovies.setAdapter(adapter);
         }
         else {
             adapter.setList(list);
-            adapter.setSortType(mModel.getSortType());
             adapter.notifyDataSetChanged();
         }
     }
@@ -186,4 +297,9 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
         startActivity(intent);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CompareInstance.getInstance().destroy();
+    }
 }

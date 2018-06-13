@@ -89,4 +89,12 @@ public class SettingProperty {
         }
         return bean;
     }
+
+    public static void setRegionTypeInMovieList(int enable) {
+        setInt("region_type_in_movie_list", enable);
+    }
+
+    public static int getRegionTypeInMovieList() {
+        return getInt("region_type_in_movie_list", 0);
+    }
 }
