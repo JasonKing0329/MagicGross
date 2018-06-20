@@ -226,10 +226,13 @@ public class CompareViewModel extends BaseViewModel {
                 CompareItem item = map.get(key);
                 if (item == null) {
                     item = new CompareItem();
+                    item.setDay(true);
                     item.setKey(key);
                     item.setValues(new ArrayList<>());
+                    item.setGrossList(new ArrayList<>());
                     for (int n = 0; n < size; n ++) {
                         item.getValues().add("--");
+                        item.getGrossList().add(null);
                     }
                     map.put(key, item);
                     if (key.equals("零点场")) {
@@ -240,22 +243,54 @@ public class CompareViewModel extends BaseViewModel {
                     }
                 }
                 item.getValues().set(i, gross.getGrossDay());
+                item.getGrossList().set(i, gross);
             }
             CompareItem item = map.get("累计");
             long total = dailyModel.queryTotalGross(mRegion.ordinal());
             if (item == null) {
                 item = new CompareItem();
+                item.setDay(true);
                 item.setKey("累计");
                 item.setValues(new ArrayList<>());
+                item.setGrossList(new ArrayList<>());
                 for (int n = 0; n < size; n ++) {
                     item.getValues().add("--");
+                    item.getGrossList().add(null);
                 }
                 map.put("累计", item);
                 list.add(item);
             }
             item.getValues().set(i, mRegion == Region.CHN ? FormatUtil.formatChnGross(total):FormatUtil.formatUsGross(total));
+
+            // 为了比较出winIndex
+            SimpleGross sg = new SimpleGross();
+            sg.setGrossValue(total);
+            item.getGrossList().set(i, sg);
+        }
+
+        // create win index
+        for (CompareItem item:list) {
+            item.setWinIndex(-1);
+            if (item.isDay()) {
+                int index = compareValues(item.getGrossList());
+                item.setWinIndex(index);
+            }
         }
         return list;
+    }
+
+    private int compareValues(List<SimpleGross> grossList) {
+        int index = -1;
+        long max = 0;
+        for (int i = 0; i < grossList.size(); i ++) {
+            if (grossList.get(i) != null) {
+                if (grossList.get(i).getGrossValue() > max) {
+                    max = grossList.get(i).getGrossValue();
+                    index = i;
+                }
+            }
+        }
+        return index;
     }
 
     private String getGrossKey(SimpleGross gross, int week) {

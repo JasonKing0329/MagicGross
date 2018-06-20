@@ -38,6 +38,13 @@ public class CompareItemAdapter extends BaseBindingAdapter<AdapterCompareItemBin
             else {
                 views[i].setVisibility(View.GONE);
             }
+
+            if (i == bean.getWinIndex()) {
+                views[i].setTextColor(views[i].getResources().getColor(R.color.actionbar_bg));
+            }
+            else {
+                views[i].setTextColor(views[i].getResources().getColor(R.color.text_second));
+            }
         }
     }
 

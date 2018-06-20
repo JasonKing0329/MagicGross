@@ -16,6 +16,7 @@ public class SimpleGross {
     private String dropDay;
     private String dropWeek;
     private String grossSum;
+    private long grossValue;
 
     private Gross bean;
 
@@ -73,5 +74,13 @@ public class SimpleGross {
 
     public void setBean(Gross bean) {
         this.bean = bean;
+    }
+
+    public long getGrossValue() {
+        return grossValue;
+    }
+
+    public void setGrossValue(long grossValue) {
+        this.grossValue = grossValue;
     }
 }

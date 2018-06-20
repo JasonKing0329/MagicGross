@@ -34,12 +34,14 @@ public class MovieListAdapter extends BaseBindingAdapter<AdapterMovieListBinding
             binding.tvNameSub.setVisibility(View.GONE);
         }
         else {
+            binding.tvNameSub.setVisibility(View.VISIBLE);
             binding.tvNameSub.setText(bean.getSubName());
         }
         if (TextUtils.isEmpty(bean.getChnName())) {
             binding.tvNameChn.setVisibility(View.GONE);
         }
         else {
+            binding.tvNameChn.setVisibility(View.VISIBLE);
             binding.tvNameChn.setText(bean.getChnName());
         }
         binding.cbCheck.setVisibility(isSelectionMode ? View.VISIBLE:View.GONE);

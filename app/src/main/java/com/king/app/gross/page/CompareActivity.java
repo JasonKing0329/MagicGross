@@ -1,7 +1,7 @@
 package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +12,7 @@ import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityCompareBinding;
 import com.king.app.gross.model.compare.CompareInstance;
+import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.page.adapter.CompareItemAdapter;
 import com.king.app.gross.page.adapter.CompareMovieAdapter;
 import com.king.app.gross.utils.ListUtil;
@@ -83,6 +84,7 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
             mBinding.rvMovies.setLayoutManager(manager);
 
             movieAdapter = new CompareMovieAdapter();
+            movieAdapter.setOnItemClickListener((view, position, data) -> showMoviePage(data));
             movieAdapter.setList(CompareInstance.getInstance().getMovieList());
             mBinding.rvMovies.setAdapter(movieAdapter);
 
@@ -90,6 +92,12 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
         }
 
         mModel.compareItemsObserver.observe(this, compareItems -> showCompareItems(compareItems));
+    }
+
+    private void showMoviePage(Movie data) {
+        Intent intent = new Intent().setClass(this, MovieGrossActivity.class);
+        intent.putExtra(MovieGrossActivity.EXTRA_MOVIE_ID, data.getId());
+        startActivity(intent);
     }
 
     private void showCompareItems(List<CompareItem> compareItems) {

@@ -11,6 +11,13 @@ import java.util.List;
 public class CompareItem {
     private String key;
     private List<String> values;
+    private List<SimpleGross> grossList;
+    private int winIndex;
+    private boolean isDay;
+
+    public CompareItem() {
+        winIndex = -1;
+    }
 
     public String getKey() {
         return key;
@@ -26,5 +33,29 @@ public class CompareItem {
 
     public void setValues(List<String> values) {
         this.values = values;
+    }
+
+    public int getWinIndex() {
+        return winIndex;
+    }
+
+    public void setWinIndex(int winIndex) {
+        this.winIndex = winIndex;
+    }
+
+    public boolean isDay() {
+        return isDay;
+    }
+
+    public void setDay(boolean day) {
+        isDay = day;
+    }
+
+    public List<SimpleGross> getGrossList() {
+        return grossList;
+    }
+
+    public void setGrossList(List<SimpleGross> grossList) {
+        this.grossList = grossList;
     }
 }

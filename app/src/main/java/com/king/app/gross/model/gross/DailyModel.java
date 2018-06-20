@@ -47,6 +47,7 @@ public class DailyModel {
                 else if (item.getIsTotal() == AppConstants.GROSS_IS_OPENING) {
                     gross.setGrossDay("Opening");
                 }
+                gross.setGrossValue(item.getGross());
                 gross.setGrossSum(FormatUtil.formatUsGross(item.getGross()));
                 gross.setDay("");
                 gross.setDropWeek("");
@@ -104,6 +105,7 @@ public class DailyModel {
             }
             // 当日都以单位为万显示
             sg.setGrossDay(FormatUtil.pointZZ((double) gross.getGross() / (double) 10000));
+            sg.setGrossValue(gross.getGross());
             // 累计以单位为个位显示
             if (gross.getRegion() == Region.CHN.ordinal()) {
                 sg.setGrossSum(FormatUtil.formatChnGross(sum));
@@ -185,6 +187,7 @@ public class DailyModel {
             sg.setGrossDay(FormatUtil.pointZZ((double) nGross / (double) 10000));
             // 累计以单位为个位显示
             sg.setGrossSum(FormatUtil.formatUsGross(sum));
+            sg.setGrossValue(gross.getGross());
             list.add(sg);
         }
         return list;
@@ -283,6 +286,7 @@ public class DailyModel {
             sg.setGrossDay(FormatUtil.pointZZ((double) nGross / (double) 10000));
             // 累计以单位为个位显示
             sg.setGrossSum(FormatUtil.formatUsGross(sum));
+            sg.setGrossValue(gross.getGross());
             list.add(sg);
         }
         return list;
