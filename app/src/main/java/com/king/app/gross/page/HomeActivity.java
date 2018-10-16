@@ -4,9 +4,12 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 
 import com.king.app.gross.R;
+import com.king.app.gross.base.MApplication;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityHomeBinding;
 import com.king.app.gross.page.gross.RankFragment;
+import com.king.app.gross.view.dialog.DraggableDialogFragment;
+import com.king.app.gross.view.dialog.content.LoadFromFragment;
 import com.king.app.gross.viewmodel.HomeViewModel;
 
 /**
@@ -29,8 +32,28 @@ public class HomeActivity extends MvvmActivity<ActivityHomeBinding, HomeViewMode
                 case R.id.menu_movies:
                     startMovies();
                     break;
+                case R.id.menu_load_from:
+                    showLoadFrom();
+                    break;
+                case R.id.menu_save:
+                    mModel.saveDatabase();
+                    break;
             }
         });
+    }
+
+    private void showLoadFrom() {
+        LoadFromFragment content = new LoadFromFragment();
+        content.setOnDatabaseChangedListener(() -> {
+            MApplication.getInstance().reCreateGreenDao();
+            initData();
+        });
+        DraggableDialogFragment editDialog = new DraggableDialogFragment.Builder()
+                .setTitle("Load from")
+                .setShowDelete(false)
+                .setContentFragment(content)
+                .build();
+        editDialog.show(getSupportFragmentManager(), "LoadFromFragment");
     }
 
     @Override

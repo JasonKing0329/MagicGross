@@ -21,4 +21,6 @@
     <string name="login_finger_not_register">Fingerprint has never been registered in device, please register first!</string>
     <string name="warning">warning</string>
 
+    <string name="load_from_warning_msg">Selected database will cover default database, sure to continue?</string>
+
 </resources>

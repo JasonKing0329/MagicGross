@@ -10,4 +10,5 @@ import com.king.app.gross.base.IFragmentHolder;
 
 public interface DraggableHolder extends IFragmentHolder {
     void dismiss();
+    void dismissAllowingStateLoss();
 }

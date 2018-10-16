@@ -78,7 +78,6 @@ public class MApplication extends Application {
                     db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.Debut.columnName + " TEXT");
                     db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.IsReal.columnName + " INTEGER");
                     db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.Year.columnName + " INTEGER");
-                    break;
                 case 2:
                     db.execSQL("ALTER TABLE " + GrossDao.TABLENAME + " ADD COLUMN " + GrossDao.Properties.IsTotal.columnName + " INTEGER");
                     break;
