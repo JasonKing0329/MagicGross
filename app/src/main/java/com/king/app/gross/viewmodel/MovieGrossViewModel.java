@@ -13,9 +13,11 @@ import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
+import com.king.app.gross.model.gross.ChartModel;
 import com.king.app.gross.model.gross.DailyModel;
 import com.king.app.gross.model.gross.WeekendModel;
 import com.king.app.gross.model.gross.WeeklyModel;
+import com.king.app.gross.page.gross.AxisData;
 import com.king.app.gross.utils.DebugLog;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.GrossPage;
@@ -54,9 +56,12 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private WeekendModel weekendModel;
 
+    private ChartModel chartModel;
+
     public MovieGrossViewModel(@NonNull Application application) {
         super(application);
         mDateType = GrossDateType.DAILY;
+        chartModel = new ChartModel();
     }
 
     public void loadMovie(long movieId) {
@@ -221,6 +226,9 @@ public class MovieGrossViewModel extends BaseViewModel {
             if (opening > 0) {
                 page.rate = FormatUtil.pointZ((double) total / (double) opening);
             }
+
+            page.axisYData = chartModel.createAxisData(region, list);
+            page.lineData = chartModel.createLineData(region, list);
             e.onNext(page);
         });
     }
@@ -528,4 +536,5 @@ public class MovieGrossViewModel extends BaseViewModel {
     public GrossDateType getDateType() {
         return mDateType;
     }
+
 }

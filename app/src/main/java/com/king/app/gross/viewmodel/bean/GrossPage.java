@@ -2,6 +2,8 @@ package com.king.app.gross.viewmodel.bean;
 
 import com.king.app.gross.conf.GrossDateType;
 import com.king.app.gross.conf.Region;
+import com.king.app.gross.page.gross.AxisData;
+import com.king.app.gross.view.widget.chart.adapter.LineData;
 
 import java.util.List;
 
@@ -26,4 +28,8 @@ public class GrossPage {
     public String total;
 
     public String rate;
+
+    public AxisData axisYData;
+
+    public LineData lineData;
 }

@@ -14,6 +14,10 @@ import com.king.app.gross.databinding.FragmentGrossSimpleBinding;
 import com.king.app.gross.page.adapter.GrossSimpleAdapter;
 import com.king.app.gross.page.adapter.GrossWeekAdapter;
 import com.king.app.gross.utils.DebugLog;
+import com.king.app.gross.utils.FormatUtil;
+import com.king.app.gross.view.widget.chart.adapter.IAxis;
+import com.king.app.gross.view.widget.chart.adapter.LineChartAdapter;
+import com.king.app.gross.view.widget.chart.adapter.LineData;
 import com.king.app.gross.viewmodel.MovieGrossViewModel;
 import com.king.app.gross.viewmodel.bean.GrossPage;
 
@@ -89,12 +93,112 @@ public class GrossSimpleFragment extends BaseBindingFragment<FragmentGrossSimple
                     break;
                 default:
                     updateDailyData(grossPage);
+                    // 目前仅支持daily chart，选择WEEKEND和WEEKLY后，也不用因此chart，仍然显示daily时的chart就行
+                    updateChart(grossPage);
                     break;
             }
             mBinding.tvOpening.setText(grossPage.opening);
             mBinding.tvTotal.setText(grossPage.total);
             mBinding.tvRate.setText(grossPage.rate);
         }
+    }
+
+    /**
+     * value以十万(美元)/百万(人民币)描点
+     * y轴以5百万(美元)/5千万(人民币)描点
+     * @param page
+     */
+    private void updateChart(GrossPage page) {
+        mBinding.chartWeek.setDrawAxisY(true);
+        mBinding.chartWeek.setDegreeCombine(1);
+        mBinding.chartWeek.setAxisX(new IAxis() {
+            @Override
+            public int getDegreeCount() {
+                return page.list.size();
+            }
+
+            @Override
+            public int getTotalWeight() {
+                return page.list.size();
+            }
+
+            @Override
+            public int getWeightAt(int position) {
+                return position;
+            }
+
+            @Override
+            public String getTextAt(int position) {
+                return page.list.get(position).getDay();
+            }
+
+            @Override
+            public boolean isNotDraw(int position) {
+                return false;
+            }
+        });
+        mBinding.chartWeek.setAxisY(new IAxis() {
+            @Override
+            public int getDegreeCount() {
+                return page.axisYData.total;
+            }
+
+            @Override
+            public int getTotalWeight() {
+                return page.axisYData.total;
+            }
+
+            @Override
+            public int getWeightAt(int position) {
+                return position;
+            }
+
+            @Override
+            public String getTextAt(int position) {
+                if (page.region == Region.CHN) {
+                    if (position < 100) {
+                        return position / 10 + "千万";
+                    }
+                    else {
+                        double ft = (double) position / (double) 100;
+                        return FormatUtil.pointZ(ft) + "亿";
+                    }
+                }
+                else {
+                    if (position < 100) {
+                        return position / 10 + "百万";
+                    }
+                    else if (position < 1000) {
+                        double ft = (double) position / (double) 100;
+                        return FormatUtil.pointZ(ft) + "千万";
+                    }
+                    else {
+                        double ft = (double) position / (double) 1000;
+                        return FormatUtil.pointZ(ft) + "亿";
+                    }
+                }
+            }
+
+            @Override
+            public boolean isNotDraw(int position) {
+                // y轴每50个显示一个点
+                if (position % 50 == 0) {
+                    return false;
+                }
+                return true;
+            }
+        });
+        mBinding.chartWeek.setAdapter(new LineChartAdapter() {
+            @Override
+            public int getLineCount() {
+                return 1;
+            }
+
+            @Override
+            public LineData getLineData(int lineIndex) {
+                return page.lineData;
+            }
+        });
     }
 
     private void updateWeekendData(GrossPage grossPage) {

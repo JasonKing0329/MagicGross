@@ -7,6 +7,7 @@ import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.utils.FormatUtil;
+import com.king.app.gross.utils.ListUtil;
 import com.king.app.gross.viewmodel.bean.SimpleGross;
 
 import java.util.ArrayList;
@@ -150,9 +151,10 @@ public class DailyModel {
             return list;
         }
 
-        int size = Math.max(overseaList.size(), chnList.size());
-
         long sum = 0;
+        fixChnListInCount(chnList);
+
+        int size = Math.max(overseaList.size(), chnList.size());
         for (int i = 0; i < size; i ++) {
             Gross gross = null;
             if (i < chnList.size()) {
@@ -165,6 +167,7 @@ public class DailyModel {
             sum += nGross;
 
             SimpleGross sg = new SimpleGross();
+            sg.setBean(gross);
             if (gross.getIsLeftAfterDay() > 0) {
                 sg.setDay("Left");
                 sg.setDayOfWeek("");
@@ -191,6 +194,53 @@ public class DailyModel {
             list.add(sg);
         }
         return list;
+    }
+
+    /**
+     * 汇总，chn的list中包含提前场(day = 0)，overseaExceptChina, northAmerica则不包括
+     * @param chnList
+     */
+    private void fixChnListInCount(List<Gross> chnList) {
+        // 处理办法为把day0加到day1中，删除day0
+        if (!ListUtil.isEmpty(chnList) && chnList.get(0).getDay() == 0) {
+            // 只有day0，修改为day1
+            if (chnList.size() == 1) {
+                chnList.get(0).setDay(1);
+            }
+            // 累加到day1
+            else {
+                chnList.get(1).setGross(chnList.get(1).getGross() + chnList.get(0).getGross());
+                chnList.remove(0);
+            }
+        }
+    }
+
+    private class GrossDay {
+        public int start;
+        public int end;
+    }
+
+    private GrossDay countTotalDay(List<Gross> chnList, List<Gross> overseaList) {
+        GrossDay day = new GrossDay();
+        int chnStart = chnList.get(0).getDay();
+        int osStart = overseaList.get(0).getDay();
+        int chnEnd;
+        if (chnList.get(chnList.size() - 1).getIsLeftAfterDay() > 0) {
+            chnEnd = chnList.get(chnList.size() - 2).getDay() + 1;
+        }
+        else {
+            chnEnd = chnList.get(chnList.size() - 1).getDay();
+        }
+        int osEnd;
+        if (overseaList.get(overseaList.size() - 1).getIsLeftAfterDay() > 0) {
+            osEnd = overseaList.get(overseaList.size() - 2).getDay() + 1;
+        }
+        else {
+            osEnd = overseaList.get(overseaList.size() - 1).getDay();
+        }
+        day.start = Math.min(chnStart, osStart);
+        day.end = Math.max(chnEnd, osEnd);
+        return day;
     }
 
     private long getOverseaGross(int i, List<Gross> chnList, List<Gross> overseaList) {
@@ -245,6 +295,8 @@ public class DailyModel {
         if (overseaList.size() == 0) {
             return list;
         }
+
+        fixChnListInCount(chnList);
         int size = Math.max(naList.size(), chnList.size());
         size = Math.max(size, overseaList.size());
 
@@ -264,6 +316,7 @@ public class DailyModel {
             sum += nGross;
 
             SimpleGross sg = new SimpleGross();
+            sg.setBean(gross);
             if (gross.getIsLeftAfterDay() > 0) {
                 sg.setDay("Left");
                 sg.setDayOfWeek("");
