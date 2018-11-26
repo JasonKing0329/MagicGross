@@ -22,8 +22,16 @@ public class ChartModel {
         for (SimpleGross gross:list) {
             if (gross.getGrossValue() > max) {
                 // 除去left
-                if (gross.getBean().getIsLeftAfterDay() > 0) {
-                    continue;
+                // 汇总类（oversea/world wide）
+                if (gross.getBean() == null) {
+                    if (gross.isLeft()) {
+                        continue;
+                    }
+                }
+                else {
+                    if (gross.getBean().getIsLeftAfterDay() > 0) {
+                        continue;
+                    }
                 }
                 max = gross.getGrossValue();
             }
@@ -50,8 +58,20 @@ public class ChartModel {
         data.setValues(new ArrayList<>());
         data.setValuesText(new ArrayList<>());
         for (int i = 0; i < list.size(); i ++) {
+            boolean isLeft = false;
+            // 汇总类（oversea/world wide）
+            if (list.get(i).getBean() == null) {
+                if (list.get(i).isLeft()) {
+                    isLeft = true;
+                }
+            }
+            else {
+                if (list.get(i).getBean().getIsLeftAfterDay() > 0) {
+                    isLeft = true;
+                }
+            }
             // 除去left
-            if (list.get(i).getBean().getIsLeftAfterDay() > 0) {
+            if (isLeft) {
                 // 显示余量文字
                 data.getValuesText().add(list.get(i).getGrossDay());
                 // 曲线显示为持平
@@ -74,7 +94,7 @@ public class ChartModel {
             }
 
             // 只显示提前场、首日和每周6的value text
-            if (list.get(i).getBean().getDayOfWeek() == 6 || list.get(i).getBean().getDay() <= 1) {
+            if (Integer.parseInt(list.get(i).getDayOfWeek()) == 6 || Integer.parseInt(list.get(i).getDay()) <= 1) {
                 data.getValuesText().add(list.get(i).getGrossDay());
             }
             else {

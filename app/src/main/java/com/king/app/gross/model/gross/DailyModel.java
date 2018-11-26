@@ -167,8 +167,8 @@ public class DailyModel {
             sum += nGross;
 
             SimpleGross sg = new SimpleGross();
-            sg.setBean(gross);
             if (gross.getIsLeftAfterDay() > 0) {
+                sg.setLeft(true);
                 sg.setDay("Left");
                 sg.setDayOfWeek("");
             }
@@ -209,7 +209,17 @@ public class DailyModel {
             }
             // 累加到day1
             else {
-                chnList.get(1).setGross(chnList.get(1).getGross() + chnList.get(0).getGross());
+                // 不能在原bean中改变，会影响greendao的缓存
+                Gross gross = new Gross();
+                gross.setGross(chnList.get(1).getGross() + chnList.get(0).getGross());
+                gross.setDay(chnList.get(1).getDay());
+                gross.setDayOfWeek(chnList.get(1).getDayOfWeek());
+                gross.setIsTotal(chnList.get(1).getIsTotal());
+                gross.setSymbol(chnList.get(1).getSymbol());
+                gross.setIsLeftAfterDay(chnList.get(1).getIsLeftAfterDay());
+                gross.setRegion(chnList.get(1).getRegion());
+                gross.setMovieId(chnList.get(1).getMovieId());
+                chnList.set(1, gross);
                 chnList.remove(0);
             }
         }
@@ -316,8 +326,8 @@ public class DailyModel {
             sum += nGross;
 
             SimpleGross sg = new SimpleGross();
-            sg.setBean(gross);
             if (gross.getIsLeftAfterDay() > 0) {
+                sg.setLeft(true);
                 sg.setDay("Left");
                 sg.setDayOfWeek("");
             }
