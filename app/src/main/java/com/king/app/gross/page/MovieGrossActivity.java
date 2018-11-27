@@ -41,6 +41,9 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
                 case R.id.menu_add:
                     editGross(null);
                     break;
+                case R.id.menu_chart:
+                    ftTab.toggleChart();
+                    break;
             }
         });
         mBinding.actionbar.registerPopupMenu(R.id.menu_date);

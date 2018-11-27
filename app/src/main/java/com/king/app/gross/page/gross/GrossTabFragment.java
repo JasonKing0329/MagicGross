@@ -72,4 +72,8 @@ public class GrossTabFragment extends BaseBindingFragment<FragmentGrossTabBindin
     public void onDateTypeChanged() {
         pagerAdapter.getItem(mBinding.viewpager.getCurrentItem()).onDateTypeChanged();
     }
+
+    public void toggleChart() {
+        pagerAdapter.getItem(mBinding.viewpager.getCurrentItem()).toggleChart();
+    }
 }

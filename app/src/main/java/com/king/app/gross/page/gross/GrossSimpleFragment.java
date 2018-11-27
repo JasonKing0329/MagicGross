@@ -15,7 +15,7 @@ import com.king.app.gross.model.gross.ChartModel;
 import com.king.app.gross.page.adapter.GrossSimpleAdapter;
 import com.king.app.gross.page.adapter.GrossWeekAdapter;
 import com.king.app.gross.utils.DebugLog;
-import com.king.app.gross.utils.FormatUtil;
+import com.king.app.gross.utils.ListUtil;
 import com.king.app.gross.view.widget.chart.adapter.IAxis;
 import com.king.app.gross.view.widget.chart.adapter.LineChartAdapter;
 import com.king.app.gross.view.widget.chart.adapter.LineData;
@@ -110,6 +110,10 @@ public class GrossSimpleFragment extends BaseBindingFragment<FragmentGrossSimple
      * @param page
      */
     private void updateChart(GrossPage page) {
+        if (page.lineData == null || ListUtil.isEmpty(page.lineData.getValues())) {
+            mBinding.chartWeek.setVisibility(View.GONE);
+            return;
+        }
         mBinding.chartWeek.setDrawAxisY(true);
         mBinding.chartWeek.setDegreeCombine(1);
         mBinding.chartWeek.setAxisX(new IAxis() {
@@ -220,5 +224,14 @@ public class GrossSimpleFragment extends BaseBindingFragment<FragmentGrossSimple
 
     public void onPageSelected() {
         mModel.loadRegion(mRegion);
+    }
+
+    public void toggleChart() {
+        if (mBinding.chartWeek.getVisibility() == View.VISIBLE) {
+            mBinding.chartWeek.setVisibility(View.GONE);
+        }
+        else {
+            mBinding.chartWeek.setVisibility(View.VISIBLE);
+        }
     }
 }
