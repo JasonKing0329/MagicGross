@@ -117,6 +117,10 @@ public class ChartModel {
                 }
                 continue;
             }
+            // 出去非daily数据
+            if (list.get(i).getBean() != null && list.get(i).getBean().getIsTotal() != 0) {
+                continue;
+            }
 
             if (region == Region.CHN) {
                 // 人民币单位以百万计

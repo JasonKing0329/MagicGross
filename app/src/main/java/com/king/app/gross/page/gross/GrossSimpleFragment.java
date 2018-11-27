@@ -114,6 +114,7 @@ public class GrossSimpleFragment extends BaseBindingFragment<FragmentGrossSimple
             mBinding.chartWeek.setVisibility(View.GONE);
             return;
         }
+        mBinding.chartWeek.setVisibility(View.VISIBLE);
         mBinding.chartWeek.setDrawAxisY(true);
         mBinding.chartWeek.setDegreeCombine(1);
         mBinding.chartWeek.setAxisX(new IAxis() {
