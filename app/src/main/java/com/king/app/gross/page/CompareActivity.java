@@ -11,12 +11,17 @@ import android.view.View;
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityCompareBinding;
+import com.king.app.gross.model.compare.CompareChart;
 import com.king.app.gross.model.compare.CompareInstance;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.model.gross.ChartModel;
 import com.king.app.gross.page.adapter.CompareItemAdapter;
 import com.king.app.gross.page.adapter.CompareMovieAdapter;
 import com.king.app.gross.utils.ListUtil;
 import com.king.app.gross.view.dialog.AlertDialogFragment;
+import com.king.app.gross.view.widget.chart.adapter.IAxis;
+import com.king.app.gross.view.widget.chart.adapter.LineChartAdapter;
+import com.king.app.gross.view.widget.chart.adapter.LineData;
 import com.king.app.gross.viewmodel.CompareViewModel;
 import com.king.app.gross.viewmodel.bean.CompareItem;
 
@@ -64,6 +69,20 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
         });
 
         mBinding.tvRegion.setOnClickListener(view -> selectRegion());
+
+        mBinding.actionbar.setOnBackListener(() -> onBackPressed());
+        mBinding.actionbar.setOnMenuItemListener(menuId -> {
+            switch (menuId) {
+                case R.id.menu_chart:
+                    if (mBinding.chart.getVisibility() == View.VISIBLE) {
+                        mBinding.chart.setVisibility(View.GONE);
+                    }
+                    else {
+                        mBinding.chart.setVisibility(View.VISIBLE);
+                    }
+                    break;
+            }
+        });
     }
 
     private void selectRegion() {
@@ -79,6 +98,11 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
 
     @Override
     protected void initData() {
+
+        mModel.compareItemsObserver.observe(this, compareItems -> showCompareItems(compareItems));
+
+        mModel.chartObserver.observe(this, data -> updateChart(data));
+
         if (!ListUtil.isEmpty(CompareInstance.getInstance().getMovieList())) {
             GridLayoutManager manager = new GridLayoutManager(this, CompareInstance.getInstance().getMovieList().size());
             mBinding.rvMovies.setLayoutManager(manager);
@@ -90,8 +114,6 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
 
             mModel.loadCompareItems();
         }
-
-        mModel.compareItemsObserver.observe(this, compareItems -> showCompareItems(compareItems));
     }
 
     private void showMoviePage(Movie data) {
@@ -110,5 +132,84 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
             itemAdapter.setList(compareItems);
             itemAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void updateChart(CompareChart data) {
+        if (data.getLineDataList() == null) {
+            mBinding.chart.setVisibility(View.GONE);
+            return;
+        }
+        mBinding.chart.setVisibility(View.VISIBLE);
+        mBinding.chart.setDrawAxisY(true);
+        mBinding.chart.setDegreeCombine(1);
+        mBinding.chart.setAxisX(new IAxis() {
+            @Override
+            public int getDegreeCount() {
+                return data.getxCount();
+            }
+
+            @Override
+            public int getTotalWeight() {
+                return data.getxCount();
+            }
+
+            @Override
+            public int getWeightAt(int position) {
+                return position;
+            }
+
+            @Override
+            public String getTextAt(int position) {
+                return data.getxTextList().get(position);
+            }
+
+            @Override
+            public boolean isNotDraw(int position) {
+                return false;
+            }
+        });
+        mBinding.chart.setAxisY(new IAxis() {
+            @Override
+            public int getDegreeCount() {
+                return data.getyCount();
+            }
+
+            @Override
+            public int getTotalWeight() {
+                return data.getyCount();
+            }
+
+            @Override
+            public int getWeightAt(int position) {
+                return position;
+            }
+
+            @Override
+            public String getTextAt(int position) {
+                return ChartModel.formatAxisString(mModel.getRegion(), position);
+            }
+
+            @Override
+            public boolean isNotDraw(int position) {
+                // y轴每50个显示一个点
+                if (position % 50 == 0) {
+                    return false;
+                }
+                return true;
+            }
+        });
+        mBinding.chart.setAdapter(new LineChartAdapter() {
+            @Override
+            public int getLineCount() {
+                return data.getLineDataList() == null ? 0:data.getLineDataList().size();
+            }
+
+            @Override
+            public LineData getLineData(int lineIndex) {
+                LineData lineData = data.getLineDataList().get(lineIndex);
+                lineData.setColor(movieAdapter.getColorList().get(lineIndex));
+                return lineData;
+            }
+        });
     }
 }

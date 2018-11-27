@@ -9,8 +9,10 @@ import android.text.TextUtils;
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
+import com.king.app.gross.model.compare.CompareChart;
 import com.king.app.gross.model.compare.CompareInstance;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.model.gross.ChartModel;
 import com.king.app.gross.model.gross.DailyModel;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.CompareItem;
@@ -41,27 +43,37 @@ public class CompareViewModel extends BaseViewModel {
 
     public MutableLiveData<List<CompareItem>> compareItemsObserver = new MutableLiveData<>();
 
+    public MutableLiveData<CompareChart> chartObserver = new MutableLiveData<>();
+
+    private ChartModel chartModel;
+
     public CompareViewModel(@NonNull Application application) {
         super(application);
         mRegion = Region.NA;
         regionText.set(getRegionText(mRegion));
+        chartModel = new ChartModel();
     }
 
     public void loadCompareItems() {
         loadingObserver.setValue(true);
         queryCompares()
+                .flatMap(list -> {
+                    int size = CompareInstance.getInstance().getMovieList().size();
+                    compareItemsObserver.postValue(list);
+                    return chartModel.createChart(list, size, mRegion);
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<CompareItem>>() {
+                .subscribe(new Observer<CompareChart>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<CompareItem> compareItems) {
+                    public void onNext(CompareChart chart) {
                         loadingObserver.setValue(false);
-                        compareItemsObserver.setValue(compareItems);
+                        chartObserver.setValue(chart);
                     }
 
                     @Override
@@ -251,6 +263,7 @@ public class CompareViewModel extends BaseViewModel {
                 item = new CompareItem();
                 item.setDay(true);
                 item.setKey("累计");
+                item.setTotal(true);
                 item.setValues(new ArrayList<>());
                 item.setGrossList(new ArrayList<>());
                 for (int n = 0; n < size; n ++) {
@@ -299,15 +312,12 @@ public class CompareViewModel extends BaseViewModel {
         if (TextUtils.isEmpty(gross.getDay())) {
             key = null;
         }
-        else if (gross.getDay().equals("Left")) {
-            key = "Left";
-        }
-        else if (gross.getDay().equals("0")) {
-            key = "零点场";
+        else if (gross.getDay().equals(AppConstants.COMPARE_TITLE_LEFT)) {
+            key = AppConstants.COMPARE_TITLE_LEFT;
         }
         else {
             int dayOfWeek = Integer.parseInt(gross.getDayOfWeek());
-            key = "Week " + week + "-" + dayOfWeek;
+            key = AppConstants.COMPARE_TITLE_WEEK + week + "-" + dayOfWeek;
         }
         return key;
     }
@@ -332,6 +342,10 @@ public class CompareViewModel extends BaseViewModel {
                 break;
         }
         return text;
+    }
+
+    public Region getRegion() {
+        return mRegion;
     }
 
     public void changeRegion(int which) {

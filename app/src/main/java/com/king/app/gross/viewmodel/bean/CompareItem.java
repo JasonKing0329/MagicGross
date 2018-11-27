@@ -14,6 +14,7 @@ public class CompareItem {
     private List<SimpleGross> grossList;
     private int winIndex;
     private boolean isDay;
+    private boolean isTotal;
 
     public CompareItem() {
         winIndex = -1;
@@ -51,6 +52,14 @@ public class CompareItem {
         isDay = day;
     }
 
+    public boolean isTotal() {
+        return isTotal;
+    }
+
+    public void setTotal(boolean total) {
+        isTotal = total;
+    }
+
     public List<SimpleGross> getGrossList() {
         return grossList;
     }
@@ -58,4 +67,5 @@ public class CompareItem {
     public void setGrossList(List<SimpleGross> grossList) {
         this.grossList = grossList;
     }
+
 }

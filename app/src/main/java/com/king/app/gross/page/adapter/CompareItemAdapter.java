@@ -1,8 +1,5 @@
 package com.king.app.gross.page.adapter;
 
-import android.view.View;
-import android.widget.TextView;
-
 import com.king.app.gross.R;
 import com.king.app.gross.base.BaseBindingAdapter;
 import com.king.app.gross.databinding.AdapterCompareItemBinding;
@@ -26,24 +23,13 @@ public class CompareItemAdapter extends BaseBindingAdapter<AdapterCompareItemBin
         binding.setBean(bean);
         binding.executePendingBindings();
 
-        // 目前最多只支持3个
-        TextView[] views = new TextView[] {
-                binding.tvValue1, binding.tvValue2, binding.tvValue3
-        };
-        for (int i = 0; i < views.length; i ++) {
-            if (i < bean.getValues().size()) {
-                views[i].setText(bean.getValues().get(i));
-                views[i].setVisibility(View.VISIBLE);
-            }
-            else {
-                views[i].setVisibility(View.GONE);
-            }
-
+        for (int i = 0; i < bean.getValues().size(); i ++) {
+            binding.groupCompare.setCell(i, bean.getValues().get(i));
             if (i == bean.getWinIndex()) {
-                views[i].setTextColor(views[i].getResources().getColor(R.color.actionbar_bg));
+                binding.groupCompare.setCellTextColor(i, binding.groupCompare.getResources().getColor(R.color.actionbar_bg));
             }
             else {
-                views[i].setTextColor(views[i].getResources().getColor(R.color.text_second));
+                binding.groupCompare.setCellTextColor(i, binding.groupCompare.getResources().getColor(R.color.text_second));
             }
         }
     }

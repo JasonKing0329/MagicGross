@@ -26,6 +26,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:showIconBack="true"
+            app:menu="@menu/compare"
             app:title="Compare" />
 
         <TextView
@@ -56,6 +57,23 @@
             app:layout_constraintTop_toBottomOf="@id/actionbar"
             tools:listitem="@layout/adapter_compare_movie" />
 
+        <com.king.app.gross.view.widget.chart.LineChart
+            android:id="@+id/chart"
+            android:layout_width="wrap_content"
+            android:layout_height="250dp"
+            android:paddingTop="10dp"
+            android:paddingRight="30dp"
+            android:visibility="gone"
+            app:axisXTextSize="8dp"
+            app:axisYTextSize="8dp"
+            app:axisYTextWidth="30dp"
+            app:axisXExtendLineWidth="10dp"
+            app:minXCellWidth="20dp"
+            app:valueTextSize="6dp"
+            app:lineColor="@color/actionbar_bg"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rv_movies"/>
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_compare"
             android:layout_width="0dp"
@@ -64,7 +82,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rv_movies"
+            app:layout_constraintTop_toBottomOf="@id/chart"
             tools:listitem="@layout/adapter_compare_item" />
 
     </android.support.constraint.ConstraintLayout>

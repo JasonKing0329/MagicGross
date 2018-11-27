@@ -134,6 +134,12 @@ public class LineChart extends AxisChart {
                 }
                 int pointX = getDegreeX(j);
                 int linePointIndex = j - line.getStartX();
+                if (line.getValues() == null) {
+                    continue;
+                }
+                if (linePointIndex >= line.getValues().size()) {
+                    continue;
+                }
                 Integer value = line.getValues().get(linePointIndex);
 
                 Point point = new Point(pointX, getDegreeY(value));

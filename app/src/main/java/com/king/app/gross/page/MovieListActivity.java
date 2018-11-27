@@ -118,8 +118,8 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                     case R.id.menu_compare:
                         // 目前最多只支持3个
                         int compareSize = CompareInstance.getInstance().getMovieList().size();
-                        if (compareSize > 3 || compareSize < 2) {
-                            showMessageShort("Please select at least 2 and not over 3 movies to compare");
+                        if (compareSize < 2) {
+                            showMessageShort("Please select at least 2 movies to compare");
                             return false;
                         }
                         startActivity(new Intent().setClass(MovieListActivity.this, CompareActivity.class));

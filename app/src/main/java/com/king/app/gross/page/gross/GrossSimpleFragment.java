@@ -11,6 +11,7 @@ import com.king.app.gross.base.IFragmentHolder;
 import com.king.app.gross.conf.GrossDateType;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.FragmentGrossSimpleBinding;
+import com.king.app.gross.model.gross.ChartModel;
 import com.king.app.gross.page.adapter.GrossSimpleAdapter;
 import com.king.app.gross.page.adapter.GrossWeekAdapter;
 import com.king.app.gross.utils.DebugLog;
@@ -155,28 +156,8 @@ public class GrossSimpleFragment extends BaseBindingFragment<FragmentGrossSimple
 
             @Override
             public String getTextAt(int position) {
-                if (page.region == Region.CHN) {
-                    if (position < 100) {
-                        return position / 10 + "千万";
-                    }
-                    else {
-                        double ft = (double) position / (double) 100;
-                        return FormatUtil.pointZ(ft) + "亿";
-                    }
-                }
-                else {
-                    if (position < 100) {
-                        return position / 10 + "百万";
-                    }
-                    else if (position < 1000) {
-                        double ft = (double) position / (double) 100;
-                        return FormatUtil.pointZ(ft) + "千万";
-                    }
-                    else {
-                        double ft = (double) position / (double) 1000;
-                        return FormatUtil.pointZ(ft) + "亿";
-                    }
-                }
+
+                return ChartModel.formatAxisString(page.region, position);
             }
 
             @Override
