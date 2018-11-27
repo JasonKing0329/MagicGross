@@ -62,7 +62,7 @@
                 android:id="@+id/tv_title_select"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Select at least 2 and not over 3 movies to compare"
+                android:text="Select at least 2 movies to compare"
                 android:textSize="16dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
