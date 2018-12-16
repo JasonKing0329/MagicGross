@@ -169,6 +169,9 @@ public class RankViewModel extends BaseViewModel {
         if (mRankType == RankType.RATE) {
             titleValueText.set("指数");
         }
+        else if (mRankType == RankType.BUDGET) {
+            titleValueText.set("Budget");
+        }
         else {
             titleValueText.set("票房");
         }

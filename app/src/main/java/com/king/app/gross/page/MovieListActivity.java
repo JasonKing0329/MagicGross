@@ -23,6 +23,7 @@ import com.king.app.gross.model.compare.CompareInstance;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.page.adapter.MovieListAdapter;
 import com.king.app.gross.page.adapter.SelectedMovieAdapter;
+import com.king.app.gross.utils.ScreenUtils;
 import com.king.app.gross.view.dialog.AlertDialogFragment;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
 import com.king.app.gross.view.dialog.content.EditMovieFragment;
@@ -285,6 +286,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
         content.setEditMovie(movie);
         DraggableDialogFragment dialog = new DraggableDialogFragment.Builder()
                 .setTitle(movie == null ? "New movie":"Edit movie")
+                .setMaxHeight(ScreenUtils.getScreenHeight() * 4 / 5)
                 .setContentFragment(content)
                 .build();
         dialog.setOnDismissListener(dialog1 -> mModel.loadMovies());

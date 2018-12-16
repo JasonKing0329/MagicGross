@@ -32,10 +32,12 @@ public class Movie {
 
     private int isReal;
 
-    @Generated(hash = 486510295)
+    private long budget;
+
+    @Generated(hash = 189801981)
     public Movie(Long id, String name, String nameChn, String subName,
-            String subChnName, double usToYuan, int year, String debut,
-            int isReal) {
+            String subChnName, double usToYuan, int year, String debut, int isReal,
+            long budget) {
         this.id = id;
         this.name = name;
         this.nameChn = nameChn;
@@ -45,6 +47,7 @@ public class Movie {
         this.year = year;
         this.debut = debut;
         this.isReal = isReal;
+        this.budget = budget;
     }
 
     @Generated(hash = 1263461133)
@@ -121,6 +124,14 @@ public class Movie {
 
     public void setIsReal(int isReal) {
         this.isReal = isReal;
+    }
+
+    public long getBudget() {
+        return this.budget;
+    }
+
+    public void setBudget(long budget) {
+        this.budget = budget;
     }
 
 }

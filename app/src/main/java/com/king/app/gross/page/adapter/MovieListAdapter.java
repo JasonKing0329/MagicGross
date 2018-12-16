@@ -6,6 +6,7 @@ import android.view.View;
 import com.king.app.gross.R;
 import com.king.app.gross.base.BaseBindingAdapter;
 import com.king.app.gross.databinding.AdapterMovieListBinding;
+import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.MovieGridItem;
 
 import java.util.Map;
@@ -46,6 +47,7 @@ public class MovieListAdapter extends BaseBindingAdapter<AdapterMovieListBinding
         }
         binding.cbCheck.setVisibility(isSelectionMode ? View.VISIBLE:View.GONE);
         binding.cbCheck.setChecked(checkMap.get(bean.getBean().getId()) != null);
+        binding.tvBudget.setText(FormatUtil.formatUsGross(bean.getBean().getBudget()));
     }
 
     public void setSelectionMode(boolean selectionMode) {

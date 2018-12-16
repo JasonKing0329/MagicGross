@@ -84,6 +84,9 @@ public class RankModel {
             case DAYS_30:
                 load30DaysValue(movie, region, item);
                 break;
+            case BUDGET:
+                loadBudgetValue(movie, item);
+                break;
         }
         return item;
     }
@@ -219,6 +222,11 @@ public class RankModel {
         long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.Day.le(30)});
         item.setSortValue(gross);
         formatGross(region, item, gross);
+    }
+
+    private void loadBudgetValue(Movie movie, RankItem item) {
+        item.setSortValue(movie.getBudget());
+        item.setValue(FormatUtil.formatUsGross(movie.getBudget()));
     }
 
     private void loadLeftValue(Movie movie, Region region, RankItem item) {

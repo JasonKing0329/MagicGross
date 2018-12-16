@@ -8,6 +8,7 @@ import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.FragmentEditMovieBinding;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.view.dialog.DatePickerFragment;
 
 /**
@@ -40,6 +41,7 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
             mBinding.etNameSub.setText(mEditMovie.getSubName());
             mBinding.etNameChn.setText(mEditMovie.getNameChn());
             mBinding.etNameChnSub.setText(mEditMovie.getSubChnName());
+            mBinding.etBudget.setText(String.valueOf(mEditMovie.getBudget()));
             mBinding.etExchange.setText(String.valueOf(mEditMovie.getUsToYuan()));
             mDebutDate = mEditMovie.getDebut();
             mBinding.btnDebut.setText(mEditMovie.getDebut());
@@ -85,6 +87,13 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
             return;
         }
 
+        long budget;
+        try {
+            budget = Long.parseLong(mBinding.etBudget.getText().toString());
+        } catch (Exception e) {
+            budget = 0;
+        }
+
         if (mEditMovie == null) {
             mEditMovie = new Movie();
         }
@@ -95,6 +104,7 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         mEditMovie.setUsToYuan(exchange);
         mEditMovie.setIsReal(mBinding.cbIsReal.isChecked() ? AppConstants.MOVIE_REAL:AppConstants.MOVIE_VIRTUAL);
         mEditMovie.setDebut(mDebutDate);
+        mEditMovie.setBudget(budget);
         mEditMovie.setYear(Integer.parseInt(mDebutDate.substring(0, 4)));
         MApplication.getInstance().getDaoSession().getMovieDao().insertOrReplace(mEditMovie);
 
