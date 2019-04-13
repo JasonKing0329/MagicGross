@@ -6,4 +6,7 @@
     <dimen name="divider">1px</dimen>
     <dimen name="compare_movie_height">100dp</dimen>
     <dimen name="select_movie_height">180dp</dimen>
+
+    <dimen name="dlg_fingerprint_width">320dp</dimen>
+    <dimen name="dlg_fingerprint_height">200dp</dimen>
 </resources>

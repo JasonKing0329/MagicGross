@@ -1,4 +1,4 @@
-package com.king.app.gross.model;
+package com.king.app.gross.model.fingerprint.samsung;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,9 +8,9 @@ import com.samsung.android.sdk.pass.Spass;
 import com.samsung.android.sdk.pass.SpassFingerprint;
 import com.samsung.android.sdk.pass.SpassFingerprint.IdentifyListener;
 
-public class FingerPrintController implements IdentifyListener {
+public class SamsungFingerPrint implements IdentifyListener {
 
-	private final String TAG = "FingerPrintController";
+	private final String TAG = "SamsungFingerPrint";
 	private SpassFingerprint mSpassFingerprint;
 	private Spass mSpass;
 	private boolean isSupported;
@@ -24,7 +24,7 @@ public class FingerPrintController implements IdentifyListener {
 		void onCancel();
     }
     
-	public FingerPrintController(Context context) {
+	public SamsungFingerPrint(Context context) {
 		
 		this.context = context;
 		mSpass = new Spass();
