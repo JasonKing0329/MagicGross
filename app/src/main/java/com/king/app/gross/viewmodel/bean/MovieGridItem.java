@@ -24,6 +24,35 @@ public class MovieGridItem {
 
     private String flag;
 
+    private String grossUs;
+
+    private String grossCn;
+
+    private String grossWorld;
+
+    public String getGrossUs() {
+        return grossUs;
+    }
+
+    public void setGrossUs(String grossUs) {
+        this.grossUs = grossUs;
+    }
+
+    public String getGrossCn() {
+        return grossCn;
+    }
+
+    public void setGrossCn(String grossCn) {
+        this.grossCn = grossCn;
+    }
+
+    public String getGrossWorld() {
+        return grossWorld;
+    }
+
+    public void setGrossWorld(String grossWorld) {
+        this.grossWorld = grossWorld;
+    }
     public Movie getBean() {
         return bean;
     }

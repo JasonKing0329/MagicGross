@@ -4,9 +4,13 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.king.app.gross.R;
+import com.king.app.gross.base.BaseBindingAdapter;
 import com.king.app.gross.databinding.AdapterMovieListBinding;
+import com.king.app.gross.databinding.AdapterMovieListWildBinding;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.MovieGridItem;
+
+import java.util.Map;
 
 /**
  * Desc:
@@ -14,33 +18,32 @@ import com.king.app.gross.viewmodel.bean.MovieGridItem;
  * @author：Jing Yang
  * @date: 2018/6/6 15:47
  */
-@Deprecated
-public class MovieListAdapter extends AbsMovieListAdapter<AdapterMovieListBinding> {
+public class MovieListWildAdapter extends AbsMovieListAdapter<AdapterMovieListWildBinding> {
 
     @Override
     protected int getItemLayoutRes() {
-        return R.layout.adapter_movie_list;
+        return R.layout.adapter_movie_list_wild;
     }
 
     @Override
-    protected void onBindItem(AdapterMovieListBinding binding, int position, MovieGridItem bean) {
+    protected void onBindItem(AdapterMovieListWildBinding binding, int position, MovieGridItem bean) {
         binding.setBean(bean);
         if (TextUtils.isEmpty(bean.getSubName())) {
-            binding.tvNameSub.setVisibility(View.GONE);
+            binding.tvName.setText(bean.getName());
         }
         else {
-            binding.tvNameSub.setVisibility(View.VISIBLE);
-            binding.tvNameSub.setText(bean.getSubName());
+            binding.tvName.setText(bean.getName() + ": " + bean.getSubName());
         }
         if (TextUtils.isEmpty(bean.getChnName())) {
-            binding.tvNameChn.setVisibility(View.GONE);
+            binding.tvSubName.setVisibility(View.GONE);
         }
         else {
-            binding.tvNameChn.setVisibility(View.VISIBLE);
-            binding.tvNameChn.setText(bean.getChnName());
+            binding.tvSubName.setVisibility(View.VISIBLE);
+            binding.tvSubName.setText(bean.getChnName());
         }
         binding.cbCheck.setVisibility(isSelectionMode() ? View.VISIBLE:View.GONE);
         binding.cbCheck.setChecked(getCheckMap().get(bean.getBean().getId()) != null);
-        binding.tvBudget.setText(FormatUtil.formatUsGross(bean.getBean().getBudget()));
+        binding.tvBudget.setText("Budget " + FormatUtil.formatUsGross(bean.getBean().getBudget()));
     }
+
 }

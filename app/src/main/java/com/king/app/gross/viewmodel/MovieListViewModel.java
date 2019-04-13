@@ -139,11 +139,24 @@ public class MovieListViewModel extends BaseViewModel {
                         item.setFlag("#");
                     }
                 }
+                DailyModel model = new DailyModel(movie);
                 if (mRegionInList == Region.CHN.ordinal()) {
-                    item.setGross(FormatUtil.formatChnGross(new DailyModel(movie).queryTotalGross(mRegionInList)));
+                    item.setGross(FormatUtil.formatChnGross(model.queryTotalGross(mRegionInList)));
                 }
                 else {
-                    item.setGross(FormatUtil.formatUsGross(new DailyModel(movie).queryTotalGross(mRegionInList)));
+                    item.setGross(FormatUtil.formatUsGross(model.queryTotalGross(mRegionInList)));
+                }
+                long gross = model.queryTotalGross(Region.CHN.ordinal());
+                if (gross > 0) {
+                    item.setGrossCn(FormatUtil.formatChnGross(gross));
+                }
+                gross = model.queryTotalGross(Region.NA.ordinal());
+                if (gross > 0) {
+                    item.setGrossUs(FormatUtil.formatUsGross(gross));
+                }
+                gross = model.queryTotalGross(Region.WORLDWIDE.ordinal());
+                if (gross > 0) {
+                    item.setGrossWorld(FormatUtil.formatUsGross(gross));
                 }
 
                 results.add(item);
