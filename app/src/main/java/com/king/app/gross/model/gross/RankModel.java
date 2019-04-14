@@ -87,6 +87,9 @@ public class RankModel {
             case BUDGET:
                 loadBudgetValue(movie, item);
                 break;
+            case TOP_DAY:
+                loadTopDay(movie, region, item);
+                break;
         }
         return item;
     }
@@ -229,6 +232,15 @@ public class RankModel {
         item.setValue(FormatUtil.formatUsGross(movie.getBudget()));
     }
 
+    private void loadTopDay(Movie movie, Region region, RankItem item) {
+        Gross gross = queryTopGross(movie, region.ordinal());
+        if (gross != null) {
+            item.setSortValue(gross.getGross());
+            formatGross(region, item, gross.getGross());
+            item.setRate(gross.getDay() + "-" + gross.getDayOfWeek());
+        }
+    }
+
     private void loadLeftValue(Movie movie, Region region, RankItem item) {
         long gross = queryGrossByDay(movie, region.ordinal(), new WhereCondition[]{GrossDao.Properties.IsLeftAfterDay.gt(0)});
         item.setSortValue(gross);
@@ -237,6 +249,24 @@ public class RankModel {
 
     private long queryGrossByDay(Movie mMovie, int region, WhereCondition[] dayConditions) {
         return queryGrossByDay(mMovie, region, false, dayConditions);
+    }
+
+    private Gross queryTopGross(Movie mMovie, int region) {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(" WHERE ").append(GrossDao.Properties.Gross.columnName).append("=(SELECT MAX(")
+                .append(GrossDao.Properties.Gross.columnName).append(") FROM ")
+                .append(GrossDao.TABLENAME).append(" WHERE ")
+                .append(GrossDao.Properties.MovieId.columnName).append("=? AND ")
+                .append(GrossDao.Properties.Region.columnName).append("=? AND ")
+                .append(GrossDao.Properties.IsTotal.columnName).append("=0 AND ")
+                .append(GrossDao.Properties.IsLeftAfterDay.columnName).append("=0)");
+        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
+        String sql = buffer.toString();
+        List<Gross> list = dao.queryRaw(sql, new String[]{String.valueOf(mMovie.getId()), String.valueOf(region)});
+        if (list.size() > 0) {
+            return list.get(0);
+        }
+        return null;
     }
 
     private long queryGrossByDay(Movie mMovie, int region, boolean isOpening, WhereCondition... dayConditions) {

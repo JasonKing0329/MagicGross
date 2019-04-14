@@ -54,7 +54,23 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         DatePickerFragment fragment = new DatePickerFragment();
         fragment.setDate(mDebutDate);
         fragment.setOnDateSetListener((view, year, month, dayOfMonth) -> {
-            mDebutDate = year + "-" + (month + 1) + "-" + dayOfMonth;
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(year).append("-");
+            month = month + 1;
+            if (month < 10) {
+                buffer.append("0").append(month);
+            }
+            else {
+                buffer.append(month);
+            }
+            buffer.append("-");
+            if (dayOfMonth < 10) {
+                buffer.append("0").append(dayOfMonth);
+            }
+            else {
+                buffer.append(dayOfMonth);
+            }
+            mDebutDate = buffer.toString();
             mBinding.btnDebut.setText(mDebutDate);
         });
         fragment.show(getChildFragmentManager(), "DatePickerFragment");

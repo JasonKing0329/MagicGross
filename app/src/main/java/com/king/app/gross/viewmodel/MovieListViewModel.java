@@ -15,6 +15,7 @@ import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.model.gross.DailyModel;
 import com.king.app.gross.model.setting.SettingProperty;
+import com.king.app.gross.utils.ColorUtil;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.MovieGridItem;
 
@@ -117,6 +118,7 @@ public class MovieListViewModel extends BaseViewModel {
                 item.setName(movie.getName());
                 item.setSubName(movie.getSubName());
                 item.setDate(movie.getDebut());
+                item.setIndexColor(ColorUtil.randomWhiteTextBgColor());
                 if (TextUtils.isEmpty(movie.getSubChnName())) {
                     item.setChnName(movie.getNameChn());
                 }

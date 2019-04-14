@@ -30,6 +30,8 @@ public class MovieGridItem {
 
     private String grossWorld;
 
+    private int indexColor;
+
     public String getGrossUs() {
         return grossUs;
     }
@@ -107,5 +109,13 @@ public class MovieGridItem {
 
     public void setFlag(String flag) {
         this.flag = flag;
+    }
+
+    public int getIndexColor() {
+        return indexColor;
+    }
+
+    public void setIndexColor(int indexColor) {
+        this.indexColor = indexColor;
     }
 }

@@ -25,6 +25,7 @@ public class MApplication extends Application {
     private static MApplication instance;
 
     private DaoSession daoSession;
+    private Database database;
     private RHelper helper;
 
     public static MApplication getInstance() {
@@ -43,8 +44,8 @@ public class MApplication extends Application {
      */
     public void createGreenDao() {
         helper = new RHelper(getApplicationContext(), AppConfig.DB_NAME);
-        Database db = helper.getWritableDb();
-        daoSession = new DaoMaster(db).newSession();
+        database = helper.getWritableDb();
+        daoSession = new DaoMaster(database).newSession();
 
         QueryBuilder.LOG_SQL = true;
         QueryBuilder.LOG_VALUES = true;
@@ -54,6 +55,10 @@ public class MApplication extends Application {
         daoSession.clear();
         helper.close();
         createGreenDao();
+    }
+
+    public Database getDatabase() {
+        return database;
     }
 
     public DaoSession getDaoSession() {

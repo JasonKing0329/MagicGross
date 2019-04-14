@@ -1,5 +1,7 @@
 package com.king.app.gross.page.adapter;
 
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -36,11 +38,15 @@ public class MovieListWildAdapter extends AbsMovieListAdapter<AdapterMovieListWi
         }
         if (TextUtils.isEmpty(bean.getChnName())) {
             binding.tvSubName.setVisibility(View.GONE);
+            binding.tvIndex.setText(String.valueOf(bean.getName().charAt(0)));
         }
         else {
             binding.tvSubName.setVisibility(View.VISIBLE);
             binding.tvSubName.setText(bean.getChnName());
+            binding.tvIndex.setText(String.valueOf(bean.getChnName().charAt(0)));
         }
+        GradientDrawable drawable = (GradientDrawable) binding.tvIndex.getBackground();
+        drawable.setColor(bean.getIndexColor());
         binding.cbCheck.setVisibility(isSelectionMode() ? View.VISIBLE:View.GONE);
         binding.cbCheck.setChecked(getCheckMap().get(bean.getBean().getId()) != null);
         binding.tvBudget.setText("Budget " + FormatUtil.formatUsGross(bean.getBean().getBudget()));

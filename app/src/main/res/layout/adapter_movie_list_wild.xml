@@ -33,7 +33,7 @@
                 app:layout_constraintTop_toTopOf="parent"/>
             <ImageView
                 android:id="@+id/iv_flag"
-                android:layout_width="100dp"
+                android:layout_width="80dp"
                 android:layout_height="25dp"
                 android:src="@drawable/flag_rank"
                 android:scaleType="fitXY"
@@ -41,7 +41,7 @@
                 app:layout_constraintTop_toTopOf="parent"/>
             <TextView
                 android:id="@+id/tv_flag"
-                android:layout_width="90dp"
+                android:layout_width="70dp"
                 android:layout_height="25dp"
                 android:textColor="@color/white"
                 android:text="@{bean.date}"
@@ -50,26 +50,40 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
+            <TextView
+                android:id="@+id/tv_index"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/white"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/shape_oval_bg"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_flag"/>
+
             <com.king.app.gross.view.widget.WrapLayout
                 android:id="@+id/wrap_name"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginTop="8dp"
-                app:wlyVerticalSpacing="4dp"
+                app:wlyVerticalSpacing="0dp"
                 app:wlyHorizontalSpacing="16dp"
                 app:wlyGravity="center"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_flag">
+                app:layout_constraintStart_toEndOf="@id/tv_index"
+                app:layout_constraintTop_toTopOf="@id/tv_index"
+                app:layout_constraintBottom_toBottomOf="@id/tv_index">
 
                 <TextView
                     android:id="@+id/tv_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/text_main"
-                    android:textSize="20dp" />
+                    android:textSize="18dp" />
 
                 <TextView
                     android:id="@+id/tv_sub_name"
@@ -95,7 +109,7 @@
                 android:id="@+id/tv_gross_ww"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="16dp"
                 android:visibility="@{bean.grossWorld == null ? View.GONE:View.VISIBLE}"
@@ -103,7 +117,7 @@
                 android:textColor="@color/actionbar_bg"
                 android:textSize="13dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/wrap_name"
+                app:layout_constraintTop_toBottomOf="@+id/tv_index"
                 app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
@@ -111,14 +125,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="20dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
                 android:visibility="@{bean.grossCn == null ? View.GONE:View.VISIBLE}"
                 android:text='@{"CN " + bean.grossCn}'
                 android:textColor="#e26c12"
                 android:textSize="13dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/wrap_name"
+                app:layout_constraintTop_toBottomOf="@+id/tv_index"
                 app:layout_constraintEnd_toStartOf="@id/tv_gross_ww" />
 
             <TextView
@@ -126,14 +140,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="20dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
                 android:visibility="@{bean.grossUs == null ? View.GONE:View.VISIBLE}"
                 android:text='@{"US " + bean.grossUs}'
                 android:textColor="#4261c7"
                 android:textSize="13dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/wrap_name"
+                app:layout_constraintTop_toBottomOf="@+id/tv_index"
                 app:layout_constraintEnd_toStartOf="@id/tv_gross_chn" />
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
