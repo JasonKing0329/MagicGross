@@ -43,6 +43,7 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
             mBinding.etNameChnSub.setText(mEditMovie.getSubChnName());
             mBinding.etBudget.setText(String.valueOf(mEditMovie.getBudget()));
             mBinding.etExchange.setText(String.valueOf(mEditMovie.getUsToYuan()));
+            mBinding.etMojo.setText(mEditMovie.getMojoId());
             mDebutDate = mEditMovie.getDebut();
             mBinding.btnDebut.setText(mEditMovie.getDebut());
             mBinding.cbIsReal.setChecked(mEditMovie.getIsReal() == AppConstants.MOVIE_REAL);
@@ -122,6 +123,7 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         mEditMovie.setDebut(mDebutDate);
         mEditMovie.setBudget(budget);
         mEditMovie.setYear(Integer.parseInt(mDebutDate.substring(0, 4)));
+        mEditMovie.setMojoId(mBinding.etMojo.getText().toString());
         MApplication.getInstance().getDaoSession().getMovieDao().insertOrReplace(mEditMovie);
 
         dismiss();

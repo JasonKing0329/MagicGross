@@ -34,10 +34,12 @@ public class Movie {
 
     private long budget;
 
-    @Generated(hash = 189801981)
+    private String mojoId;
+
+    @Generated(hash = 667280219)
     public Movie(Long id, String name, String nameChn, String subName,
             String subChnName, double usToYuan, int year, String debut, int isReal,
-            long budget) {
+            long budget, String mojoId) {
         this.id = id;
         this.name = name;
         this.nameChn = nameChn;
@@ -48,6 +50,7 @@ public class Movie {
         this.debut = debut;
         this.isReal = isReal;
         this.budget = budget;
+        this.mojoId = mojoId;
     }
 
     @Generated(hash = 1263461133)
@@ -132,6 +135,14 @@ public class Movie {
 
     public void setBudget(long budget) {
         this.budget = budget;
+    }
+
+    public String getMojoId() {
+        return this.mojoId;
+    }
+
+    public void setMojoId(String mojoId) {
+        this.mojoId = mojoId;
     }
 
 }

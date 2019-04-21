@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_sort_market"
+        android:title="Sort by market"/>
+    <item android:id="@+id/menu_sort_total"
+        android:title="Sort by total gross"/>
+    <item android:id="@+id/menu_sort_opening"
+        android:title="Sort by opening"/>
+    <item android:id="@+id/menu_sort_debut"
+        android:title="Sort by debut"/>
+</menu>

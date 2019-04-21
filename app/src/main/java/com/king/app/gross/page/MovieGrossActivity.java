@@ -1,6 +1,7 @@
 package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.view.View;
 import android.widget.PopupMenu;
 
@@ -43,6 +44,9 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
                     break;
                 case R.id.menu_chart:
                     ftTab.toggleChart();
+                    break;
+                case R.id.menu_market:
+                    showMarketPage();
                     break;
             }
         });
@@ -88,8 +92,7 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
     protected void initData() {
         mModel.titleText.observe(this, s -> mBinding.actionbar.setTitle(s));
 
-        long movieId = getIntent().getLongExtra(EXTRA_MOVIE_ID, -1);
-        mModel.loadMovie(movieId);
+        mModel.loadMovie(getMovieId());
 
         mModel.editObserver.observe(this, gross -> editGross(gross));
 
@@ -122,4 +125,13 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
                 , null);
     }
 
+    private long getMovieId() {
+        return getIntent().getLongExtra(EXTRA_MOVIE_ID, -1);
+    }
+
+    private void showMarketPage() {
+        Intent intent = new Intent().setClass(this, MarketActivity.class);
+        intent.putExtra(MarketActivity.EXTRA_MOVIE_ID, getMovieId());
+        startActivity(intent);
+    }
 }

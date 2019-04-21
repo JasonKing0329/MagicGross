@@ -8,6 +8,8 @@ import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.model.entity.DaoMaster;
 import com.king.app.gross.model.entity.DaoSession;
 import com.king.app.gross.model.entity.GrossDao;
+import com.king.app.gross.model.entity.MarketDao;
+import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.utils.DebugLog;
 
@@ -85,9 +87,12 @@ public class MApplication extends Application {
                     db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.Year.columnName + " INTEGER");
                 case 2:
                     db.execSQL("ALTER TABLE " + GrossDao.TABLENAME + " ADD COLUMN " + GrossDao.Properties.IsTotal.columnName + " INTEGER");
-                    break;
                 case 3:
                     db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.Budget.columnName + " INTEGER");
+                case 4:
+                    db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.MojoId.columnName + " TEXT");
+                    MarketDao.createTable(db, true);
+                    MarketGrossDao.createTable(db, true);
                     break;
             }
         }

@@ -93,4 +93,42 @@ public class FileUtil {
         }
         return true;
     }
+
+    public static File saveFile(InputStream inputStream, String path) {
+        File file = new File(path);
+
+        OutputStream outputStream = null;
+
+        try {
+            byte[] fileReader = new byte[4096];
+            outputStream = new FileOutputStream(file);
+            while (true) {
+                int read = inputStream.read(fileReader);
+                if (read == -1) {
+                    break;
+                }
+                outputStream.write(fileReader, 0, read);
+            }
+            outputStream.flush();
+            return file;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

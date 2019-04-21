@@ -11,10 +11,10 @@
             android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="20dp"
             android:text="English name"
+            app:layout_constraintBottom_toBottomOf="@+id/et_name"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/et_name" />
 
         <EditText
             android:id="@+id/et_name"
@@ -33,13 +33,12 @@
             android:id="@+id/tv_name_sub"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="28dp"
             android:text="Sub head"
+            app:layout_constraintBottom_toBottomOf="@+id/et_name_sub"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title_name" />
+            app:layout_constraintTop_toTopOf="@+id/et_name_sub" />
 
         <EditText
             android:id="@+id/et_name_sub"
@@ -59,13 +58,12 @@
             android:id="@+id/tv_title_chn"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="28dp"
             android:text="Chinese name"
+            app:layout_constraintBottom_toBottomOf="@+id/et_name_chn"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_name_sub" />
+            app:layout_constraintTop_toTopOf="@+id/et_name_chn" />
 
         <EditText
             android:id="@+id/et_name_chn"
@@ -85,13 +83,12 @@
             android:id="@+id/tv_name_chn_sub"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="28dp"
             android:text="Sub head Chn."
+            app:layout_constraintBottom_toBottomOf="@+id/et_name_chn_sub"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title_chn" />
+            app:layout_constraintTop_toTopOf="@+id/et_name_chn_sub" />
 
         <EditText
             android:id="@+id/et_name_chn_sub"
@@ -111,13 +108,12 @@
             android:id="@+id/tv_budget"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="28dp"
             android:text="Budget"
+            app:layout_constraintBottom_toBottomOf="@+id/et_budget"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_name_chn_sub" />
+            app:layout_constraintTop_toTopOf="@+id/et_budget" />
 
         <EditText
             android:id="@+id/et_budget"
@@ -137,13 +133,12 @@
             android:id="@+id/tv_title_exchange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="26dp"
             android:text="Us to Yuan"
+            app:layout_constraintBottom_toBottomOf="@+id/et_exchange"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_budget" />
+            app:layout_constraintTop_toTopOf="@+id/et_exchange" />
 
         <EditText
             android:id="@+id/et_exchange"
@@ -153,6 +148,25 @@
             android:layout_marginTop="12dp"
             android:inputType="numberDecimal"
             app:layout_constraintStart_toEndOf="@+id/tv_title_exchange"
+            app:layout_constraintTop_toBottomOf="@+id/et_budget" />
+
+        <TextView
+            android:id="@+id/tv_title_mojo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Mojo ID"
+            app:layout_constraintBottom_toBottomOf="@+id/et_mojo"
+            app:layout_constraintEnd_toStartOf="@+id/et_mojo"
+            app:layout_constraintTop_toTopOf="@+id/et_mojo" />
+
+        <EditText
+            android:id="@+id/et_mojo"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/et_budget" />
 
         <TextView
@@ -167,13 +181,12 @@
             android:id="@+id/tv_title_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="40dp"
             android:text="Debut"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_debut"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title_exchange" />
+            app:layout_constraintTop_toTopOf="@+id/btn_debut" />
 
         <Button
             android:id="@+id/btn_debut"
@@ -192,14 +205,13 @@
         <CheckBox
             android:id="@+id/cb_is_real"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
             android:layout_marginEnd="24dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="22dp"
             android:text="Is real"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_debut"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_exchange" />
+            app:layout_constraintTop_toTopOf="@+id/btn_debut" />
 
     </android.support.constraint.ConstraintLayout>
 </layout>
