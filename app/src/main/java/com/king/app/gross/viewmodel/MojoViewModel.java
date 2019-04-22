@@ -15,14 +15,21 @@ import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.model.http.mojo.MojoClient;
 import com.king.app.gross.model.http.mojo.MojoConstants;
 import com.king.app.gross.model.http.mojo.MojoParser;
+import com.king.app.gross.page.bean.ContinentGross;
 import com.king.app.gross.utils.FileUtil;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -31,12 +38,20 @@ import okhttp3.ResponseBody;
 
 public class MojoViewModel extends BaseViewModel {
 
+    private final int TYPE_GROUP = 1;
+    private final int TYPE_ALL = 0;
+
+    private int groupType = TYPE_ALL;
+
     private MojoParser parser;
 
     private Movie mMovie;
 
     public MutableLiveData<List<MarketGross>> grossObserver = new MutableLiveData<>();
     public MutableLiveData<Movie> movieObserver = new MutableLiveData<>();
+    public MutableLiveData<List<Object>> groupObserver = new MutableLiveData<>();
+
+    public MutableLiveData<String> nextGroupTypeTitle = new MutableLiveData<>();
 
     public MojoViewModel(@NonNull Application application) {
         super(application);
@@ -56,7 +71,25 @@ public class MojoViewModel extends BaseViewModel {
             return;
         }
 
-        loadGross();
+        if (groupType == TYPE_GROUP) {
+            loadGroup();
+        }
+        else {
+            loadGross();
+        }
+    }
+
+    public void changeGroup() {
+        if (groupType == TYPE_GROUP) {
+            nextGroupTypeTitle.setValue("Group by continent");
+            loadGross();
+            groupType = TYPE_ALL;
+        }
+        else {
+            nextGroupTypeTitle.setValue("No group");
+            loadGroup();
+            groupType = TYPE_GROUP;
+        }
     }
 
     private void loadGross() {
@@ -194,4 +227,107 @@ public class MojoViewModel extends BaseViewModel {
         });
     }
 
+    private void loadGroup() {
+        loadMarketGross()
+                .flatMap(list -> toContinentGroups(list))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<Object>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(List<Object> list) {
+                        groupObserver.setValue(list);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        messageObserver.setValue(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private ObservableSource<List<Object>> toContinentGroups(List<MarketGross> markets) {
+        return observer -> {
+            List<Object> list = new ArrayList<>();
+            Map<String, ContinentGross> map = new HashMap<>();
+            for (MarketGross market:markets) {
+                String continent;
+                if (market.getMarket() == null) {
+                    continent = "Unknown";
+                }
+                else {
+                    continent = market.getMarket().getContinent();
+                }
+                ContinentGross cg = map.get(continent);
+                if (cg == null) {
+                    cg = new ContinentGross();
+                    cg.setContinent(continent);
+                    cg.setMarketList(new ArrayList<>());
+                    map.put(continent, cg);
+                }
+                cg.getMarketList().add(market);
+                cg.setGross(cg.getGross() + market.getGross());
+            }
+
+            List<ContinentGross> cList = new ArrayList<>();
+            for (String key:map.keySet()) {
+                ContinentGross cg = map.get(key);
+                cList.add(cg);
+            }
+            Collections.sort(cList, new ContinentGrossComparator());
+
+            for (ContinentGross cg:cList) {
+                list.add(cg);
+                Collections.sort(cg.getMarketList(), new MarketGrossComparator());
+                for (MarketGross mg:cg.getMarketList()) {
+                    list.add(mg);
+                }
+            }
+            observer.onNext(list);
+        };
+    }
+
+    private class MarketGrossComparator implements Comparator<MarketGross> {
+
+        @Override
+        public int compare(MarketGross left, MarketGross right) {
+            long result = right.getGross() - left.getGross();
+            if (result < 0) {
+                return -1;
+            }
+            else if (result > 0) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
+
+    private class ContinentGrossComparator implements Comparator<ContinentGross> {
+
+        @Override
+        public int compare(ContinentGross left, ContinentGross right) {
+            long result = right.getGross() - left.getGross();
+            if (result < 0) {
+                return -1;
+            }
+            else if (result > 0) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
 }

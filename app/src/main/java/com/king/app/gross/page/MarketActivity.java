@@ -11,6 +11,7 @@ import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.ActivityMovieMarketBinding;
 import com.king.app.gross.page.adapter.MarketGrossAdapter;
+import com.king.app.gross.page.adapter.MarketGroupAdapter;
 import com.king.app.gross.viewmodel.MojoViewModel;
 
 public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, MojoViewModel> {
@@ -18,6 +19,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
     public static final String EXTRA_MOVIE_ID = "movie_id";
 
     private MarketGrossAdapter adapter;
+    private MarketGroupAdapter groupAdapter;
 
     @Override
     protected int getContentView() {
@@ -31,6 +33,11 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             switch (menuId) {
                 case R.id.menu_download:
                     mModel.fetchForeignData();
+                    break;
+                case R.id.menu_edit:
+                    break;
+                case R.id.menu_type:
+                    mModel.changeGroup();
                     break;
             }
         });
@@ -57,7 +64,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
                     mModel.changeSortType(AppConstants.MARKET_GROSS_SORT_OPENING);
                     break;
                 case R.id.menu_sort_debut:
-                    mModel.changeSortType(AppConstants.MARKET_GROSS_SORT_OPENING);
+                    mModel.changeSortType(AppConstants.MARKET_GROSS_SORT_DEBUT);
                     break;
                 default:
                     mModel.changeSortType(AppConstants.MARKET_GROSS_SORT_MARKET);
@@ -88,7 +95,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             }
         });
         mModel.grossObserver.observe(this, list -> {
-            if (adapter == null) {
+            if (adapter == null || mBinding.rvMarkets.getAdapter() == groupAdapter) {
                 adapter = new MarketGrossAdapter();
                 adapter.setList(list);
                 mBinding.rvMarkets.setAdapter(adapter);
@@ -96,6 +103,17 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             else {
                 adapter.setList(list);
                 adapter.notifyDataSetChanged();
+            }
+        });
+        mModel.groupObserver.observe(this, list -> {
+            if (groupAdapter == null || mBinding.rvMarkets.getAdapter() == adapter) {
+                groupAdapter = new MarketGroupAdapter();
+                groupAdapter.setList(list);
+                mBinding.rvMarkets.setAdapter(groupAdapter);
+            }
+            else {
+                groupAdapter.setList(list);
+                groupAdapter.notifyDataSetChanged();
             }
         });
 

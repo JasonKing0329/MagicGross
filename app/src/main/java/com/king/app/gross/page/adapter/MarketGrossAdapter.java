@@ -14,5 +14,6 @@ public class MarketGrossAdapter extends BaseBindingAdapter<AdapterMarketGrossBin
     @Override
     protected void onBindItem(AdapterMarketGrossBinding binding, int position, MarketGross bean) {
         binding.setBean(bean);
+        binding.tvIndex.setText(String.valueOf(position));
     }
 }

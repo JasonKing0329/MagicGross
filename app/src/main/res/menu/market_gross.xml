@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_edit"
+        android:title="Edit"
+        android:icon="@drawable/ic_edit_white_24dp"
+        app:showAsAction="ifRoom"/>
     <item android:id="@+id/menu_sort"
         android:title="Sort"
         android:icon="@drawable/ic_sort_white_24dp"
@@ -9,4 +13,7 @@
         android:title="close"
         android:icon="@drawable/ic_cloud_download_white_24dp"
         app:showAsAction="ifRoom"/>
+    <item android:id="@+id/menu_type"
+        android:title="Group by continent"
+        app:showAsAction="never"/>
 </menu>

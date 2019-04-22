@@ -15,16 +15,41 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:id="@+id/tv_index"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="55"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
             android:id="@+id/tv_market"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text='@{"" + (bean.marketId == 0 ? "Total" : bean.market.name) + "(" + bean.debut + ")"}'
-            android:textSize="14dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:text='@{"" + (bean.marketId == 0 ? "Total" : bean.market.name)}'
+            android:textSize="16dp"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintBottom_toTopOf="@+id/tv_market_cn"
+            app:layout_constraintStart_toEndOf="@id/tv_index"
             app:layout_constraintEnd_toStartOf="@+id/tv_gross"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_market_cn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text='@{"" + (bean.marketId == 0 ? "全部" : bean.market.nameChn) + "  " + bean.debut}'
+            android:textSize="12dp"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_index"
+            app:layout_constraintEnd_toStartOf="@+id/tv_gross"
+            app:layout_constraintTop_toBottomOf="@id/tv_market" />
 
         <TextView
             android:id="@+id/tv_gross"

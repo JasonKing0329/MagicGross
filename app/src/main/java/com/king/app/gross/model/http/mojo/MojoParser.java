@@ -42,21 +42,21 @@ public class MojoParser extends AbsParser {
 
             Document document = Jsoup.parse(file, "UTF-8");
             Elements tables = document.select("table");
-            Element table = tables.get(7);
+            Element table = tables.get(tables.size() - 1);
             Elements trs = table.select("tr");
             for (int i = 0; i < trs.size(); i ++) {
                 Element tr = trs.get(i);
-                if (i > 2 || i == 1) {// market or foreign total
-                    MarketGross gross = new MarketGross();
-                    try {
+                try {
+                    String toString = tr.child(0).toString();
+                    if (toString.contains("country=")) {
+                        MarketGross gross = new MarketGross();
                         parseTr(tr, gross);
                         DebugLog.e("i=" + i + ", market:" + gross.getMarketEn() + ", debut:" + gross.getDebut() + ", opening:" + gross.getOpening()
                                 + ", total:" + gross.getGross() + ", endDate:" + gross.getEndDate());
-                    } catch (Exception exception) {
-                        DebugLog.e("[error] i=" + i + ", " + exception.getMessage());
+                        insertList.add(gross);
                     }
-
-                    insertList.add(gross);
+                } catch (Exception exception) {
+                    DebugLog.e("[error] i=" + i + ", " + exception.getMessage());
                 }
             }
 
@@ -64,7 +64,7 @@ public class MojoParser extends AbsParser {
         }).flatMap(list -> insertAndRelate(list, movieId));
     }
 
-    private void parseTr(Element tr, MarketGross gross) throws ParseException {
+    private void parseTr(Element tr, MarketGross gross){
         Elements tds = tr.select("td");
         TextNode marketNode = (TextNode) tds.get(0).child(0).child(0).child(0).childNode(0);
         TextNode dateNode = (TextNode) tds.get(2).child(0).childNode(0);
@@ -81,15 +81,24 @@ public class MojoParser extends AbsParser {
             gross.setEndDate(endDate);
         }
         if (!"-".equals(openingNode.text())) {
-            long opening = moneyFormat.parse(openingNode.text().substring(1)).longValue();
+            long opening = parseMoney(openingNode.text());
             gross.setOpening(opening);
         }
         if (!"-".equals(grossNode.text())) {
-            long total = moneyFormat.parse(grossNode.text().substring(1)).longValue();
+            long total = parseMoney(grossNode.text());
             gross.setGross(total);
         }
 
         gross.setMarketEn(marketNode.text());
+    }
+
+    private long parseMoney(String text) {
+        try {
+            return moneyFormat.parse(text.substring(1)).longValue();
+        } catch (Exception e) {
+
+        }
+        return 0;
     }
 
     private String parseDate(String text) {
