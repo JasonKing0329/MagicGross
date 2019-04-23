@@ -2,6 +2,7 @@ package com.king.app.gross.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.king.app.gross.base.BaseViewModel;
@@ -16,7 +17,9 @@ import com.king.app.gross.model.http.mojo.MojoClient;
 import com.king.app.gross.model.http.mojo.MojoConstants;
 import com.king.app.gross.model.http.mojo.MojoParser;
 import com.king.app.gross.page.bean.ContinentGross;
+import com.king.app.gross.page.bean.MarketTotal;
 import com.king.app.gross.utils.FileUtil;
+import com.king.app.gross.utils.FormatUtil;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
@@ -53,9 +56,12 @@ public class MojoViewModel extends BaseViewModel {
 
     public MutableLiveData<String> nextGroupTypeTitle = new MutableLiveData<>();
 
+    private MarketTotal marketTotal;
+
     public MojoViewModel(@NonNull Application application) {
         super(application);
         parser = new MojoParser();
+        marketTotal = new MarketTotal();
     }
 
     public void loadMovie(long movieId) {
@@ -92,8 +98,35 @@ public class MojoViewModel extends BaseViewModel {
         }
     }
 
+    public MarketTotal getMarketTotal() {
+        return marketTotal;
+    }
+
+    private Observable<MarketTotal> createTotal() {
+        return Observable.create(e -> {
+            MarketGross total = MApplication.getInstance().getDaoSession().getMarketGrossDao().queryBuilder()
+                    .where(MarketGrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(MarketGrossDao.Properties.MarketId.eq(0))
+                    .build().unique();
+            if (total != null) {
+                marketTotal.setGross(FormatUtil.formatUsGross(total.getGross()));
+                marketTotal.setOpening(FormatUtil.formatUsGross(total.getOpening()));
+
+                Cursor cursor = MApplication.getInstance().getDatabase().rawQuery(
+                        "SELECT SUM(gross) FROM market_gross WHERE movie_id=? AND market_id!=0", new String[]{String.valueOf(mMovie.getId())});
+                if (cursor.moveToNext()) {
+                    long marketGross = cursor.getLong(0);
+                    marketTotal.setMarketGross(FormatUtil.formatUsGross(marketGross));
+                    marketTotal.setUndisclosedGross(FormatUtil.formatUsGross(total.getGross() - marketGross));
+                }
+            }
+            e.onNext(marketTotal);
+        });
+    }
+
     private void loadGross() {
-        loadMarketGross()
+        createTotal()
+                .flatMap(total -> loadMarketGross())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<List<MarketGross>>() {
@@ -122,10 +155,12 @@ public class MojoViewModel extends BaseViewModel {
 
     private Observable<List<MarketGross>> loadMarketGross() {
         return Observable.create(e -> {
-            List<MarketGross> grosses = MApplication.getInstance().getDaoSession().getMarketGrossDao()
-                    .queryBuilder().where(MarketGrossDao.Properties.MovieId.eq(mMovie.getId()))
+            List<MarketGross> grosses = MApplication.getInstance().getDaoSession().getMarketGrossDao().queryBuilder()
+                    .where(MarketGrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(MarketGrossDao.Properties.MarketId.notEq(0))
                     .orderAsc(MarketGrossDao.Properties.MarketId)
                     .build().list();
+            marketTotal.setMarketTitle(grosses.size() + " Markets Total");
             e.onNext(grosses);
         });
     }
@@ -228,7 +263,8 @@ public class MojoViewModel extends BaseViewModel {
     }
 
     private void loadGroup() {
-        loadMarketGross()
+        createTotal()
+                .flatMap(total -> loadMarketGross())
                 .flatMap(list -> toContinentGroups(list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())

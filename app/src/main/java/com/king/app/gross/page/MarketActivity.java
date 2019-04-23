@@ -32,7 +32,9 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
         mBinding.actionbar.setOnMenuItemListener(menuId -> {
             switch (menuId) {
                 case R.id.menu_download:
-                    mModel.fetchForeignData();
+                    showConfirmCancelMessage("Fetch html will remove data in database, continue?"
+                            , (dialogInterface, i) -> mModel.fetchForeignData()
+                            , null);
                     break;
                 case R.id.menu_edit:
                     break;
@@ -50,6 +52,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             }
             return null;
         });
+        mBinding.setTotal(mModel.getMarketTotal());
     }
 
     private PopupMenu createSortPopup(View anchorView) {
