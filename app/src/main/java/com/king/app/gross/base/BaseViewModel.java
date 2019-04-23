@@ -5,6 +5,8 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
+import com.king.app.gross.model.entity.DaoSession;
+
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -39,5 +41,9 @@ public class BaseViewModel extends AndroidViewModel {
 
     public void onDestroy() {
         compositeDisposable.clear();
+    }
+
+    protected DaoSession getDaoSession() {
+        return MApplication.getInstance().getDaoSession();
     }
 }

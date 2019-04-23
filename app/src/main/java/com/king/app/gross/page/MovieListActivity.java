@@ -158,6 +158,9 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
             @Override
             public boolean onCancel(int actionId) {
                 switch (actionId) {
+                    case ID_SELECT_MODE:
+                        finish();
+                        break;
                     case R.id.menu_delete:
                         adapter.setSelectionMode(false);
                         adapter.notifyDataSetChanged();

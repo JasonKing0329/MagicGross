@@ -28,43 +28,45 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{bean.market}"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@{bean.markColor}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tv_ref1"
             app:layout_constraintStart_toEndOf="@+id/tv_index"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
-            android:id="@+id/et_gross"
-            android:layout_width="80dp"
-            android:layout_height="35dp"
-            android:layout_marginTop="1dp"
+        <TextView
+            android:id="@+id/tv_gross"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:background="@null"
-            android:gravity="right|center_vertical"
             android:textSize="12dp"
-            android:text="@{bean.gross}"
+            android:text="@{bean.grossText}"
+            android:textColor="@color/actionbar_bg"
+            android:gravity="right"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_ref2"
-            android:layout_width="80dp"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
             android:textSize="12dp"
             android:text="@{bean.ref2}"
+            android:gravity="right"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/et_gross"
+            app:layout_constraintEnd_toStartOf="@+id/tv_gross"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_ref1"
-            android:layout_width="80dp"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:textSize="12dp"
             android:text="@{bean.ref1}"
+            android:gravity="right"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tv_ref2"
             app:layout_constraintTop_toTopOf="parent" />

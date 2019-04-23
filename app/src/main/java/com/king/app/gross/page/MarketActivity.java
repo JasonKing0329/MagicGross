@@ -1,6 +1,8 @@
 package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.view.View;
@@ -17,6 +19,8 @@ import com.king.app.gross.viewmodel.MojoViewModel;
 public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, MojoViewModel> {
 
     public static final String EXTRA_MOVIE_ID = "movie_id";
+
+    private final int REQUEST_EDIT = 1201;
 
     private MarketGrossAdapter adapter;
     private MarketGroupAdapter groupAdapter;
@@ -37,6 +41,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
                             , null);
                     break;
                 case R.id.menu_edit:
+                    editMarketGross();
                     break;
                 case R.id.menu_type:
                     mModel.changeGroup();
@@ -53,6 +58,21 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             return null;
         });
         mBinding.setTotal(mModel.getMarketTotal());
+    }
+
+    private void editMarketGross() {
+        Intent intent = new Intent().setClass(this, EditMarketGrossActivity.class);
+        intent.putExtra(EditMarketGrossActivity.EXTRA_MOVIE_ID, getMovieId());
+        startActivityForResult(intent, REQUEST_EDIT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+            case REQUEST_EDIT:
+                mModel.loadMovie(getMovieId());
+                break;
+        }
     }
 
     private PopupMenu createSortPopup(View anchorView) {

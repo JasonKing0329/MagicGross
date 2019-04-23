@@ -48,8 +48,6 @@ public class MojoViewModel extends BaseViewModel {
 
     private MojoParser parser;
 
-    private Movie mMovie;
-
     public MutableLiveData<List<MarketGross>> grossObserver = new MutableLiveData<>();
     public MutableLiveData<Movie> movieObserver = new MutableLiveData<>();
     public MutableLiveData<List<Object>> groupObserver = new MutableLiveData<>();
@@ -66,11 +64,11 @@ public class MojoViewModel extends BaseViewModel {
 
     public void loadMovie(long movieId) {
         try {
-            mMovie = MApplication.getInstance().getDaoSession().getMovieDao()
+            Movie movie = MApplication.getInstance().getDaoSession().getMovieDao()
                     .queryBuilder()
                     .where(MovieDao.Properties.Id.eq(movieId))
                     .build().unique();
-            movieObserver.setValue(mMovie);
+            movieObserver.setValue(movie);
         } catch (Exception e) {
             e.printStackTrace();
             messageObserver.setValue(e.getMessage());
@@ -105,7 +103,7 @@ public class MojoViewModel extends BaseViewModel {
     private Observable<MarketTotal> createTotal() {
         return Observable.create(e -> {
             MarketGross total = MApplication.getInstance().getDaoSession().getMarketGrossDao().queryBuilder()
-                    .where(MarketGrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(MarketGrossDao.Properties.MovieId.eq(movieObserver.getValue().getId()))
                     .where(MarketGrossDao.Properties.MarketId.eq(0))
                     .build().unique();
             if (total != null) {
@@ -113,7 +111,7 @@ public class MojoViewModel extends BaseViewModel {
                 marketTotal.setOpening(FormatUtil.formatUsGross(total.getOpening()));
 
                 Cursor cursor = MApplication.getInstance().getDatabase().rawQuery(
-                        "SELECT SUM(gross) FROM market_gross WHERE movie_id=? AND market_id!=0", new String[]{String.valueOf(mMovie.getId())});
+                        "SELECT SUM(gross) FROM market_gross WHERE movie_id=? AND market_id!=0", new String[]{String.valueOf(movieObserver.getValue().getId())});
                 if (cursor.moveToNext()) {
                     long marketGross = cursor.getLong(0);
                     marketTotal.setMarketGross(FormatUtil.formatUsGross(marketGross));
@@ -156,7 +154,7 @@ public class MojoViewModel extends BaseViewModel {
     private Observable<List<MarketGross>> loadMarketGross() {
         return Observable.create(e -> {
             List<MarketGross> grosses = MApplication.getInstance().getDaoSession().getMarketGrossDao().queryBuilder()
-                    .where(MarketGrossDao.Properties.MovieId.eq(mMovie.getId()))
+                    .where(MarketGrossDao.Properties.MovieId.eq(movieObserver.getValue().getId()))
                     .where(MarketGrossDao.Properties.MarketId.notEq(0))
                     .orderAsc(MarketGrossDao.Properties.MarketId)
                     .build().list();
@@ -167,10 +165,10 @@ public class MojoViewModel extends BaseViewModel {
 
     public void fetchForeignData() {
         loadingObserver.setValue(true);
-        MojoClient.getInstance().getService().getMovieForeignPage(getMojoForeignUrl(mMovie.getMojoId()))
+        MojoClient.getInstance().getService().getMovieForeignPage(getMojoForeignUrl(movieObserver.getValue().getMojoId()))
                 .flatMap(responseBody -> saveFile(responseBody, AppConfig.FILE_HTML_FOREIGN))
-                .flatMap(file -> parser.parse(file, mMovie.getId()))
-//        parser.parse(new File(AppConfig.FILE_HTML_FOREIGN), mMovie.getId())
+                .flatMap(file -> parser.parse(file, movieObserver.getValue().getId()))
+//        parser.parse(new File(AppConfig.FILE_HTML_FOREIGN), movieObserver.getValue().getId())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<Boolean>() {
@@ -244,7 +242,7 @@ public class MojoViewModel extends BaseViewModel {
     private Observable<List<MarketGross>> sortGross(int type) {
         return Observable.create(e -> {
             QueryBuilder<MarketGross> builder = MApplication.getInstance().getDaoSession().getMarketGrossDao().queryBuilder();
-            builder.where(MarketGrossDao.Properties.MovieId.eq(mMovie.getId()));
+            builder.where(MarketGrossDao.Properties.MovieId.eq(movieObserver.getValue().getId()));
             if (type == AppConstants.MARKET_GROSS_SORT_TOTAL) {
                 builder.orderDesc(MarketGrossDao.Properties.Gross);
             }

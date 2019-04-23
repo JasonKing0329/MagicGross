@@ -1,5 +1,8 @@
 package com.king.app.gross.page.bean;
 
+import com.king.app.gross.model.entity.Market;
+import com.king.app.gross.model.entity.MarketGross;
+
 /**
  * Desc:
  *
@@ -16,7 +19,17 @@ public class EditMarketGrossBean {
 
     private String ref2;
 
-    private String gross;
+    private String grossText;
+
+    private long gross;
+
+    private Market bean;
+
+    private MarketGross marketGross;
+
+    private boolean isEdited;
+
+    private int markColor;
 
     public String getIndex() {
         return index;
@@ -50,11 +63,51 @@ public class EditMarketGrossBean {
         this.ref2 = ref2;
     }
 
-    public String getGross() {
+    public String getGrossText() {
+        return grossText;
+    }
+
+    public void setGrossText(String gross) {
+        this.grossText = gross;
+    }
+
+    public Market getBean() {
+        return bean;
+    }
+
+    public void setBean(Market bean) {
+        this.bean = bean;
+    }
+
+    public long getGross() {
         return gross;
     }
 
-    public void setGross(String gross) {
+    public void setGross(long gross) {
         this.gross = gross;
+    }
+
+    public MarketGross getMarketGross() {
+        return marketGross;
+    }
+
+    public void setMarketGross(MarketGross marketGross) {
+        this.marketGross = marketGross;
+    }
+
+    public boolean isEdited() {
+        return isEdited;
+    }
+
+    public void setEdited(boolean edited) {
+        isEdited = edited;
+    }
+
+    public int getMarkColor() {
+        return markColor;
+    }
+
+    public void setMarkColor(int markColor) {
+        this.markColor = markColor;
     }
 }

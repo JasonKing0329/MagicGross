@@ -20,12 +20,20 @@ public class SimpleDialogs {
         void onOk(String name);
     }
 
-    public void openInputDialog(Context context, String msg, final OnDialogActionListener listener) {
+    public void openInputDialog(Context context, String msg, OnDialogActionListener listener) {
+        openInputDialog(context, msg, listener, null);
+    }
+
+    public void openInputDialog(Context context, String msg, final OnDialogActionListener listener, String initText) {
         LinearLayout layout = new LinearLayout(context);
         layout.setPadding(40, 10, 40, 10);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         EditText edit = new EditText(context);
+        if (initText != null) {
+            edit.setText(initText);
+            edit.setSelectAllOnFocus(true);
+        }
         edit.setLayoutParams(params);
         layout.addView(edit);
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
