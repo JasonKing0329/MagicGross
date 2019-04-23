@@ -26,7 +26,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_market"
+            android:id="@+id/tv_index"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -49,7 +49,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/tv_index"
             app:layout_constraintEnd_toStartOf="@+id/tv_gross"
-            app:layout_constraintTop_toBottomOf="@id/tv_market" />
+            app:layout_constraintTop_toBottomOf="@id/tv_index" />
 
         <TextView
             android:id="@+id/tv_gross"

@@ -43,6 +43,12 @@ import java.util.List;
  */
 public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, MovieListViewModel> {
 
+    private final int ID_SELECT_MODE = 0;
+
+    public static final String SELECT_MODE = "select_mode";
+    public static final String RESP_SELECT_RESULT = "resp_select_result";
+
+
 //    private MovieListAdapter adapter;
 
     private AbsMovieListAdapter adapter;
@@ -125,6 +131,10 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
             @Override
             public boolean onConfirm(int actionId) {
                 switch (actionId) {
+                    case ID_SELECT_MODE:
+                        setSelectResult();
+                        finish();
+                        break;
                     case R.id.menu_delete:
                         mModel.delete();
                         return false;
@@ -173,6 +183,20 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
             }
             return null;
         });
+
+        if (isSelectMode()) {
+            mBinding.actionbar.showConfirmStatus(ID_SELECT_MODE);
+        }
+    }
+
+    private void setSelectResult() {
+        Intent intent = new Intent();
+        intent.putCharSequenceArrayListExtra(RESP_SELECT_RESULT, mModel.getSelectedItems());
+        setResult(RESULT_OK, intent);
+    }
+
+    private boolean isSelectMode() {
+        return getIntent().getBooleanExtra(SELECT_MODE, false);
     }
 
     private void selectGrossType() {
@@ -273,6 +297,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
     private void showMovies(List<MovieGridItem> list) {
         if (adapter == null) {
             adapter = new MovieListWildAdapter();
+            adapter.setSelectionMode(isSelectMode());
             adapter.setList(list);
             adapter.setCheckMap(mModel.getCheckMap());
             adapter.setOnItemClickListener((BaseRecyclerAdapter.OnItemClickListener<MovieGridItem>) (view, position, data) -> {

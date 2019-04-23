@@ -48,6 +48,7 @@
         <activity android:name=".page.MovieGrossActivity"/>
         <activity android:name=".page.CompareActivity"/>
         <activity android:name=".page.MarketActivity"/>
+        <activity android:name=".page.EditMarketGrossActivity"/>
 
         <provider
             android:name="android.support.v4.content.FileProvider"

@@ -202,6 +202,16 @@ public class MovieListViewModel extends BaseViewModel {
                 });
     }
 
+    public ArrayList<CharSequence> getSelectedItems() {
+        ArrayList<CharSequence> list = new ArrayList<>();
+        for (MovieGridItem movie:mMovieList) {
+            if (checkMap.get(movie.getBean().getId()) != null) {
+                list.add(String.valueOf(movie.getBean().getId()));
+            }
+        }
+        return list;
+    }
+
     private Observable<Boolean> deleteMovies() {
         return Observable.create(e -> {
             List<Movie> list = new ArrayList<>();
