@@ -36,6 +36,9 @@ public class MarketGross {
     @ToOne(joinProperty = "marketId")
     private Market market;
 
+    @ToOne(joinProperty = "movieId")
+    private Movie movie;
+
     /**
      * 不存储该字段
      */
@@ -52,6 +55,9 @@ public class MarketGross {
 
     @Generated(hash = 941605798)
     private transient Long market__resolvedKey;
+
+    @Generated(hash = 708760245)
+    private transient Long movie__resolvedKey;
 
     @Generated(hash = 142683167)
     public MarketGross(Long id, long marketId, long movieId, long gross,
@@ -200,6 +206,39 @@ public class MarketGross {
             throw new DaoException("Entity is detached from DAO context");
         }
         myDao.update(this);
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1088418243)
+    public Movie getMovie() {
+        long __key = this.movieId;
+        if (movie__resolvedKey == null || !movie__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            MovieDao targetDao = daoSession.getMovieDao();
+            Movie movieNew = targetDao.load(__key);
+            synchronized (this) {
+                movie = movieNew;
+                movie__resolvedKey = __key;
+            }
+        }
+        return movie;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 2024058190)
+    public void setMovie(@NotNull Movie movie) {
+        if (movie == null) {
+            throw new DaoException(
+                    "To-one property 'movieId' has not-null constraint; cannot set to-one to null");
+        }
+        synchronized (this) {
+            this.movie = movie;
+            movieId = movie.getId();
+            movie__resolvedKey = movieId;
+        }
     }
 
     /** called by internal mechanisms, do not call yourself. */

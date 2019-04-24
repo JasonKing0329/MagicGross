@@ -12,6 +12,8 @@ import com.king.app.gross.conf.RankType;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.FragmentRankBinding;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.page.EditMarketGrossActivity;
+import com.king.app.gross.page.MarketRankActivity;
 import com.king.app.gross.page.MovieGrossActivity;
 import com.king.app.gross.page.adapter.RankItemAdapter;
 import com.king.app.gross.page.adapter.TagRegionAdapter;
@@ -56,7 +58,15 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
         mModel.regionTagsObserver.observe(this, regionTags -> {
             TagRegionAdapter adapter = new TagRegionAdapter();
             adapter.setList(regionTags);
-            adapter.setOnItemClickListener((view, position, data) -> mModel.changeRegion((Region) data.getBean()));
+            adapter.setOnItemClickListener((view, position, data) -> {
+                Region region = (Region) data.getBean();
+                if (region == Region.MARKET) {
+                    showMarketPage();
+                }
+                else {
+                    mModel.changeRegion((Region) data.getBean());
+                }
+            });
             mBinding.rvRegion.setAdapter(adapter);
         });
         mModel.typeTagsObserver.observe(this, typeTags -> {
@@ -77,6 +87,11 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
                 rankItemAdapter.notifyDataSetChanged();
             }
         });
+    }
+
+    private void showMarketPage() {
+        Intent intent = new Intent().setClass(getActivity(), MarketRankActivity.class);
+        startActivity(intent);
     }
 
     private void onClickMovie(Movie movie) {

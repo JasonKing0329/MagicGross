@@ -22,7 +22,7 @@ public class AppConstants {
     public static final int MARKET_GROSS_SORT_DEBUT = 3;
 
     public static final String[] REGION_TITLES = new String[] {
-            "North America", "China", "Oversea except China", "Oversea", "World Wide"
+            "North America", "China", "Oversea except China", "Oversea", "World Wide", "Market"
     };
 
     public static final String[] RANK_TYPE_TITLES = new String[] {
