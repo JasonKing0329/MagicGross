@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_market_type_total"
+        android:title="Total"/>
+    <item android:id="@+id/menu_market_type_opening"
+        android:title="Opening"/>
+    <item android:id="@+id/menu_market_type_debut"
+        android:title="Debut"/>
+    <item android:id="@+id/menu_market_type_end"
+        android:title="End"/>
+</menu>

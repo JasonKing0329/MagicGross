@@ -30,33 +30,33 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:text='@{"" + (bean.marketId == 0 ? "Total" : bean.market.name)}'
             android:textSize="16dp"
-            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/tv_market_cn"
             app:layout_constraintStart_toEndOf="@id/tv_index"
             app:layout_constraintEnd_toStartOf="@+id/tv_gross"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
             android:id="@+id/tv_market_cn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:text='@{"" + (bean.marketId == 0 ? "全部" : bean.market.nameChn) + "  " + bean.debut}'
             android:textSize="12dp"
-            app:layout_constraintVertical_chainStyle="packed"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_name"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/tv_index"
-            app:layout_constraintEnd_toStartOf="@+id/tv_gross"
-            app:layout_constraintTop_toBottomOf="@id/tv_index" />
+            app:layout_constraintEnd_toEndOf="@id/tv_name"
+            app:layout_constraintStart_toStartOf="@id/tv_name"
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
             android:id="@+id/tv_gross"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
             android:text="@{FormatUtil.formatUsGross(bean.gross)}"
             android:textColor="@color/text_main"
             android:textSize="16dp"
@@ -70,7 +70,6 @@
             android:id="@+id/tv_opening"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:text="@{FormatUtil.formatUsGross(bean.opening)}"
             android:textColor="@color/text_sub"

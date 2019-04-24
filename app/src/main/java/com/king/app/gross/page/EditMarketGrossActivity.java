@@ -5,7 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.king.app.gross.R;
@@ -73,7 +75,32 @@ public class EditMarketGrossActivity extends MvvmActivity<ActivityEditMarketGros
         mBinding.tvRef.setOnClickListener(v -> selectRef());
         mBinding.tvRef1.setOnClickListener(v -> selectRef());
         mBinding.tvRef2.setOnClickListener(v -> selectRef());
+        mBinding.tvGross.setOnClickListener(v -> popupType(v));
         mBinding.rvMarkets.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+    }
+
+    private void popupType(View view) {
+        PopupMenu menu = new PopupMenu(this, view);
+        menu.getMenuInflater().inflate(R.menu.popup_market_type, menu.getMenu());
+        menu.setOnMenuItemClickListener(menuItem -> {
+            mBinding.tvGross.setText(menuItem.getTitle());
+            switch (menuItem.getItemId()) {
+                case R.id.menu_market_type_debut:
+                    mModel.onEditTypeChanged(EditMarketGrossViewModel.TYPE_DEBUT);
+                    break;
+                case R.id.menu_market_type_end:
+                    mModel.onEditTypeChanged(EditMarketGrossViewModel.TYPE_END);
+                    break;
+                case R.id.menu_market_type_opening:
+                    mModel.onEditTypeChanged(EditMarketGrossViewModel.TYPE_OPENING);
+                    break;
+                case R.id.menu_market_type_total:
+                    mModel.onEditTypeChanged(EditMarketGrossViewModel.TYPE_TOTAL);
+                    break;
+            }
+            return false;
+        });
+        menu.show();
     }
 
     private void cancelAndExit() {
@@ -126,22 +153,10 @@ public class EditMarketGrossActivity extends MvvmActivity<ActivityEditMarketGros
 
     private void editMarketGross(int position, EditMarketGrossBean data) {
         new SimpleDialogs().openInputDialog(this, data.getMarket(), name -> {
-            try {
-                long gross = Long.parseLong(name);
-                data.setEdited(true);
-                data.setGross(gross);
-                data.setGrossText(FormatUtil.formatUsGross(gross));
-                if (gross == 0) {
-                    data.setMarkColor(Color.WHITE);
-                }
-                else {
-                    data.setMarkColor(Color.parseColor("#ffff00"));
-                }
+            if (mModel.updateTypeValue(data, name)) {
                 adapter.notifyItemChanged(position);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        }, String.valueOf(data.getGross()));
+        }, mModel.getEditInitText(data));
     }
 
     private long getMovieId() {

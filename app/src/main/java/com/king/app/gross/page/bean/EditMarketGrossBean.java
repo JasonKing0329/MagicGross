@@ -21,8 +21,6 @@ public class EditMarketGrossBean {
 
     private String grossText;
 
-    private long gross;
-
     private Market bean;
 
     private MarketGross marketGross;
@@ -30,6 +28,10 @@ public class EditMarketGrossBean {
     private boolean isEdited;
 
     private int markColor;
+
+    private MarketGross ref1MarketGross;
+
+    private MarketGross ref2MarketGross;
 
     public String getIndex() {
         return index;
@@ -79,14 +81,6 @@ public class EditMarketGrossBean {
         this.bean = bean;
     }
 
-    public long getGross() {
-        return gross;
-    }
-
-    public void setGross(long gross) {
-        this.gross = gross;
-    }
-
     public MarketGross getMarketGross() {
         return marketGross;
     }
@@ -109,5 +103,21 @@ public class EditMarketGrossBean {
 
     public void setMarkColor(int markColor) {
         this.markColor = markColor;
+    }
+
+    public MarketGross getRef1MarketGross() {
+        return ref1MarketGross;
+    }
+
+    public void setRef1MarketGross(MarketGross ref1MarketGross) {
+        this.ref1MarketGross = ref1MarketGross;
+    }
+
+    public MarketGross getRef2MarketGross() {
+        return ref2MarketGross;
+    }
+
+    public void setRef2MarketGross(MarketGross ref2MarketGross) {
+        this.ref2MarketGross = ref2MarketGross;
     }
 }
