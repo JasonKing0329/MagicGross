@@ -243,6 +243,7 @@ public class MojoViewModel extends BaseViewModel {
         return Observable.create(e -> {
             QueryBuilder<MarketGross> builder = MApplication.getInstance().getDaoSession().getMarketGrossDao().queryBuilder();
             builder.where(MarketGrossDao.Properties.MovieId.eq(movieObserver.getValue().getId()));
+            builder.where(MarketGrossDao.Properties.MarketId.notEq(0));
             if (type == AppConstants.MARKET_GROSS_SORT_TOTAL) {
                 builder.orderDesc(MarketGrossDao.Properties.Gross);
             }
@@ -329,6 +330,13 @@ public class MojoViewModel extends BaseViewModel {
             }
             observer.onNext(list);
         };
+    }
+
+    public void removeItem(int position) {
+        MarketGross gross = grossObserver.getValue().get(position);
+        getDaoSession().getMarketGrossDao().delete(gross);
+        getDaoSession().getMarketGrossDao().detachAll();
+        grossObserver.getValue().remove(position);
     }
 
     private class MarketGrossComparator implements Comparator<MarketGross> {

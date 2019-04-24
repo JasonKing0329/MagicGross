@@ -22,12 +22,18 @@ public abstract class BaseBindingAdapter<V extends ViewDataBinding, T> extends R
 
     protected BaseRecyclerAdapter.OnItemClickListener<T> onItemClickListener;
 
+    protected BaseRecyclerAdapter.OnItemLongClickListener<T> onItemLongClickListener;
+
     public void setList(List<T> list) {
         this.list = list;
     }
 
     public void setOnItemClickListener(BaseRecyclerAdapter.OnItemClickListener<T> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
+    }
+
+    public void setOnItemLongClickListener(BaseRecyclerAdapter.OnItemLongClickListener<T> onItemLongClickListener) {
+        this.onItemLongClickListener = onItemLongClickListener;
     }
 
     @NonNull
@@ -39,6 +45,10 @@ public abstract class BaseBindingAdapter<V extends ViewDataBinding, T> extends R
         holder.itemView.setOnClickListener(v -> {
             int position = holder.getLayoutPosition();
             onClickItem(v, position);
+        });
+        holder.itemView.setOnLongClickListener(v -> {
+            int position = holder.getLayoutPosition();
+            return onLongClickItem(v, position);
         });
         return holder;
     }
@@ -58,6 +68,13 @@ public abstract class BaseBindingAdapter<V extends ViewDataBinding, T> extends R
         if (onItemClickListener != null) {
             onItemClickListener.onClickItem(v, position, list.get(position));
         }
+    }
+
+    protected boolean onLongClickItem(View v, int position) {
+        if (onItemLongClickListener != null) {
+            return onItemLongClickListener.onLongClickItem(v, position, list.get(position));
+        }
+        return false;
     }
 
     @Override

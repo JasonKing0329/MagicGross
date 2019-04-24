@@ -9,11 +9,14 @@ import android.view.View;
 import android.widget.PopupMenu;
 
 import com.king.app.gross.R;
+import com.king.app.gross.base.BaseRecyclerAdapter;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.ActivityMovieMarketBinding;
+import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.page.adapter.MarketGrossAdapter;
 import com.king.app.gross.page.adapter.MarketGroupAdapter;
+import com.king.app.gross.viewmodel.EditMarketGrossViewModel;
 import com.king.app.gross.viewmodel.MojoViewModel;
 
 public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, MojoViewModel> {
@@ -121,6 +124,10 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             if (adapter == null || mBinding.rvMarkets.getAdapter() == groupAdapter) {
                 adapter = new MarketGrossAdapter();
                 adapter.setList(list);
+                adapter.setOnItemLongClickListener((view, position, data) -> {
+                    popupLongClickItem(view, position, data);
+                    return true;
+                });
                 mBinding.rvMarkets.setAdapter(adapter);
             }
             else {
@@ -142,4 +149,20 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
 
         mModel.loadMovie(getMovieId());
     }
+
+    private void popupLongClickItem(View view, int position, MarketGross data) {
+        PopupMenu menu = new PopupMenu(this, view);
+        menu.getMenuInflater().inflate(R.menu.popup_market_context, menu.getMenu());
+        menu.setOnMenuItemClickListener(menuItem -> {
+            switch (menuItem.getItemId()) {
+                case R.id.menu_market_delete:
+                    mModel.removeItem(position);
+                    adapter.notifyItemRemoved(position);
+                    break;
+            }
+            return false;
+        });
+        menu.show();
+    }
+
 }

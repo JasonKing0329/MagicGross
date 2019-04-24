@@ -19,6 +19,8 @@ public abstract class BaseRecyclerAdapter<VH extends RecyclerView.ViewHolder, T>
 
     protected OnItemClickListener<T> onItemClickListener;
 
+    protected OnItemLongClickListener<T> onItemLongClickListener;
+
     public void setList(List<T> list) {
         this.list = list;
     }
@@ -31,6 +33,10 @@ public abstract class BaseRecyclerAdapter<VH extends RecyclerView.ViewHolder, T>
         this.onItemClickListener = onItemClickListener;
     }
 
+    public void setOnItemLongClickListener(OnItemLongClickListener<T> onItemLongClickListener) {
+        this.onItemLongClickListener = onItemLongClickListener;
+    }
+
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(getItemLayoutRes(), parent, false);
@@ -39,6 +45,10 @@ public abstract class BaseRecyclerAdapter<VH extends RecyclerView.ViewHolder, T>
             int position = holder.getLayoutPosition();
             onClickItem(v, position);
         });
+        view.setOnLongClickListener(v -> {
+            int position = holder.getLayoutPosition();
+            return onLongClickItem(v, position);
+        });
         return holder;
     }
 
@@ -46,6 +56,13 @@ public abstract class BaseRecyclerAdapter<VH extends RecyclerView.ViewHolder, T>
         if (onItemClickListener != null) {
             onItemClickListener.onClickItem(v, position, list.get(position));
         }
+    }
+
+    protected boolean onLongClickItem(View v, int position) {
+        if (onItemLongClickListener != null) {
+            return onItemLongClickListener.onLongClickItem(v, position, list.get(position));
+        }
+        return false;
     }
 
     @Override
@@ -66,5 +83,9 @@ public abstract class BaseRecyclerAdapter<VH extends RecyclerView.ViewHolder, T>
 
     public interface OnItemClickListener<T> {
         void onClickItem(View view, int position, T data);
+    }
+
+    public interface OnItemLongClickListener<T> {
+        boolean onLongClickItem(View view, int position, T data);
     }
 }
