@@ -6,18 +6,20 @@ import android.view.View;
 import com.king.app.gross.R;
 import com.king.app.gross.base.BaseBindingAdapter;
 import com.king.app.gross.databinding.AdapterMarketRankItemBinding;
+import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.viewmodel.bean.RankItem;
 
-public class MarketRandAdapter extends BaseBindingAdapter<AdapterMarketRankItemBinding, RankItem> {
+public class MarketRankAdapter extends BaseBindingAdapter<AdapterMarketRankItemBinding, RankItem<MarketGross>> {
     @Override
     protected int getItemLayoutRes() {
         return R.layout.adapter_market_rank_item;
     }
 
     @Override
-    protected void onBindItem(AdapterMarketRankItemBinding binding, int position, RankItem bean) {
+    protected void onBindItem(AdapterMarketRankItemBinding binding, int position, RankItem<MarketGross> bean) {
         binding.setItem(bean);
         binding.divider.setVisibility(position == 0 ? View.GONE:View.VISIBLE);
+        binding.tvRank.setText(String.valueOf(position + 1));
 
         int color;
         if (position == 0) {

@@ -6,14 +6,20 @@ import android.support.v7.widget.LinearLayoutManager;
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityMarketRankBinding;
-import com.king.app.gross.page.adapter.MarketRandAdapter;
+import com.king.app.gross.model.entity.MarketGross;
+import com.king.app.gross.page.adapter.MarketRankAdapter;
 import com.king.app.gross.page.adapter.MarketTextAdapter;
+import com.king.app.gross.utils.ScreenUtils;
+import com.king.app.gross.view.dialog.DraggableDialogFragment;
+import com.king.app.gross.view.dialog.content.EditMarketGrossFragment;
 import com.king.app.gross.viewmodel.MarketRankViewModel;
 
 public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, MarketRankViewModel> {
 
     private MarketTextAdapter marketAdapter;
-    private MarketRandAdapter rankAdapter;
+    private MarketRankAdapter rankAdapter;
+
+    private DraggableDialogFragment editDialog;
 
     @Override
     protected int getContentView() {
@@ -49,8 +55,9 @@ public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, 
 
         mModel.rankObserver.observe(this, list -> {
             if (rankAdapter == null) {
-                rankAdapter = new MarketRandAdapter();
+                rankAdapter = new MarketRankAdapter();
                 rankAdapter.setList(list);
+                rankAdapter.setOnItemClickListener((view, position, data) -> editMarketGross(position, data.getData()));
                 mBinding.rvMovie.setAdapter(rankAdapter);
             }
             else {
@@ -61,4 +68,30 @@ public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, 
 
         mModel.loadMarkets();
     }
+
+    private void editMarketGross(int position, MarketGross gross) {
+        EditMarketGrossFragment content = new EditMarketGrossFragment();
+        content.setMarketGross(gross);
+        content.setOnUpdateListener(marketGross -> {
+            mModel.updateMarketGross(position);
+            rankAdapter.notifyItemChanged(position);
+        });
+        editDialog = new DraggableDialogFragment.Builder()
+                .setTitle(gross.getMarket().getName())
+                .setMaxHeight(ScreenUtils.getScreenHeight() * 3 / 5)
+                .setShowDelete(true)
+                .setOnDeleteListener(view -> {
+                    showConfirmCancelMessage("Are you sure to delete?"
+                            , (dialogInterface, i) -> {
+                                editDialog.dismissAllowingStateLoss();
+                                mModel.deleteMarketGross(position);
+                                rankAdapter.notifyDataSetChanged();
+                            }
+                            , null);
+                })
+                .setContentFragment(content)
+                .build();
+        editDialog.show(getSupportFragmentManager(), "EditGross");
+    }
+
 }

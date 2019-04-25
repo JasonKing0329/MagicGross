@@ -339,6 +339,11 @@ public class MojoViewModel extends BaseViewModel {
         grossObserver.getValue().remove(position);
     }
 
+    public void updateMarketGross(MarketGross gross) {
+        getDaoSession().getMarketGrossDao().update(gross);
+        getDaoSession().getMarketGrossDao().detach(gross);
+    }
+
     private class MarketGrossComparator implements Comparator<MarketGross> {
 
         @Override

@@ -8,7 +8,7 @@ import com.king.app.gross.model.entity.Movie;
  * @time 2018/6/10 0010 20:50
  */
 
-public class RankItem {
+public class RankItem<T> {
 
     private String rank;
     private String name;
@@ -17,6 +17,8 @@ public class RankItem {
     private Movie movie;
     private double sortValue;
     private String year;
+
+    private T data;
 
     public String getRank() {
         return rank;
@@ -72,5 +74,13 @@ public class RankItem {
 
     public void setRate(String rate) {
         this.rate = rate;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
     }
 }

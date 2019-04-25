@@ -9,14 +9,15 @@ import android.view.View;
 import android.widget.PopupMenu;
 
 import com.king.app.gross.R;
-import com.king.app.gross.base.BaseRecyclerAdapter;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.ActivityMovieMarketBinding;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.page.adapter.MarketGrossAdapter;
 import com.king.app.gross.page.adapter.MarketGroupAdapter;
-import com.king.app.gross.viewmodel.EditMarketGrossViewModel;
+import com.king.app.gross.utils.ScreenUtils;
+import com.king.app.gross.view.dialog.DraggableDialogFragment;
+import com.king.app.gross.view.dialog.content.EditMarketGrossFragment;
 import com.king.app.gross.viewmodel.MojoViewModel;
 
 public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, MojoViewModel> {
@@ -27,6 +28,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
 
     private MarketGrossAdapter adapter;
     private MarketGroupAdapter groupAdapter;
+    private DraggableDialogFragment editDialog;
 
     @Override
     protected int getContentView() {
@@ -124,10 +126,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             if (adapter == null || mBinding.rvMarkets.getAdapter() == groupAdapter) {
                 adapter = new MarketGrossAdapter();
                 adapter.setList(list);
-                adapter.setOnItemLongClickListener((view, position, data) -> {
-                    popupLongClickItem(view, position, data);
-                    return true;
-                });
+                adapter.setOnItemClickListener((view, position, data) -> editMarketGross(position, data));
                 mBinding.rvMarkets.setAdapter(adapter);
             }
             else {
@@ -150,14 +149,37 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
         mModel.loadMovie(getMovieId());
     }
 
+    private void editMarketGross(int position, MarketGross gross) {
+        EditMarketGrossFragment content = new EditMarketGrossFragment();
+        content.setMarketGross(gross);
+        content.setOnUpdateListener(marketGross -> {
+            mModel.updateMarketGross(gross);
+            adapter.notifyItemChanged(position);
+        });
+        editDialog = new DraggableDialogFragment.Builder()
+                .setTitle(gross.getMarket().getName())
+                .setMaxHeight(ScreenUtils.getScreenHeight() * 3 / 5)
+                .setShowDelete(true)
+                .setOnDeleteListener(view -> {
+                    showConfirmCancelMessage("Are you sure to delete?"
+                            , (dialogInterface, i) -> {
+                                editDialog.dismissAllowingStateLoss();
+                                mModel.removeItem(position);
+                                adapter.notifyDataSetChanged();
+                            }
+                            , null);
+                })
+                .setContentFragment(content)
+                .build();
+        editDialog.show(getSupportFragmentManager(), "EditGross");
+    }
+
     private void popupLongClickItem(View view, int position, MarketGross data) {
         PopupMenu menu = new PopupMenu(this, view);
         menu.getMenuInflater().inflate(R.menu.popup_market_context, menu.getMenu());
         menu.setOnMenuItemClickListener(menuItem -> {
             switch (menuItem.getItemId()) {
                 case R.id.menu_market_delete:
-                    mModel.removeItem(position);
-                    adapter.notifyItemRemoved(position);
                     break;
             }
             return false;

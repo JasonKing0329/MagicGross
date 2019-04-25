@@ -25,7 +25,7 @@ import io.reactivex.schedulers.Schedulers;
 public class MarketRankViewModel extends BaseViewModel {
 
     public MutableLiveData<List<Market>> marketsObserver = new MutableLiveData<>();
-    public MutableLiveData<List<RankItem>> rankObserver = new MutableLiveData<>();
+    public MutableLiveData<List<RankItem<MarketGross>>> rankObserver = new MutableLiveData<>();
 
     public MarketRankViewModel(@NonNull Application application) {
         super(application);
@@ -39,14 +39,14 @@ public class MarketRankViewModel extends BaseViewModel {
         getMarketRankItems(data)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<RankItem>>() {
+                .subscribe(new Observer<List<RankItem<MarketGross>>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<RankItem> rankItems) {
+                    public void onNext(List<RankItem<MarketGross>> rankItems) {
                         rankObserver.setValue(rankItems);
                     }
 
@@ -63,17 +63,18 @@ public class MarketRankViewModel extends BaseViewModel {
                 });
     }
 
-    private Observable<List<RankItem>> getMarketRankItems(Market data) {
+    private Observable<List<RankItem<MarketGross>>> getMarketRankItems(Market data) {
         return Observable.create(e -> {
             List<MarketGross> marketGrosses = getDaoSession().getMarketGrossDao().queryBuilder()
                     .where(MarketGrossDao.Properties.MarketId.eq(data.getId()))
                     .orderDesc(MarketGrossDao.Properties.Gross)
                     .build().list();
 
-            List<RankItem> list = new ArrayList<>();
+            List<RankItem<MarketGross>> list = new ArrayList<>();
             for (int i = 0; i < marketGrosses.size(); i ++) {
                 MarketGross gross = marketGrosses.get(i);
                 RankItem item = new RankItem();
+                item.setData(gross);
                 item.setSortValue(gross.getGross());
                 item.setValue(FormatUtil.formatUsGross(gross.getGross()));
                 item.setMovie(gross.getMovie());
@@ -89,5 +90,19 @@ public class MarketRankViewModel extends BaseViewModel {
             }
             e.onNext(list);
         });
+    }
+
+    public void updateMarketGross(int position) {
+        MarketGross gross = rankObserver.getValue().get(position).getData();
+        getDaoSession().getMarketGrossDao().update(gross);
+        getDaoSession().getMarketGrossDao().detach(gross);
+        RankItem item = rankObserver.getValue().get(position);
+        item.setValue(FormatUtil.formatUsGross(gross.getGross()));
+    }
+
+    public void deleteMarketGross(int position) {
+        getDaoSession().getMarketGrossDao().delete(rankObserver.getValue().get(position).getData());
+        getDaoSession().getMarketGrossDao().detachAll();
+        rankObserver.getValue().remove(position);
     }
 }
