@@ -117,7 +117,7 @@ public class EditMarketGrossViewModel extends BaseViewModel {
             list.add(emgb);
 
             List<Market> markets = getDaoSession().getMarketDao().queryBuilder()
-                    .orderAsc(MarketDao.Properties.Name)
+                    .orderAsc(MarketDao.Properties.Continent, MarketDao.Properties.Name)
                     .build().list();
             for (int i = 0; i < markets.size(); i ++) {
                 Market market = markets.get(i);

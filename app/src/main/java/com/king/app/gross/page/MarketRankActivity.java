@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityMarketRankBinding;
+import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.page.adapter.MarketRankAdapter;
 import com.king.app.gross.page.adapter.MarketTextAdapter;
@@ -44,7 +45,17 @@ public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, 
             if (marketAdapter == null) {
                 marketAdapter = new MarketTextAdapter();
                 marketAdapter.setList(list);
-                marketAdapter.setOnItemClickListener((view, position, data) -> mModel.loadMarketRank(data));
+                marketAdapter.setOnClickMarketListener(new MarketTextAdapter.OnClickMarketListener() {
+                    @Override
+                    public void onClickMarket(int position, Market market) {
+                        mModel.loadMarketRank(market);
+                    }
+
+                    @Override
+                    public void onClickContinent(int position, String continent) {
+                        mModel.loadContinentRank(continent);
+                    }
+                });
                 mBinding.rvMarket.setAdapter(marketAdapter);
             }
             else {
@@ -57,7 +68,11 @@ public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, 
             if (rankAdapter == null) {
                 rankAdapter = new MarketRankAdapter();
                 rankAdapter.setList(list);
-                rankAdapter.setOnItemClickListener((view, position, data) -> editMarketGross(position, data.getData()));
+                rankAdapter.setOnItemClickListener((view, position, data) -> {
+                    if (marketAdapter.isMarketSelected()) {
+                        editMarketGross(position, data.getData());
+                    }
+                });
                 mBinding.rvMovie.setAdapter(rankAdapter);
             }
             else {
