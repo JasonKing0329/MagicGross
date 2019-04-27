@@ -433,6 +433,10 @@ public class EditMarketGrossViewModel extends BaseViewModel {
                     data.getMarketGross().setGross(gross);
                     break;
             }
+            // 除非修改了日期，否则自动设置debut
+            if (TextUtils.isEmpty(data.getMarketGross().getDebut())) {
+                data.getMarketGross().setDebut(movieObserver.getValue().getDebut());
+            }
             data.setEdited(true);
             setPresentText(data);
             data.setMarkColor(getMarkedColor());

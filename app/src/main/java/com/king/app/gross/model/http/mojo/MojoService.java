@@ -14,5 +14,5 @@ import retrofit2.http.Url;
 public interface MojoService {
 
     @GET
-    Observable<ResponseBody> getMovieForeignPage(@Url String url);
+    Observable<ResponseBody> getHtmlPage(@Url String url);
 }

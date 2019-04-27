@@ -1,11 +1,16 @@
 package com.king.app.gross.model.http.mojo;
 
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.conf.AppConstants;
+import com.king.app.gross.conf.Region;
+import com.king.app.gross.model.entity.Gross;
+import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.model.entity.MarketDao;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.utils.DebugLog;
+import com.king.app.gross.utils.FileUtil;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,7 +20,6 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +28,7 @@ import java.util.List;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
+import okhttp3.ResponseBody;
 
 public class MojoParser extends AbsParser {
 
@@ -31,14 +36,32 @@ public class MojoParser extends AbsParser {
     private SimpleDateFormat targetDateFormat = new SimpleDateFormat("yyyy/MM/dd");
     private DecimalFormat moneyFormat = new DecimalFormat(",###");
 
-    public Observable<Boolean> parse(File file, long movieId) {
+    public String getMojoForeignUrl(String movieId) {
+        return MojoConstants.FOREIGN_URL + movieId + MojoConstants.URL_END;
+    }
+
+    public String getMojoDailyUrl(String movieId) {
+        return MojoConstants.DAILY_URL + movieId + MojoConstants.URL_END;
+    }
+
+    public ObservableSource<File> saveFile(ResponseBody responseBody, String path) {
+        return Observable.create(e -> {
+            File file = new File(path);
+            if (file.exists()) {
+                file.delete();
+            }
+            e.onNext(FileUtil.saveFile(responseBody.byteStream(), path));
+        });
+    }
+
+    public Observable<Boolean> parseForeign(File file, long movieId) {
         return Observable.create((ObservableOnSubscribe<List<MarketGross>>) e -> {
 
             List<MarketGross> insertList = new ArrayList<>();
 
             // 文件不存在则从网络里重新，虽然这个可以满足文件不存在是从网络里重新下载并且还存到file里，
             // 但是这种方式不能自定义user agent
-//                Document document = Jsoup.parse(file, "UTF-8", AtpWorldTourParams.URL_RANK);
+//                Document document = Jsoup.parseForeign(file, "UTF-8", AtpWorldTourParams.URL_RANK);
 
             Document document = Jsoup.parse(file, "UTF-8");
             Elements tables = document.select("table");
@@ -50,7 +73,7 @@ public class MojoParser extends AbsParser {
                     String toString = tr.child(0).toString();
                     if (toString.contains("country=")) {
                         MarketGross gross = new MarketGross();
-                        parseTr(tr, gross);
+                        parseForeignTr(tr, gross);
                         DebugLog.e("i=" + i + ", market:" + gross.getMarketEn() + ", debut:" + gross.getDebut() + ", opening:" + gross.getOpening()
                                 + ", total:" + gross.getGross() + ", endDate:" + gross.getEndDate());
                         insertList.add(gross);
@@ -61,10 +84,10 @@ public class MojoParser extends AbsParser {
             }
 
             e.onNext(insertList);
-        }).flatMap(list -> insertAndRelate(list, movieId));
+        }).flatMap(list -> insertAndRelateForeign(list, movieId));
     }
 
-    private void parseTr(Element tr, MarketGross gross){
+    private void parseForeignTr(Element tr, MarketGross gross){
         Elements tds = tr.select("td");
         TextNode marketNode = (TextNode) tds.get(0).child(0).child(0).child(0).childNode(0);
         TextNode dateNode = (TextNode) tds.get(2).child(0).childNode(0);
@@ -116,7 +139,7 @@ public class MojoParser extends AbsParser {
         return null;
     }
 
-    private ObservableSource<Boolean> insertAndRelate(List<MarketGross> insertList, long movieId) {
+    private ObservableSource<Boolean> insertAndRelateForeign(List<MarketGross> insertList, long movieId) {
         return observer -> {
             if (insertList.size() > 0) {
                 // delete movie related first
@@ -155,4 +178,105 @@ public class MojoParser extends AbsParser {
             observer.onNext(true);
         };
     }
+
+    public Observable<Boolean> parseDaily(File file, long movieId) {
+        return Observable.create((ObservableOnSubscribe<List<Gross>>) e -> {
+
+            List<Gross> insertList = new ArrayList<>();
+
+            // 文件不存在则从网络里重新，虽然这个可以满足文件不存在是从网络里重新下载并且还存到file里，
+            // 但是这种方式不能自定义user agent
+//                Document document = Jsoup.parseForeign(file, "UTF-8", AtpWorldTourParams.URL_RANK);
+
+            Document document = Jsoup.parse(file, "UTF-8");
+            Elements tables = document.select("table");
+            Element table = tables.get(tables.size() - 1);
+            Elements trs = table.select("tr");
+            for (int i = 0; i < trs.size(); i ++) {
+                Element tr = trs.get(i);
+                try {
+                    String toString = tr.toString();
+                    if (toString.contains("/daily/chart/?sortdate=")) {
+                        Gross gross = parseDailyTr(i, tr, movieId);
+                        DebugLog.e("i=" + i + ", dayOfWeek=:" + gross.getDayOfWeek() + ", day:" + gross.getDay() + ", gross:" + gross.getGross());
+                        insertList.add(gross);
+                        // 只保存前35天数据
+                        if (gross.getDay() > 34) {
+                            break;
+                        }
+                    }
+                } catch (Exception exception) {
+                    DebugLog.e("[error] i=" + i + ", " + exception.getMessage());
+                }
+            }
+
+            e.onNext(insertList);
+        }).flatMap(list -> insertAndRelateDaily(list, movieId));
+    }
+
+    private Gross parseDailyTr(int index, Element tr, long movieId){
+//        String wholeText = td.wholeText();
+//        String text = td.text();
+//        String data = td.data();
+//        String ownText = td.ownText();
+//        String toString = td.toString();
+//        String val = td.val();
+        String weekday = tr.child(0).text();
+        String dayGross = tr.child(3).text();
+        Gross gross = new Gross();
+        gross.setDay(index);
+        gross.setRegion(Region.NA.ordinal());
+        gross.setSymbol(0);
+        gross.setMovieId(movieId);
+        gross.setGross(parseMoney(dayGross));
+        gross.setDayOfWeek(parseWeekday(weekday));
+        return gross;
+    }
+
+    private int parseWeekday(String text) {
+        int day = 0;
+        switch (text) {
+            case "Fri":
+                day = 5;
+                break;
+            case "Sat":
+                day = 6;
+                break;
+            case "Sun":
+                day = 7;
+                break;
+            case "Mon":
+                day = 1;
+                break;
+            case "Tue":
+                day = 2;
+                break;
+            case "Wed":
+                day = 3;
+                break;
+            case "Thu":
+                day = 4;
+                break;
+        }
+        return day;
+    }
+
+    private ObservableSource<Boolean> insertAndRelateDaily(List<Gross> insertList, long movieId) {
+        return observer -> {
+            if (insertList.size() > 0) {
+                // delete movie related first
+                GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
+                dao.queryBuilder()
+                        .where(GrossDao.Properties.MovieId.eq(movieId))
+                        .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
+                        .buildDelete()
+                        .executeDeleteWithoutDetachingEntities();
+                dao.detachAll();
+
+                dao.insertInTx(insertList);
+            }
+            observer.onNext(true);
+        };
+    }
+
 }

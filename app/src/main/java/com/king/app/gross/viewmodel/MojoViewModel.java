@@ -14,7 +14,6 @@ import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.model.http.mojo.MojoClient;
-import com.king.app.gross.model.http.mojo.MojoConstants;
 import com.king.app.gross.model.http.mojo.MojoParser;
 import com.king.app.gross.page.bean.ContinentGross;
 import com.king.app.gross.page.bean.MarketTotal;
@@ -165,10 +164,10 @@ public class MojoViewModel extends BaseViewModel {
 
     public void fetchForeignData() {
         loadingObserver.setValue(true);
-        MojoClient.getInstance().getService().getMovieForeignPage(getMojoForeignUrl(movieObserver.getValue().getMojoId()))
-                .flatMap(responseBody -> saveFile(responseBody, AppConfig.FILE_HTML_FOREIGN))
-                .flatMap(file -> parser.parse(file, movieObserver.getValue().getId()))
-//        parser.parse(new File(AppConfig.FILE_HTML_FOREIGN), movieObserver.getValue().getId())
+        MojoClient.getInstance().getService().getHtmlPage(parser.getMojoForeignUrl(movieObserver.getValue().getMojoId()))
+                .flatMap(responseBody -> parser.saveFile(responseBody, AppConfig.FILE_HTML_FOREIGN))
+                .flatMap(file -> parser.parseForeign(file, movieObserver.getValue().getId()))
+//        parser.parseForeign(new File(AppConfig.FILE_HTML_FOREIGN), movieObserver.getValue().getId())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<Boolean>() {
@@ -195,20 +194,6 @@ public class MojoViewModel extends BaseViewModel {
 
                     }
                 });
-    }
-
-    private String getMojoForeignUrl(String movieId) {
-        return MojoConstants.FOREIGN_URL + movieId + MojoConstants.URL_END;
-    }
-
-    private Observable<File> saveFile(ResponseBody responseBody, String path) {
-        return Observable.create(e -> {
-            File file = new File(path);
-            if (file.exists()) {
-                file.delete();
-            }
-            e.onNext(FileUtil.saveFile(responseBody.byteStream(), path));
-        });
     }
 
     public void changeSortType(int type) {

@@ -1,6 +1,7 @@
 package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -47,6 +48,11 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
                     break;
                 case R.id.menu_market:
                     showMarketPage();
+                    break;
+                case R.id.menu_fetch:
+                    showConfirmCancelMessage("Fetch Mojo data will remove local data, continue?"
+                            , (dialogInterface, i) -> mModel.fetchMojoData()
+                            , null);
                     break;
             }
         });

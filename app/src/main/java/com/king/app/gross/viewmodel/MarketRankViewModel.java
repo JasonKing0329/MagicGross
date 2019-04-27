@@ -17,7 +17,6 @@ import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.RankItem;
 
 import org.greenrobot.greendao.database.Database;
-import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
