@@ -435,7 +435,7 @@ public class EditMarketGrossViewModel extends BaseViewModel {
             }
             // 除非修改了日期，否则自动设置debut
             if (TextUtils.isEmpty(data.getMarketGross().getDebut())) {
-                data.getMarketGross().setDebut(movieObserver.getValue().getDebut());
+                data.getMarketGross().setDebut(getDefaultDebut());
             }
             data.setEdited(true);
             setPresentText(data);
@@ -445,6 +445,13 @@ public class EditMarketGrossViewModel extends BaseViewModel {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private String getDefaultDebut() {
+        try {
+            return movieObserver.getValue().getDebut().replaceAll("-", "/");
+        } catch (Exception e) {}
+        return "";
     }
 
     public String getEditInitText(EditMarketGrossBean data) {

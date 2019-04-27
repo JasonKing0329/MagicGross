@@ -5,6 +5,7 @@
 
     <data>
         <import type="com.king.app.gross.utils.FormatUtil"/>
+        <import type="android.view.View"/>
         <variable
             name="bean"
             type="com.king.app.gross.model.entity.MarketGross"/>
@@ -74,6 +75,7 @@
             android:text="@{FormatUtil.formatUsGross(bean.opening)}"
             android:textColor="@color/text_sub"
             android:textSize="12dp"
+            android:visibility="@{bean.opening > 0 ? View.VISIBLE:View.GONE}"
             android:gravity="right"
             app:layout_constraintBottom_toTopOf="@+id/tv_gross"
             app:layout_constraintEnd_toEndOf="parent"
