@@ -17,7 +17,9 @@ public class MarketTotal extends BaseObservable {
     private String gross;
     private String marketTitle;
     private String marketGross;
+    private String marketOpening;
     private String undisclosedGross;
+    private String undisclosedOpening;
 
     @Bindable
     public String getOpening() {
@@ -67,5 +69,25 @@ public class MarketTotal extends BaseObservable {
     public void setUndisclosedGross(String undisclosedGross) {
         this.undisclosedGross = undisclosedGross;
         notifyPropertyChanged(BR.undisclosedGross);
+    }
+
+    @Bindable
+    public String getMarketOpening() {
+        return marketOpening;
+    }
+
+    public void setMarketOpening(String marketOpening) {
+        this.marketOpening = marketOpening;
+        notifyPropertyChanged(BR.marketOpening);
+    }
+
+    @Bindable
+    public String getUndisclosedOpening() {
+        return undisclosedOpening;
+    }
+
+    public void setUndisclosedOpening(String undisclosedOpening) {
+        this.undisclosedOpening = undisclosedOpening;
+        notifyPropertyChanged(BR.undisclosedOpening);
     }
 }

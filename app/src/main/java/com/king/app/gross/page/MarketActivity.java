@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.PopupMenu;
 
 import com.king.app.gross.R;
+import com.king.app.gross.base.HeadChildBindingAdapter;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.ActivityMovieMarketBinding;
@@ -138,6 +139,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             if (groupAdapter == null || mBinding.rvMarkets.getAdapter() == adapter) {
                 groupAdapter = new MarketGroupAdapter();
                 groupAdapter.setList(list);
+                groupAdapter.setOnClickItemListener((HeadChildBindingAdapter.OnClickItemListener<MarketGross>) (view, position, item) -> editMarketGross(position, item));
                 mBinding.rvMarkets.setAdapter(groupAdapter);
             }
             else {

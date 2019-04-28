@@ -23,8 +23,20 @@ public abstract class HeadChildBindingAdapter<VH extends ViewDataBinding, VI ext
 
     protected List<Object> list;
 
+    protected OnClickHeadListener onClickHeadListener;
+
+    protected OnClickItemListener onClickItemListener;
+
     public void setList(List<Object> list) {
         this.list = list;
+    }
+
+    public void setOnClickHeadListener(OnClickHeadListener onClickHeadListener) {
+        this.onClickHeadListener = onClickHeadListener;
+    }
+
+    public void setOnClickItemListener(OnClickItemListener onClickItemListener) {
+        this.onClickItemListener = onClickItemListener;
     }
 
     protected abstract Class getItemClass();
@@ -63,11 +75,13 @@ public abstract class HeadChildBindingAdapter<VH extends ViewDataBinding, VI ext
         if (getItemViewType(position) == TYPE_HEAD) {
             VH binding = DataBindingUtil.getBinding(holder.itemView);
             onBindHead(binding, position, (H) list.get(position));
+            holder.itemView.setOnClickListener(v -> onClickHead(holder.itemView, position, (H) list.get(position)));
             binding.executePendingBindings();
         }
         else {
             VI binding = DataBindingUtil.getBinding(holder.itemView);
             onBindItem(binding, position, (I) list.get(position));
+            holder.itemView.setOnClickListener(v -> onClickItem(holder.itemView, position, (I) list.get(position)));
             binding.executePendingBindings();
         }
     }
@@ -75,6 +89,18 @@ public abstract class HeadChildBindingAdapter<VH extends ViewDataBinding, VI ext
     protected abstract void onBindHead(VH binding, int position, H head);
 
     protected abstract void onBindItem(VI binding, int position, I item);
+
+    protected void onClickHead(View view, int position, H head) {
+        if (onClickHeadListener != null) {
+            onClickHeadListener.onClickHead(view, position, head);
+        }
+    }
+
+    protected void onClickItem(View view, int position, I item) {
+        if (onClickItemListener != null) {
+            onClickItemListener.onClickItem(view, position, item);
+        }
+    }
 
     @Override
     public int getItemCount() {
@@ -86,5 +112,13 @@ public abstract class HeadChildBindingAdapter<VH extends ViewDataBinding, VI ext
         public BindingHolder(View itemView) {
             super(itemView);
         }
+    }
+
+    public interface OnClickHeadListener<H> {
+        void onClickHead(View view, int position, H head);
+    }
+
+    public interface OnClickItemListener<I> {
+        void onClickItem(View view, int position, I item);
     }
 }

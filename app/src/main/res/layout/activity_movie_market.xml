@@ -47,16 +47,16 @@
                 app:layout_constraintVertical_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/tv_market_total_title"/>
+                app:layout_constraintBottom_toTopOf="@+id/tv_market_title"/>
 
             <TextView
                 android:id="@+id/tv_total_gross"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="18dp"
+                android:layout_marginEnd="16dp"
+                android:text="@{total.gross}"
                 android:textColor="@color/actionbar_bg"
                 android:textSize="16dp"
-                android:text="@{total.gross}"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_total"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tv_total" />
@@ -73,51 +73,77 @@
                 app:layout_constraintTop_toTopOf="@+id/tv_total" />
 
             <TextView
-                android:id="@+id/tv_market_total_title"
+                android:id="@+id/tv_market_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
                 android:text="@{total.marketTitle}"
                 android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tv_undisclosed_title"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_total"
                 app:layout_constraintVertical_chainStyle="packed" />
 
             <TextView
-                android:id="@+id/tv_market_gross"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:textSize="12dp"
-                android:text="@{total.marketGross}"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_market_total_title"
-                app:layout_constraintStart_toEndOf="@+id/tv_market_total_title"
-                app:layout_constraintTop_toTopOf="@+id/tv_market_total_title" />
-
-            <TextView
-                android:id="@+id/tv_undisclosed_gross"
+                android:id="@+id/tv_market_total"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
+                android:textColor="@color/actionbar_bg"
                 android:textSize="12dp"
-                android:text="@{total.undisclosedGross}"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_market_total_title"
+                android:text="@{total.marketGross}"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_market_title"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/tv_market_total_title" />
+                app:layout_constraintTop_toTopOf="@+id/tv_market_title" />
+
+            <TextView
+                android:id="@+id/tv_market_opening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@{total.marketOpening}"
+                android:textSize="12dp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_market_title"
+                app:layout_constraintEnd_toStartOf="@+id/tv_market_total"
+                app:layout_constraintTop_toTopOf="@+id/tv_market_title" />
 
             <TextView
                 android:id="@+id/tv_undisclosed_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
                 android:text="Undisclosed"
                 android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_market_total_title"
-                app:layout_constraintEnd_toStartOf="@+id/tv_undisclosed_gross"
-                app:layout_constraintTop_toTopOf="@+id/tv_market_total_title" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_market_title"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <TextView
+                android:id="@+id/tv_undisclosed_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@{total.undisclosedGross}"
+                android:textSize="12dp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_undisclosed_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tv_undisclosed_title" />
+
+            <TextView
+                android:id="@+id/tv_undisclosed_opening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@{total.undisclosedOpening}"
+                android:textSize="12dp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_undisclosed_title"
+                app:layout_constraintEnd_toStartOf="@+id/tv_undisclosed_total"
+                app:layout_constraintTop_toTopOf="@+id/tv_undisclosed_title" />
         </android.support.constraint.ConstraintLayout>
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_markets"
             android:layout_width="0dp"

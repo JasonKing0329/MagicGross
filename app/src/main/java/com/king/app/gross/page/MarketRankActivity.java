@@ -2,8 +2,10 @@ package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.View;
 
 import com.king.app.gross.R;
+import com.king.app.gross.base.HeadChildBindingAdapter;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityMarketRankBinding;
 import com.king.app.gross.model.entity.Market;
@@ -45,17 +47,8 @@ public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, 
             if (marketAdapter == null) {
                 marketAdapter = new MarketTextAdapter();
                 marketAdapter.setList(list);
-                marketAdapter.setOnClickMarketListener(new MarketTextAdapter.OnClickMarketListener() {
-                    @Override
-                    public void onClickMarket(int position, Market market) {
-                        mModel.loadMarketRank(market);
-                    }
-
-                    @Override
-                    public void onClickContinent(int position, String continent) {
-                        mModel.loadContinentRank(continent);
-                    }
-                });
+                marketAdapter.setOnClickHeadListener((HeadChildBindingAdapter.OnClickHeadListener<String>) (view, position, head) -> mModel.loadContinentRank(head));
+                marketAdapter.setOnClickItemListener((HeadChildBindingAdapter.OnClickItemListener<Market>) (view, position, market) -> mModel.loadMarketRank(market));
                 mBinding.rvMarket.setAdapter(marketAdapter);
             }
             else {

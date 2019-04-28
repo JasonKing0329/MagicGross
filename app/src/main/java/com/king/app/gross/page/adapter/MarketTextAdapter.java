@@ -12,12 +12,6 @@ public class MarketTextAdapter extends HeadChildBindingAdapter<AdapterMarketCont
 
     private int mSelection = -1;
 
-    private OnClickMarketListener onClickMarketListener;
-
-    public void setOnClickMarketListener(OnClickMarketListener onClickMarketListener) {
-        this.onClickMarketListener = onClickMarketListener;
-    }
-
     @Override
     protected Class getItemClass() {
         return Market.class;
@@ -36,12 +30,6 @@ public class MarketTextAdapter extends HeadChildBindingAdapter<AdapterMarketCont
     @Override
     protected void onBindHead(AdapterMarketContinentBinding binding, int position, String head) {
         binding.setContinent(head);
-        binding.tvName.setOnClickListener(v -> {
-            onClickItem(v, position);
-            if (onClickMarketListener != null) {
-                onClickMarketListener.onClickContinent(position, head);
-            }
-        });
         binding.tvName.setSelected(position == mSelection);
     }
 
@@ -50,17 +38,23 @@ public class MarketTextAdapter extends HeadChildBindingAdapter<AdapterMarketCont
         binding.setBean(bean);
         binding.tvChnName.setSelected(position == mSelection);
         binding.tvName.setSelected(position == mSelection);
-        binding.clItem.setOnClickListener(v -> {
-            onClickItem(v, position);
-            if (onClickMarketListener != null) {
-                onClickMarketListener.onClickMarket(position, bean);
-            }
-        });
         binding.tvChnName.setSelected(position == mSelection);
         binding.tvName.setSelected(position == mSelection);
     }
 
-    protected void onClickItem(View v, int position) {
+    @Override
+    protected void onClickHead(View view, int position, String head) {
+        onClickItem(view, position);
+        super.onClickHead(view, position, head);
+    }
+
+    @Override
+    protected void onClickItem(View view, int position, Market item) {
+        onClickItem(view, position);
+        super.onClickItem(view, position, item);
+    }
+
+    private void onClickItem(View v, int position) {
         if (mSelection != -1) {
             notifyItemChanged(mSelection);
         }
@@ -73,10 +67,5 @@ public class MarketTextAdapter extends HeadChildBindingAdapter<AdapterMarketCont
             return true;
         }
         return false;
-    }
-
-    public interface OnClickMarketListener {
-        void onClickMarket(int position, Market market);
-        void onClickContinent(int position, String continent);
     }
 }

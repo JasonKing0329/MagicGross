@@ -110,9 +110,12 @@ public class MojoViewModel extends BaseViewModel {
                 marketTotal.setOpening(FormatUtil.formatUsGross(total.getOpening()));
 
                 Cursor cursor = MApplication.getInstance().getDatabase().rawQuery(
-                        "SELECT SUM(gross) FROM market_gross WHERE movie_id=? AND market_id!=0", new String[]{String.valueOf(movieObserver.getValue().getId())});
+                        "SELECT SUM(opening), SUM(gross) FROM market_gross WHERE movie_id=? AND market_id!=0", new String[]{String.valueOf(movieObserver.getValue().getId())});
                 if (cursor.moveToNext()) {
-                    long marketGross = cursor.getLong(0);
+                    long opening = cursor.getLong(0);
+                    marketTotal.setMarketOpening(FormatUtil.formatUsGross(opening));
+                    marketTotal.setUndisclosedOpening(FormatUtil.formatUsGross(total.getOpening() - opening));
+                    long marketGross = cursor.getLong(1);
                     marketTotal.setMarketGross(FormatUtil.formatUsGross(marketGross));
                     marketTotal.setUndisclosedGross(FormatUtil.formatUsGross(total.getGross() - marketGross));
                 }
@@ -157,7 +160,7 @@ public class MojoViewModel extends BaseViewModel {
                     .where(MarketGrossDao.Properties.MarketId.notEq(0))
                     .orderAsc(MarketGrossDao.Properties.MarketId)
                     .build().list();
-            marketTotal.setMarketTitle(grosses.size() + " Markets Total");
+            marketTotal.setMarketTitle(grosses.size() + " Markets");
             e.onNext(grosses);
         });
     }
