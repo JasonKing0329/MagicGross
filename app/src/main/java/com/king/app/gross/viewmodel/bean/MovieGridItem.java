@@ -32,6 +32,34 @@ public class MovieGridItem {
 
     private int indexColor;
 
+    private long grossUsNum;
+    private long grossCnNum;
+    private long grossWorldNum;
+
+    public long getGrossUsNum() {
+        return grossUsNum;
+    }
+
+    public void setGrossUsNum(long grossUsNum) {
+        this.grossUsNum = grossUsNum;
+    }
+
+    public long getGrossCnNum() {
+        return grossCnNum;
+    }
+
+    public void setGrossCnNum(long grossCnNum) {
+        this.grossCnNum = grossCnNum;
+    }
+
+    public long getGrossWorldNum() {
+        return grossWorldNum;
+    }
+
+    public void setGrossWorldNum(long grossWorldNum) {
+        this.grossWorldNum = grossWorldNum;
+    }
+
     public String getGrossUs() {
         return grossUs;
     }

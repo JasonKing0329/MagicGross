@@ -18,10 +18,13 @@ import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.ColorUtil;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.MovieGridItem;
+import com.king.app.gross.viewmodel.bean.RankItem;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,10 +101,11 @@ public class MovieListViewModel extends BaseViewModel {
         return Observable.create(e -> {
             QueryBuilder<Movie> builder = MApplication.getInstance().getDaoSession().getMovieDao()
                     .queryBuilder();
+            // debut与name可以在这里直接排，gross需要在赋值后排
             if (mSortType == AppConstants.MOVIE_SORT_DATE) {
                 builder.orderAsc(MovieDao.Properties.Debut);
             }
-            else {
+            else if (mSortType == AppConstants.MOVIE_SORT_NAME) {
                 builder.orderAsc(MovieDao.Properties.Name);
             }
             List<Movie> list = builder.build().list();
@@ -150,21 +154,66 @@ public class MovieListViewModel extends BaseViewModel {
                 }
                 long gross = model.queryTotalGross(Region.CHN.ordinal());
                 if (gross > 0) {
+                    item.setGrossCnNum(gross);
                     item.setGrossCn(FormatUtil.formatChnGross(gross));
                 }
                 gross = model.queryTotalGross(Region.NA.ordinal());
                 if (gross > 0) {
+                    item.setGrossUsNum(gross);
                     item.setGrossUs(FormatUtil.formatUsGross(gross));
                 }
                 gross = model.queryTotalGross(Region.WORLDWIDE.ordinal());
                 if (gross > 0) {
+                    item.setGrossWorldNum(gross);
                     item.setGrossWorld(FormatUtil.formatUsGross(gross));
                 }
 
                 results.add(item);
             }
+            if (mSortType == AppConstants.MOVIE_SORT_NA || mSortType == AppConstants.MOVIE_SORT_CHN || mSortType == AppConstants.MOVIE_SORT_WW) {
+                Collections.sort(results, new GrossComparator(mSortType));
+            }
             e.onNext(results);
         });
+    }
+
+    private class GrossComparator implements Comparator<MovieGridItem> {
+
+        private int sortType;
+
+        public GrossComparator(int sortType) {
+            this.sortType = sortType;
+        }
+
+        @Override
+        public int compare(MovieGridItem left, MovieGridItem right) {
+            long lv;
+            long rv;
+            switch (sortType) {
+                case AppConstants.MOVIE_SORT_CHN:
+                    lv = left.getGrossCnNum();
+                    rv = right.getGrossCnNum();
+                    break;
+                case AppConstants.MOVIE_SORT_WW:
+                    lv = left.getGrossWorldNum();
+                    rv = right.getGrossWorldNum();
+                    break;
+                default:
+                    lv = left.getGrossUsNum();
+                    rv = right.getGrossUsNum();
+                    break;
+            }
+            long result = rv - lv;
+            if (result < 0) {
+                return -1;
+            }
+            else if (result > 0) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
     }
 
     public Map<Long, Boolean> getCheckMap() {

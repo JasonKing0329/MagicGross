@@ -85,5 +85,17 @@
             app:layout_constraintTop_toBottomOf="@id/chart"
             tools:listitem="@layout/adapter_compare_item" />
 
+        <ImageView
+            android:id="@+id/iv_full"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:padding="8dp"
+            android:background="?android:selectableItemBackgroundBorderless"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rv_movies"
+            app:srcCompat="@drawable/ic_fullscreen_indigo_800_24dp" />
+
     </android.support.constraint.ConstraintLayout>
 </layout>

@@ -176,7 +176,9 @@ public class RankModel {
         if (opening == 0) {
             opening = queryGrossByDay(movie, region.ordinal(), true, GrossDao.Properties.Day.le(7));
         }
-        item.setSortValue((double) total / (double) opening);
+        if (opening > 0) {
+            item.setSortValue((double) total / (double) opening);
+        }
         item.setValue(FormatUtil.pointZ(item.getSortValue()));
     }
 

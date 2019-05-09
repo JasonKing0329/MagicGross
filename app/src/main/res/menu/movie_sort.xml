@@ -4,4 +4,10 @@
         android:title="Sort by debut date"/>
     <item android:id="@+id/menu_sort_name"
         android:title="Sort by name"/>
+    <item android:id="@+id/menu_sort_na"
+        android:title="Sort by Gross/NA"/>
+    <item android:id="@+id/menu_sort_chn"
+        android:title="Sort by Gross/CHN"/>
+    <item android:id="@+id/menu_sort_ww"
+        android:title="Sort by Gross/WW"/>
 </menu>

@@ -12,6 +12,9 @@ public class AppConstants {
 
     public static final int MOVIE_SORT_DATE = 1;
     public static final int MOVIE_SORT_NAME = 0;
+    public static final int MOVIE_SORT_NA = 2;
+    public static final int MOVIE_SORT_CHN = 3;
+    public static final int MOVIE_SORT_WW = 4;
 
     public static final int GROSS_IS_TOTAL = 1;
     public static final int GROSS_IS_OPENING = 2;

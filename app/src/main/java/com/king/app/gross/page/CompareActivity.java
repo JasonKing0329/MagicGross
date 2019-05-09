@@ -59,6 +59,8 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
             }
         });
 
+        mBinding.ivFull.setOnClickListener(v -> startActivity(new Intent(CompareActivity.this, FullChartActivity.class)));
+
         mBinding.rvMovies.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
@@ -110,6 +112,7 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
             movieAdapter = new CompareMovieAdapter();
             movieAdapter.setOnItemClickListener((view, position, data) -> showMoviePage(data));
             movieAdapter.setList(CompareInstance.getInstance().getMovieList());
+            ChartDataProvider.setMovieList(CompareInstance.getInstance().getMovieList());
             mBinding.rvMovies.setAdapter(movieAdapter);
 
             mModel.loadCompareItems();
@@ -139,6 +142,8 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
             mBinding.chart.setVisibility(View.GONE);
             return;
         }
+        ChartDataProvider.setChartData(data);
+        ChartDataProvider.setRegion(mModel.getRegion());
         mBinding.chart.setVisibility(View.VISIBLE);
         mBinding.chart.setDrawAxisY(true);
         mBinding.chart.setDegreeCombine(1);
@@ -211,5 +216,11 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
                 return lineData;
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        ChartDataProvider.release();
+        super.onDestroy();
     }
 }

@@ -275,6 +275,15 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                 case R.id.menu_sort_name:
                     mModel.changeSortType(AppConstants.MOVIE_SORT_NAME);
                     break;
+                case R.id.menu_sort_na:
+                    mModel.changeSortType(AppConstants.MOVIE_SORT_NA);
+                    break;
+                case R.id.menu_sort_chn:
+                    mModel.changeSortType(AppConstants.MOVIE_SORT_CHN);
+                    break;
+                case R.id.menu_sort_ww:
+                    mModel.changeSortType(AppConstants.MOVIE_SORT_WW);
+                    break;
             }
             return true;
         });
