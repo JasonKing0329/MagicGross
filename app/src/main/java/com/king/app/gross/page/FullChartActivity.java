@@ -1,6 +1,7 @@
 package com.king.app.gross.page;
 
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 
 import com.king.app.gross.R;
@@ -11,6 +12,7 @@ import com.king.app.gross.model.compare.CompareChart;
 import com.king.app.gross.model.compare.CompareInstance;
 import com.king.app.gross.model.gross.ChartModel;
 import com.king.app.gross.page.adapter.CompareMovieAdapter;
+import com.king.app.gross.page.adapter.FullChartMovieAdapter;
 import com.king.app.gross.view.widget.chart.adapter.IAxis;
 import com.king.app.gross.view.widget.chart.adapter.LineChartAdapter;
 import com.king.app.gross.view.widget.chart.adapter.LineData;
@@ -23,7 +25,7 @@ import com.king.app.gross.view.widget.chart.adapter.LineData;
  */
 public class FullChartActivity extends MvvmActivity<ActivityFullChartBinding, BaseViewModel> {
 
-    private CompareMovieAdapter movieAdapter;
+    private FullChartMovieAdapter movieAdapter;
 
     @Override
     protected BaseViewModel createViewModel() {
@@ -44,12 +46,12 @@ public class FullChartActivity extends MvvmActivity<ActivityFullChartBinding, Ba
     protected void initView() {
         mBinding.ivClose.setOnClickListener(v -> finish());
 
-        GridLayoutManager manager = new GridLayoutManager(this, CompareInstance.getInstance().getMovieList().size());
-        mBinding.rvMovies.setLayoutManager(manager);
+        mBinding.rvMovies.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        movieAdapter = new CompareMovieAdapter();
+        movieAdapter = new FullChartMovieAdapter();
 //        movieAdapter.setOnItemClickListener((view, position, data) -> showMoviePage(data));
         movieAdapter.setList(ChartDataProvider.getMovieList());
+        movieAdapter.setColorList(ChartDataProvider.getColorList());
         mBinding.rvMovies.setAdapter(movieAdapter);
 
         updateChart(ChartDataProvider.getChartData());

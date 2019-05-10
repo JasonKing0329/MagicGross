@@ -18,6 +18,9 @@ public class ChartDataProvider {
 
     private static List<Movie> movieList;
 
+    private static List<Integer> colorList;
+
+
     private static Region region;
 
     public static void setChartData(CompareChart chartData) {
@@ -40,6 +43,7 @@ public class ChartDataProvider {
         chartData = null;
         movieList = null;
         region = null;
+        colorList = null;
     }
 
     public static Region getRegion() {
@@ -48,5 +52,13 @@ public class ChartDataProvider {
 
     public static void setRegion(Region region) {
         ChartDataProvider.region = region;
+    }
+
+    public static List<Integer> getColorList() {
+        return colorList;
+    }
+
+    public static void setColorList(List<Integer> colorList) {
+        ChartDataProvider.colorList = colorList;
     }
 }

@@ -86,6 +86,15 @@ public class EditGrossFragment extends DraggableContentFragment<FragmentEditGros
                 else {
                     mBinding.cbIsTotal.setEnabled(true);
                 }
+
+                if (position == Region.CHN.ordinal()) {
+                    mBinding.spSymbol.setSelection(1);
+                    mBinding.spUnit.setSelection(0);
+                }
+                else {
+                    mBinding.spSymbol.setSelection(0);
+                    mBinding.spUnit.setSelection(2);
+                }
                 onGrossChanged(mBinding.etGross.getText().toString());
             }
 
@@ -141,12 +150,13 @@ public class EditGrossFragment extends DraggableContentFragment<FragmentEditGros
             if (mGross.getRegion() == Region.CHN.ordinal()) {
                 mBinding.etGross.setText(getChnGross(mGross));
                 mBinding.spSymbol.setSelection(1);
+                mBinding.spUnit.setSelection(0);
             }
             else {
-                mBinding.etGross.setText(getUsGross(mGross));
+                mBinding.etGross.setText(String.valueOf(mGross.getGross()));
                 mBinding.spSymbol.setSelection(0);
+                mBinding.spUnit.setSelection(2);
             }
-            mBinding.spUnit.setSelection(0);
             if (mGross.getIsLeftAfterDay() > 0) {
                 mBinding.cbLeft.setChecked(true);
                 mBinding.etLeftDay.setVisibility(View.VISIBLE);
@@ -223,15 +233,6 @@ public class EditGrossFragment extends DraggableContentFragment<FragmentEditGros
      * @return
      */
     private String getChnGross(Gross mGross) {
-        return FormatUtil.pointZZ((double) mGross.getGross() / (double)10000);
-    }
-
-    /**
-     * 货币：美元。单位：万
-     * @param mGross
-     * @return
-     */
-    private String getUsGross(Gross mGross) {
         return FormatUtil.pointZZ((double) mGross.getGross() / (double)10000);
     }
 

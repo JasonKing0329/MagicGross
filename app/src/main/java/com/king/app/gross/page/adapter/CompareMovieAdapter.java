@@ -41,6 +41,14 @@ public class CompareMovieAdapter extends BaseBindingAdapter<AdapterCompareMovieB
         }
     }
 
+    public void refreshColors() {
+        if (colorList != null) {
+            for (int i = 0; i < colorList.size(); i ++) {
+                colorList.set(i, ColorUtil.randomWhiteTextBgColor());
+            }
+        }
+    }
+
     public List<Integer> getColorList() {
         return colorList;
     }
@@ -77,5 +85,4 @@ public class CompareMovieAdapter extends BaseBindingAdapter<AdapterCompareMovieB
             binding.tvNameChn.setVisibility(View.VISIBLE);
         }
     }
-
 }

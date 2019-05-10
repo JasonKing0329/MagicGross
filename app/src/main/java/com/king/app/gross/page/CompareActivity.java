@@ -83,6 +83,11 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
                         mBinding.chart.setVisibility(View.VISIBLE);
                     }
                     break;
+                case R.id.menu_change_color:
+                    movieAdapter.refreshColors();
+                    movieAdapter.notifyDataSetChanged();
+                    updateChart(mModel.chartObserver.getValue());
+                    break;
             }
         });
     }
@@ -113,6 +118,7 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
             movieAdapter.setOnItemClickListener((view, position, data) -> showMoviePage(data));
             movieAdapter.setList(CompareInstance.getInstance().getMovieList());
             ChartDataProvider.setMovieList(CompareInstance.getInstance().getMovieList());
+            ChartDataProvider.setColorList(movieAdapter.getColorList());
             mBinding.rvMovies.setAdapter(movieAdapter);
 
             mModel.loadCompareItems();
