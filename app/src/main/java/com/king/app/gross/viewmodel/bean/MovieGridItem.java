@@ -36,6 +36,8 @@ public class MovieGridItem {
     private long grossCnNum;
     private long grossWorldNum;
 
+    private String imageUrl;
+
     public long getGrossUsNum() {
         return grossUsNum;
     }
@@ -145,5 +147,13 @@ public class MovieGridItem {
 
     public void setIndexColor(int indexColor) {
         this.indexColor = indexColor;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

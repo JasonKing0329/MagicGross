@@ -5,11 +5,14 @@ import android.text.TextUtils;
 import com.king.app.gross.R;
 import com.king.app.gross.base.IFragmentHolder;
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.FragmentEditMovieBinding;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.view.dialog.DatePickerFragment;
+
+import java.io.File;
 
 /**
  * Desc:
@@ -22,6 +25,12 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
     private Movie mEditMovie;
 
     private String mDebutDate;
+
+    protected OnConfirmListener onConfirmListener;
+
+    public void setOnConfirmListener(OnConfirmListener onConfirmListener) {
+        this.onConfirmListener = onConfirmListener;
+    }
 
     @Override
     protected void bindFragmentHolder(IFragmentHolder holder) {
@@ -124,8 +133,41 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         mEditMovie.setBudget(budget);
         mEditMovie.setYear(Integer.parseInt(mDebutDate.substring(0, 4)));
         mEditMovie.setMojoId(mBinding.etMojo.getText().toString());
+
+        createImageFolder();
+        boolean isInsert = mEditMovie.getId() == null;
         MApplication.getInstance().getDaoSession().getMovieDao().insertOrReplace(mEditMovie);
 
-        dismiss();
+        if (onConfirmListener == null) {
+            dismiss();
+        }
+        else {
+            if (isInsert) {
+                if (onConfirmListener.onMovieInserted(mEditMovie)) {
+                    dismiss();
+                }
+            }
+            else {
+                if (onConfirmListener.onMovieUpdated(mEditMovie)) {
+                    dismiss();
+                }
+            }
+        }
+    }
+
+    private void createImageFolder() {
+        String folder = AppConfig.IMG_MOVIE + "/" + mEditMovie.getName();
+        if (!TextUtils.isEmpty(mEditMovie.getSubName())) {
+            folder = folder + "_" + mEditMovie.getSubName();
+        }
+        File file = new File(folder);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+    }
+
+    public interface OnConfirmListener {
+        boolean onMovieInserted(Movie movie);
+        boolean onMovieUpdated(Movie movie);
     }
 }

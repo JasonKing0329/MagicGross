@@ -4,10 +4,10 @@ import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.view.View;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.entity.GrossDao;
@@ -18,20 +18,19 @@ import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.ColorUtil;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.MovieGridItem;
-import com.king.app.gross.viewmodel.bean.RankItem;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -49,6 +48,10 @@ public class MovieListViewModel extends BaseViewModel {
 
     public MutableLiveData<Boolean> deleteObserver = new MutableLiveData<>();
 
+    public MutableLiveData<Integer> notifyUpdatePosition = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> scrollToPosition = new MutableLiveData<>();
+
     private List<MovieGridItem> mMovieList;
 
     private Map<Long, Boolean> checkMap;
@@ -56,6 +59,8 @@ public class MovieListViewModel extends BaseViewModel {
     private int mSortType;
 
     private int mRegionInList;
+
+    private int mTempMoviePosition;
 
     public MovieListViewModel(@NonNull Application application) {
         super(application);
@@ -65,6 +70,10 @@ public class MovieListViewModel extends BaseViewModel {
     }
 
     public void loadMovies() {
+        loadMovies(null);
+    }
+
+    public void loadMovies(Movie showMovie) {
         loadingObserver.setValue(true);
         queryMovies()
                 .flatMap(list -> toGridItems(list))
@@ -81,6 +90,14 @@ public class MovieListViewModel extends BaseViewModel {
                         mMovieList = movies;
                         loadingObserver.setValue(false);
                         moviesObserver.setValue(movies);
+                        if (showMovie != null) {
+                            for (int i = 0; i < movies.size(); i ++) {
+                                if (movies.get(i).getBean().getId() == showMovie.getId()) {
+                                    scrollToPosition.setValue(i);
+                                    break;
+                                }
+                            }
+                        }
                     }
 
                     @Override
@@ -113,61 +130,77 @@ public class MovieListViewModel extends BaseViewModel {
         });
     }
 
+    private MovieGridItem convertMovie(Movie movie, Random random) {
+        MovieGridItem item = new MovieGridItem();
+        item.setBean(movie);
+        item.setName(movie.getName());
+        item.setSubName(movie.getSubName());
+        String folder = AppConfig.IMG_MOVIE + "/" + movie.getName();
+        if (!TextUtils.isEmpty(movie.getSubName())) {
+            folder = folder + "_" + movie.getSubName();
+        }
+        File file = new File(folder);
+        if (file.exists() && file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files.length > 0) {
+                item.setImageUrl(files[Math.abs(random.nextInt()) % files.length].getPath());
+            }
+        }
+        item.setDate(movie.getDebut());
+        item.setIndexColor(ColorUtil.randomWhiteTextBgColor());
+        if (TextUtils.isEmpty(movie.getSubChnName())) {
+            item.setChnName(movie.getNameChn());
+        }
+        else {
+            item.setChnName(movie.getNameChn() + "：" + movie.getSubChnName());
+        }
+        if (mSortType == AppConstants.MOVIE_SORT_DATE) {
+            if (!TextUtils.isEmpty(movie.getDebut())) {
+                item.setFlag(movie.getDebut().substring(0, 4));
+            }
+            else {
+                item.setFlag("#");
+            }
+        }
+        else {
+            if (!TextUtils.isEmpty(movie.getName())) {
+                item.setFlag(movie.getName().substring(0, 1));
+            }
+            else {
+                item.setFlag("#");
+            }
+        }
+        DailyModel model = new DailyModel(movie);
+        if (mRegionInList == Region.CHN.ordinal()) {
+            item.setGross(FormatUtil.formatChnGross(model.queryTotalGross(mRegionInList)));
+        }
+        else {
+            item.setGross(FormatUtil.formatUsGross(model.queryTotalGross(mRegionInList)));
+        }
+        long gross = model.queryTotalGross(Region.CHN.ordinal());
+        if (gross > 0) {
+            item.setGrossCnNum(gross);
+            item.setGrossCn(FormatUtil.formatChnGross(gross));
+        }
+        gross = model.queryTotalGross(Region.NA.ordinal());
+        if (gross > 0) {
+            item.setGrossUsNum(gross);
+            item.setGrossUs(FormatUtil.formatUsGross(gross));
+        }
+        gross = model.queryTotalGross(Region.WORLDWIDE.ordinal());
+        if (gross > 0) {
+            item.setGrossWorldNum(gross);
+            item.setGrossWorld(FormatUtil.formatUsGross(gross));
+        }
+        return item;
+    }
+
     private Observable<List<MovieGridItem>> toGridItems(List<Movie> list) {
         return Observable.create(e -> {
             List<MovieGridItem> results = new ArrayList<>();
+            Random random = new Random();
             for (Movie movie:list) {
-                MovieGridItem item = new MovieGridItem();
-                item.setBean(movie);
-                item.setName(movie.getName());
-                item.setSubName(movie.getSubName());
-                item.setDate(movie.getDebut());
-                item.setIndexColor(ColorUtil.randomWhiteTextBgColor());
-                if (TextUtils.isEmpty(movie.getSubChnName())) {
-                    item.setChnName(movie.getNameChn());
-                }
-                else {
-                    item.setChnName(movie.getNameChn() + "：" + movie.getSubChnName());
-                }
-                if (mSortType == AppConstants.MOVIE_SORT_DATE) {
-                    if (!TextUtils.isEmpty(movie.getDebut())) {
-                        item.setFlag(movie.getDebut().substring(0, 4));
-                    }
-                    else {
-                        item.setFlag("#");
-                    }
-                }
-                else {
-                    if (!TextUtils.isEmpty(movie.getName())) {
-                        item.setFlag(movie.getName().substring(0, 1));
-                    }
-                    else {
-                        item.setFlag("#");
-                    }
-                }
-                DailyModel model = new DailyModel(movie);
-                if (mRegionInList == Region.CHN.ordinal()) {
-                    item.setGross(FormatUtil.formatChnGross(model.queryTotalGross(mRegionInList)));
-                }
-                else {
-                    item.setGross(FormatUtil.formatUsGross(model.queryTotalGross(mRegionInList)));
-                }
-                long gross = model.queryTotalGross(Region.CHN.ordinal());
-                if (gross > 0) {
-                    item.setGrossCnNum(gross);
-                    item.setGrossCn(FormatUtil.formatChnGross(gross));
-                }
-                gross = model.queryTotalGross(Region.NA.ordinal());
-                if (gross > 0) {
-                    item.setGrossUsNum(gross);
-                    item.setGrossUs(FormatUtil.formatUsGross(gross));
-                }
-                gross = model.queryTotalGross(Region.WORLDWIDE.ordinal());
-                if (gross > 0) {
-                    item.setGrossWorldNum(gross);
-                    item.setGrossWorld(FormatUtil.formatUsGross(gross));
-                }
-
+                MovieGridItem item = convertMovie(movie, random);
                 results.add(item);
             }
             if (mSortType == AppConstants.MOVIE_SORT_NA || mSortType == AppConstants.MOVIE_SORT_CHN || mSortType == AppConstants.MOVIE_SORT_WW) {
@@ -175,6 +208,20 @@ public class MovieListViewModel extends BaseViewModel {
             }
             e.onNext(results);
         });
+    }
+
+    public void reloadMovie(Movie movie) {
+        if (moviesObserver.getValue() != null) {
+            MovieGridItem item = convertMovie(movie, new Random());
+            for (int i = 0; i < moviesObserver.getValue().size(); i ++) {
+                MovieGridItem mi = moviesObserver.getValue().get(i);
+                if (mi.getBean().getId() == movie.getId()) {
+                    moviesObserver.getValue().set(i, item);
+                    notifyUpdatePosition.setValue(i);
+                    break;
+                }
+            }
+        }
     }
 
     private class GrossComparator implements Comparator<MovieGridItem> {
@@ -310,5 +357,13 @@ public class MovieListViewModel extends BaseViewModel {
             SettingProperty.setRegionTypeInMovieList(regionInList);
             loadMovies();
         }
+    }
+
+    public void setMoviePosition(int mTempMoviePosition) {
+        this.mTempMoviePosition = mTempMoviePosition;
+    }
+
+    public void refreshLastMovie() {
+        reloadMovie(moviesObserver.getValue().get(mTempMoviePosition).getBean());
     }
 }

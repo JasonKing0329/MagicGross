@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -42,6 +43,8 @@ import java.util.List;
  * @date: 2018/6/6 15:09
  */
 public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, MovieListViewModel> {
+
+    private final int REQUEST_MOVIE_PAGE = 10101;
 
     private final int ID_SELECT_MODE = 0;
 
@@ -298,6 +301,11 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
     @Override
     protected void initData() {
         mModel.moviesObserver.observe(this, list -> showMovies(list));
+        mModel.notifyUpdatePosition.observe(this, position -> adapter.notifyItemChanged(position));
+        mModel.scrollToPosition.observe(this, position -> {
+            LinearLayoutManager manager = (LinearLayoutManager) mBinding.rvMovies.getLayoutManager();
+            manager.scrollToPositionWithOffset(position, 0);
+        });
         mModel.deleteObserver.observe(this, delete -> {
             adapter.setSelectionMode(false);
             mBinding.actionbar.cancelConfirmStatus();
@@ -322,7 +330,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                     selectedMovieAdapter.notifyDataSetChanged();
                 }
                 else {
-                    showMovieGross(data.getBean());
+                    showMovieGross(position, data.getBean());
                 }
             });
             mBinding.rvMovies.setAdapter(adapter);
@@ -336,24 +344,44 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
     private void editMovie(Movie movie) {
         EditMovieFragment content = new EditMovieFragment();
         content.setEditMovie(movie);
+        content.setOnConfirmListener(new EditMovieFragment.OnConfirmListener() {
+            @Override
+            public boolean onMovieInserted(Movie movie) {
+                mModel.loadMovies(movie);
+                return true;
+            }
+
+            @Override
+            public boolean onMovieUpdated(Movie movie) {
+                mModel.reloadMovie(movie);
+                return true;
+            }
+        });
         DraggableDialogFragment dialog = new DraggableDialogFragment.Builder()
                 .setTitle(movie == null ? "New movie":"Edit movie")
                 .setMaxHeight(ScreenUtils.getScreenHeight() * 4 / 5)
                 .setContentFragment(content)
                 .build();
-        dialog.setOnDismissListener(dialog1 -> mModel.loadMovies());
         dialog.show(getSupportFragmentManager(), "EditMovie");
     }
 
-    private void showMovieGross(Movie data) {
+    private void showMovieGross(int position, Movie data) {
+        mModel.setMoviePosition(position);
         Intent intent = new Intent().setClass(this, MovieGrossActivity.class);
         intent.putExtra(MovieGrossActivity.EXTRA_MOVIE_ID, data.getId());
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_MOVIE_PAGE);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         CompareInstance.getInstance().destroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == REQUEST_MOVIE_PAGE) {
+            mModel.refreshLastMovie();
+        }
     }
 }

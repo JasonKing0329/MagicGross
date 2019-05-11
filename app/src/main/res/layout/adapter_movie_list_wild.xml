@@ -13,142 +13,138 @@
         android:id="@+id/group_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
         app:cardElevation="5dp">
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:minHeight="180dp">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleType="centerCrop"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:movieCover="@{bean.imageUrl}"/>
+
+            <View
+                android:id="@+id/view"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="#66000000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
             <CheckBox
                 android:id="@+id/cb_check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:clickable="false"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-            <ImageView
-                android:id="@+id/iv_flag"
-                android:layout_width="80dp"
-                android:layout_height="25dp"
-                android:src="@drawable/flag_rank"
-                android:scaleType="fitXY"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-            <TextView
-                android:id="@+id/tv_flag"
-                android:layout_width="70dp"
-                android:layout_height="25dp"
-                android:textColor="@color/white"
-                android:text="@{bean.date}"
-                android:textSize="12dp"
-                android:gravity="center"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
                 android:id="@+id/tv_index"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="8dp"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:textColor="@color/white"
-                android:textSize="22dp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:background="@drawable/shape_oval_bg"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_flag"/>
-
-            <com.king.app.gross.view.widget.WrapLayout
-                android:id="@+id/wrap_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                app:wlyVerticalSpacing="0dp"
-                app:wlyHorizontalSpacing="16dp"
-                app:wlyGravity="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/tv_index"
-                app:layout_constraintTop_toTopOf="@id/tv_index"
-                app:layout_constraintBottom_toBottomOf="@id/tv_index">
-
-                <TextView
-                    android:id="@+id/tv_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_main"
-                    android:textSize="18dp" />
-
-                <TextView
-                    android:id="@+id/tv_sub_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16dp"
-                    android:textColor="@color/text_sub"/>
-
-            </com.king.app.gross.view.widget.WrapLayout>
+                android:text="999"
+                app:layout_constraintStart_toEndOf="@+id/cb_check"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_budget"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:textColor="@color/text_sub"
+                android:textColor="#aaaaaa"
                 android:textSize="13dp"
-                app:layout_constraintBottom_toBottomOf="@+id/iv_flag"
-                app:layout_constraintEnd_toStartOf="@id/cb_check"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_gross_ww"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="16dp"
-                android:visibility="@{bean.grossWorld == null ? View.GONE:View.VISIBLE}"
-                android:text='@{"WW " + bean.grossWorld}'
-                android:textColor="@color/actionbar_bg"
-                android:textSize="13dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_index"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_index"
                 app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
-                android:id="@+id/tv_gross_chn"
+                android:id="@+id/tv_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="16dp"
-                android:visibility="@{bean.grossCn == null ? View.GONE:View.VISIBLE}"
-                android:text='@{"CN " + bean.grossCn}'
-                android:textColor="#e26c12"
-                android:textSize="13dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_index"
-                app:layout_constraintEnd_toStartOf="@id/tv_gross_ww" />
+                android:textColor="#aaaaaa"
+                android:text="@{bean.date}"
+                android:textSize="12dp"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="@id/tv_budget"
+                app:layout_constraintTop_toBottomOf="@id/tv_budget"/>
 
             <TextView
-                android:id="@+id/tv_gross_na"
+                android:id="@+id/tv_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_index"
+                app:layout_constraintBottom_toTopOf="@+id/tv_sub_name" />
+
+            <TextView
+                android:id="@+id/tv_sub_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:textColor="#cccccc"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="@id/tv_name"
+                app:layout_constraintEnd_toEndOf="@id/tv_name"
+                app:layout_constraintTop_toBottomOf="@+id/tv_name"
+                app:layout_constraintBottom_toTopOf="@+id/ll_gross"/>
+
+            <LinearLayout
+                android:id="@+id/ll_gross"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="16dp"
-                android:visibility="@{bean.grossUs == null ? View.GONE:View.VISIBLE}"
-                android:text='@{"US " + bean.grossUs}'
-                android:textColor="#4261c7"
-                android:textSize="13dp"
+                android:orientation="horizontal"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_index"
-                app:layout_constraintEnd_toStartOf="@id/tv_gross_chn" />
+                app:layout_constraintEnd_toEndOf="parent">
+                <TextView
+                    android:id="@+id/tv_gross_na"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{bean.grossUs == null ? View.GONE:View.VISIBLE}"
+                    android:text='@{"US " + bean.grossUs}'
+                    android:textColor="#8cdfea"
+                    android:textSize="12dp" />
+                <TextView
+                    android:id="@+id/tv_gross_chn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:visibility="@{bean.grossCn == null ? View.GONE:View.VISIBLE}"
+                    android:text='@{"CN " + bean.grossCn}'
+                    android:textColor="#b0e9cc"
+                    android:textSize="12dp" />
+                <TextView
+                    android:id="@+id/tv_gross_ww"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:visibility="@{bean.grossWorld == null ? View.GONE:View.VISIBLE}"
+                    android:text='@{"WW " + bean.grossWorld}'
+                    android:textColor="#d5dab4"
+                    android:textSize="12dp" />
+            </LinearLayout>
+
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
 
