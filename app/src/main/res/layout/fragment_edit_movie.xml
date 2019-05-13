@@ -6,166 +6,100 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/tv_title_name"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="English name"
-            app:layout_constraintBottom_toBottomOf="@+id/et_name"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/et_name" />
-
         <EditText
             android:id="@+id/et_name"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:ems="10"
-            android:inputType="textPersonName"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/tv_title_name"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_name_sub"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Sub head"
-            app:layout_constraintBottom_toBottomOf="@+id/et_name_sub"
-            app:layout_constraintLeft_toLeftOf="parent"
+            android:hint="English name"
+            android:textSize="14dp"
+            app:layout_constraintEnd_toStartOf="@+id/et_name_sub"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/et_name_sub" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/et_name_sub"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="12dp"
-            android:ems="10"
-            android:inputType="textPersonName"
+            android:layout_marginEnd="8dp"
+            android:hint="Sub title"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toBottomOf="@+id/et_name"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.506"
-            app:layout_constraintStart_toEndOf="@+id/tv_title_chn"
-            app:layout_constraintTop_toBottomOf="@+id/et_name" />
-
-        <TextView
-            android:id="@+id/tv_title_chn"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Chinese name"
-            app:layout_constraintBottom_toBottomOf="@+id/et_name_chn"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/et_name_chn" />
+            app:layout_constraintStart_toEndOf="@+id/et_name"
+            app:layout_constraintTop_toTopOf="@+id/et_name" />
 
         <EditText
             android:id="@+id/et_name_chn"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="12dp"
-            android:ems="10"
-            android:inputType="textPersonName"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.506"
-            app:layout_constraintStart_toEndOf="@+id/tv_title_chn"
-            app:layout_constraintTop_toBottomOf="@+id/et_name_sub" />
-
-        <TextView
-            android:id="@+id/tv_name_chn_sub"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Sub head Chn."
-            app:layout_constraintBottom_toBottomOf="@+id/et_name_chn_sub"
-            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="8dp"
+            android:hint="Chinese name"
+            android:textSize="14dp"
+            app:layout_constraintEnd_toStartOf="@+id/et_name_chn_sub"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/et_name_chn_sub" />
+            app:layout_constraintTop_toBottomOf="@id/et_name" />
 
         <EditText
             android:id="@+id/et_name_chn_sub"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="12dp"
-            android:ems="10"
-            android:inputType="textPersonName"
+            android:layout_marginEnd="8dp"
+            android:hint="Sub title"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toBottomOf="@+id/et_name_chn"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.506"
-            app:layout_constraintStart_toEndOf="@+id/tv_title_chn"
-            app:layout_constraintTop_toBottomOf="@+id/et_name_chn" />
-
-        <TextView
-            android:id="@+id/tv_budget"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Budget"
-            app:layout_constraintBottom_toBottomOf="@+id/et_budget"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/et_budget" />
+            app:layout_constraintStart_toEndOf="@+id/et_name_chn"
+            app:layout_constraintTop_toTopOf="@+id/et_name_chn" />
 
         <EditText
             android:id="@+id/et_budget"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="12dp"
-            android:ems="10"
-            android:inputType="textPersonName"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.506"
-            app:layout_constraintStart_toEndOf="@+id/tv_budget"
-            app:layout_constraintTop_toBottomOf="@+id/et_name_chn_sub" />
-
-        <TextView
-            android:id="@+id/tv_title_exchange"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Us to Yuan"
-            app:layout_constraintBottom_toBottomOf="@+id/et_exchange"
-            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="8dp"
+            android:hint="Budget"
+            android:textSize="14dp"
+            android:inputType="number"
+            app:layout_constraintEnd_toStartOf="@+id/et_exchange"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/et_exchange" />
+            app:layout_constraintTop_toBottomOf="@id/et_name_chn" />
 
         <EditText
             android:id="@+id/et_exchange"
-            android:layout_width="80dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="12dp"
-            android:inputType="numberDecimal"
-            app:layout_constraintStart_toEndOf="@+id/tv_title_exchange"
-            app:layout_constraintTop_toBottomOf="@+id/et_budget" />
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:hint="Exchange Rate"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toBottomOf="@+id/et_budget"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/et_budget"
+            app:layout_constraintTop_toTopOf="@+id/et_budget" />
 
         <TextView
             android:id="@+id/tv_title_mojo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="8dp"
             android:text="Mojo ID"
             app:layout_constraintBottom_toBottomOf="@+id/et_mojo"
-            app:layout_constraintEnd_toStartOf="@+id/et_mojo"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/et_mojo" />
 
         <EditText
             android:id="@+id/et_mojo"
-            android:layout_width="80dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginTop="12dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_title_mojo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/et_budget" />
 
@@ -199,7 +133,7 @@
             android:textAllCaps="false"
             app:layout_constraintBottom_toTopOf="@+id/tv_ok"
             app:layout_constraintStart_toEndOf="@+id/tv_title_date"
-            app:layout_constraintTop_toBottomOf="@+id/et_exchange"
+            app:layout_constraintTop_toBottomOf="@+id/et_mojo"
             app:layout_constraintVertical_bias="0.0" />
 
         <CheckBox

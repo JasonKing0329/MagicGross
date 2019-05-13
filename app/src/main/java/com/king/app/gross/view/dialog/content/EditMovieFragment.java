@@ -1,6 +1,7 @@
 package com.king.app.gross.view.dialog.content;
 
 import android.text.TextUtils;
+import android.view.View;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.IFragmentHolder;
@@ -9,6 +10,7 @@ import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.FragmentEditMovieBinding;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.view.dialog.DatePickerFragment;
 
@@ -58,6 +60,11 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
             mBinding.cbIsReal.setChecked(mEditMovie.getIsReal() == AppConstants.MOVIE_REAL);
         }
         mBinding.btnDebut.setOnClickListener(view -> selectDate());
+
+        if (!SettingProperty.isEnableVirtualMovie()) {
+            mBinding.cbIsReal.setChecked(true);
+            mBinding.cbIsReal.setVisibility(View.GONE);
+        }
     }
 
     private void selectDate() {
