@@ -7,8 +7,8 @@ android {
         applicationId "com.king.app.gross"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 41
-        versionName "3.6"
+        versionCode 42
+        versionName "3.7"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -45,7 +45,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "com.android.support:appcompat-v7:${SUPPORT_V7_VERSION}"
     implementation "com.android.support:recyclerview-v7:${SUPPORT_V7_VERSION}"
     implementation "com.android.support:design:${SUPPORT_V7_VERSION}"
@@ -74,20 +74,19 @@ dependencies {
 
     /*rx permission*/
     implementation "com.tbruyelle.rxpermissions2:rxpermissions:${RXPERMISSION_VERSION}"
+
     /*green dao*/
     implementation 'org.greenrobot:greendao:3.2.2'
 
     /*glide*/
     implementation 'com.github.bumptech.glide:glide:4.6.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
-
     implementation 'com.king.lib:jactionbar:1.0.8'
-
     implementation 'android.arch.lifecycle:runtime:1.1.1'
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     annotationProcessor 'android.arch.lifecycle:compiler:1.1.1'
 
     /*html解析*/
     implementation 'org.jsoup:jsoup:1.11.3'
-
+    implementation project(':groupmenu')
 }

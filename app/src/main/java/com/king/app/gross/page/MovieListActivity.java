@@ -4,8 +4,8 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -23,7 +23,7 @@ import com.king.app.gross.databinding.ActivityMovieListBinding;
 import com.king.app.gross.model.compare.CompareInstance;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.page.adapter.AbsMovieListAdapter;
-import com.king.app.gross.page.adapter.MovieListAdapter;
+import com.king.app.gross.page.adapter.IndexAdapter;
 import com.king.app.gross.page.adapter.MovieListWildAdapter;
 import com.king.app.gross.page.adapter.SelectedMovieAdapter;
 import com.king.app.gross.utils.ScreenUtils;
@@ -56,6 +56,8 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
 
     private AbsMovieListAdapter adapter;
 
+    private IndexAdapter indexAdapter;
+
     private boolean isEditMode;
 
     private SelectedMovieAdapter selectedMovieAdapter;
@@ -72,29 +74,25 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
 
         mBinding.groupSelectContainer.setVisibility(View.GONE);
 
+        mBinding.rvIndex.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        mBinding.rvIndex.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                outRect.top = ScreenUtils.dp2px(1);
+            }
+        });
+
         mBinding.rvMovies.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mBinding.rvMovies.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
                 // 预留空位应对弹出compare选择框
-                int size = mModel.getMovieNumber() % 2 == 1 ? mModel.getMovieNumber() - 1 : mModel.getMovieNumber() - 2;
-                if (parent.getChildAdapterPosition(view) >= size) {
+                int size = mModel.getMovieNumber();
+                if (size > 2 && parent.getChildAdapterPosition(view) == size - 1) {
                     outRect.bottom = getResources().getDimensionPixelOffset(R.dimen.select_movie_height);
                 }
             }
         });
-//        GridLayoutManager manager = new GridLayoutManager(this, 2);
-////        mBinding.rvMovies.setLayoutManager(manager);
-////        mBinding.rvMovies.addItemDecoration(new RecyclerView.ItemDecoration() {
-////            @Override
-////            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-////                // 预留空位应对弹出compare选择框
-////                int size = mModel.getMovieNumber() % 2 == 1 ? mModel.getMovieNumber() - 1 : mModel.getMovieNumber() - 2;
-////                if (parent.getChildAdapterPosition(view) >= size) {
-////                    outRect.bottom = getResources().getDimensionPixelOffset(R.dimen.select_movie_height);
-////                }
-////            }
-////        });
 
         mBinding.actionbar.setOnBackListener(() -> onBackPressed());
         mBinding.actionbar.setOnMenuItemListener(menuId -> {
@@ -193,6 +191,22 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
         if (isSelectMode()) {
             mBinding.actionbar.showConfirmStatus(ID_SELECT_MODE);
         }
+
+        mBinding.groupMenu.setOnMenuItemListener(menuId -> {
+            switch (menuId) {
+                case R.id.menu_top:
+                    mBinding.rvMovies.scrollToPosition(0);
+                    break;
+                case R.id.menu_index:
+                    if (mBinding.rvIndex.getVisibility() == View.GONE) {
+                        mBinding.rvIndex.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        mBinding.rvIndex.setVisibility(View.GONE);
+                    }
+                    break;
+            }
+        });
     }
 
     private void setSelectResult() {
@@ -301,6 +315,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
     @Override
     protected void initData() {
         mModel.moviesObserver.observe(this, list -> showMovies(list));
+        mModel.indexListObserver.observe(this, list -> showIndex(list));
         mModel.notifyUpdatePosition.observe(this, position -> adapter.notifyItemChanged(position));
         mModel.scrollToPosition.observe(this, position -> {
             LinearLayoutManager manager = (LinearLayoutManager) mBinding.rvMovies.getLayoutManager();
@@ -312,6 +327,22 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
             mModel.loadMovies();
         });
         mModel.loadMovies();
+    }
+
+    private void showIndex(List<String> list) {
+        if (indexAdapter == null) {
+            indexAdapter = new IndexAdapter();
+            indexAdapter.setList(list);
+            indexAdapter.setOnItemClickListener((view, position, data) -> {
+                LinearLayoutManager manager = (LinearLayoutManager) mBinding.rvMovies.getLayoutManager();
+                manager.scrollToPositionWithOffset(mModel.getIndexPosition(data), 0);
+            });
+            mBinding.rvIndex.setAdapter(indexAdapter);
+        }
+        else {
+            indexAdapter.setList(list);
+            indexAdapter.notifyDataSetChanged();
+        }
     }
 
     private void showMovies(List<MovieGridItem> list) {

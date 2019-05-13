@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Random;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -52,9 +53,13 @@ public class MovieListViewModel extends BaseViewModel {
 
     public MutableLiveData<Integer> scrollToPosition = new MutableLiveData<>();
 
+    public MutableLiveData<List<String>> indexListObserver = new MutableLiveData<>();
+
     private List<MovieGridItem> mMovieList;
 
     private Map<Long, Boolean> checkMap;
+
+    private Map<String, Integer> indexMap;
 
     private int mSortType;
 
@@ -62,9 +67,12 @@ public class MovieListViewModel extends BaseViewModel {
 
     private int mTempMoviePosition;
 
+    private List<String> indexList;
+
     public MovieListViewModel(@NonNull Application application) {
         super(application);
         checkMap = new HashMap<>();
+        indexMap = new HashMap<>();
         mSortType = AppConstants.MOVIE_SORT_DATE;
         mRegionInList = SettingProperty.getRegionTypeInMovieList();
     }
@@ -77,6 +85,7 @@ public class MovieListViewModel extends BaseViewModel {
         loadingObserver.setValue(true);
         queryMovies()
                 .flatMap(list -> toGridItems(list))
+                .flatMap(list -> createIndex(list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<List<MovieGridItem>>() {
@@ -97,6 +106,9 @@ public class MovieListViewModel extends BaseViewModel {
                                     break;
                                 }
                             }
+                        }
+                        if (indexList != null) {
+                            indexListObserver.setValue(indexList);
                         }
                     }
 
@@ -210,6 +222,54 @@ public class MovieListViewModel extends BaseViewModel {
         });
     }
 
+    private ObservableSource<List<MovieGridItem>> createIndex(List<MovieGridItem> list) {
+        return observer -> {
+            indexMap.clear();
+
+            indexList = new ArrayList<>();
+            for (int i = 0; i < list.size(); i ++) {
+                MovieGridItem item = list.get(i);
+                String key;
+                switch (mSortType) {
+                    case AppConstants.MOVIE_SORT_DATE:
+                        key = String.valueOf(item.getBean().getYear());
+                        break;
+                    case AppConstants.MOVIE_SORT_NAME:
+                        key = String.valueOf(item.getBean().getName().charAt(0));
+                        break;
+                    default:
+                        key = convertIndexKey(i);
+                        break;
+                }
+                if (indexMap.get(key) == null) {
+                    indexList.add(key);
+                    indexMap.put(key, i);
+                }
+            }
+
+            observer.onNext(list);
+        };
+    }
+
+    private String convertIndexKey(int position) {
+        if (position < 10) {
+            return "Top 10";
+        }
+        // 10个一组
+        else if (position < 100) {
+            int start = position / 10 * 10;
+            int end = start + 10;
+            return String.valueOf(start + 1) + " - " + end;
+        }
+        // 50个一组
+        else {
+            int i = (position - 100)/50;
+            int start = 100 + 50 * i;
+            int end = start + 50;
+            return String.valueOf(start + 1) + " - " + end;
+        }
+    }
+
     public void reloadMovie(Movie movie) {
         if (moviesObserver.getValue() != null) {
             MovieGridItem item = convertMovie(movie, new Random());
@@ -222,6 +282,10 @@ public class MovieListViewModel extends BaseViewModel {
                 }
             }
         }
+    }
+
+    public int getIndexPosition(String data) {
+        return indexMap.get(data);
     }
 
     private class GrossComparator implements Comparator<MovieGridItem> {

@@ -28,4 +28,5 @@
     <color name="rank_second">#fcb205</color>
     <color name="rank_other">#8f9296</color>
     <color name="transparent">#00ffffff</color>
+    <color name="group_menu_bg">#99eeeeee</color>
 </resources>
