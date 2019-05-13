@@ -1,9 +1,11 @@
 package com.king.app.gross.viewmodel;
 
 import android.app.Application;
+import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.king.app.gross.base.BaseViewModel;
+import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.DBExportor;
 
 import io.reactivex.Observable;
@@ -19,8 +21,14 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class HomeViewModel extends BaseViewModel {
+
+    public MutableLiveData<Boolean> onEnableVirtualChanged = new MutableLiveData<>();
+
+    private boolean isEnableVirtualMovie;
+
     public HomeViewModel(@NonNull Application application) {
         super(application);
+        isEnableVirtualMovie = SettingProperty.isEnableVirtualMovie();
     }
 
     public void saveDatabase() {
@@ -55,5 +63,13 @@ public class HomeViewModel extends BaseViewModel {
             DBExportor.exportAsHistory();
             e.onNext(true);
         });
+    }
+
+    public void checkVirtualEnable() {
+        boolean enable = SettingProperty.isEnableVirtualMovie();
+        if (isEnableVirtualMovie != enable) {
+            isEnableVirtualMovie = enable;
+            onEnableVirtualChanged.setValue(true);
+        }
     }
 }

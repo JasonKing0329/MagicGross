@@ -131,6 +131,9 @@ public class MovieListViewModel extends BaseViewModel {
         return Observable.create(e -> {
             QueryBuilder<Movie> builder = MApplication.getInstance().getDaoSession().getMovieDao()
                     .queryBuilder();
+            if (!SettingProperty.isEnableVirtualMovie()) {
+                builder.where(MovieDao.Properties.IsReal.eq(AppConstants.MOVIE_REAL));
+            }
             // debut与name可以在这里直接排，gross需要在赋值后排
             if (mSortType == AppConstants.MOVIE_SORT_DATE) {
                 builder.orderAsc(MovieDao.Properties.Debut);

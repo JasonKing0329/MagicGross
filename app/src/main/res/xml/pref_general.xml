@@ -1,0 +1,8 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="pref_enable_virtual"
+        android:title="Enable Virtual Movies" />
+
+</PreferenceScreen>

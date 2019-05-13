@@ -2,6 +2,7 @@ package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.MApplication;
@@ -19,6 +20,8 @@ import com.king.app.gross.viewmodel.HomeViewModel;
  */
 
 public class HomeActivity extends MvvmActivity<ActivityHomeBinding, HomeViewModel> {
+
+    private final int REQUEST_SETTING = 34920;
 
     @Override
     protected int getContentView() {
@@ -38,8 +41,24 @@ public class HomeActivity extends MvvmActivity<ActivityHomeBinding, HomeViewMode
                 case R.id.menu_save:
                     mModel.saveDatabase();
                     break;
+                case R.id.menu_setting:
+                    startActivityForResult(new Intent(HomeActivity.this, SettingsActivity.class), REQUEST_SETTING);
+                    break;
             }
         });
+
+        mModel.onEnableVirtualChanged.observe(this, changed -> {
+            if (changed) {
+                initData();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == REQUEST_SETTING) {
+            mModel.checkVirtualEnable();
+        }
     }
 
     private void showLoadFrom() {

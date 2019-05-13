@@ -74,6 +74,14 @@ public class SettingProperty {
         return getBoolean("enable_finger_print");
     }
 
+    public static void setEnableVirtualMovie(boolean enable) {
+        setBoolean("pref_enable_virtual", enable);
+    }
+
+    public static boolean isEnableVirtualMovie() {
+        return getBoolean("pref_enable_virtual");
+    }
+
     public static void setEditGrossPref(EditGrossPref pref) {
         setString("pref_edit_gross", new Gson().toJson(pref));
     }

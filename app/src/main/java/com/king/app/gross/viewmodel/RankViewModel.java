@@ -13,9 +13,13 @@ import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.RankType;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.model.gross.RankModel;
+import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.viewmodel.bean.RankItem;
 import com.king.app.gross.viewmodel.bean.RankTag;
+
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -112,7 +116,14 @@ public class RankViewModel extends BaseViewModel {
     }
 
     private Observable<List<Movie>> queryMovies() {
-        return Observable.create(e -> e.onNext(MApplication.getInstance().getDaoSession().getMovieDao().loadAll()));
+        return Observable.create(e -> {
+            QueryBuilder<Movie> builder = getDaoSession().getMovieDao().queryBuilder();
+            if (!SettingProperty.isEnableVirtualMovie()) {
+                builder.where(MovieDao.Properties.IsReal.eq(AppConstants.MOVIE_REAL));
+            }
+            List<Movie> list = builder.build().list();
+            e.onNext(list);
+        });
     }
 
     private Observable<List<RankItem>> toRankItems(List<Movie> movies) {

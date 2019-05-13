@@ -22,5 +22,8 @@
     <string name="warning">warning</string>
 
     <string name="load_from_warning_msg">Selected database will cover default database, sure to continue?</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
 
 </resources>

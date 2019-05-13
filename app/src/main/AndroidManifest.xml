@@ -12,18 +12,17 @@
 
     <!-- *****samsung fingerprint sdk permission******* -->
     <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY" />
-
-    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
     <application
+        android:name=".base.MApplication"
         android:allowBackup="true"
         android:icon="@drawable/app_icon"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@drawable/app_icon"
         android:supportsRtl="true"
-        android:networkSecurityConfig="@xml/network_security_config"
-        android:theme="@style/CustomActionBarTheme"
-        android:name=".base.MApplication">
+        android:theme="@style/CustomActionBarTheme">
         <meta-data
             android:name="com.samsung.android.sdk.multiwindow.enable"
             android:value="true" />
@@ -36,6 +35,7 @@
         <meta-data
             android:name="com.sec.android.support.multiwindow"
             android:value="true" />
+
         <activity android:name=".page.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,15 +43,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".page.HomeActivity"/>
-        <activity android:name=".page.MovieListActivity"/>
-        <activity android:name=".page.MovieGrossActivity"/>
-        <activity android:name=".page.CompareActivity"/>
-        <activity android:name=".page.MarketActivity"/>
-        <activity android:name=".page.EditMarketGrossActivity"/>
-        <activity android:name=".page.MarketRankActivity"/>
-        <activity android:name=".page.FullChartActivity"
-            android:screenOrientation="landscape"/>
+        <activity android:name=".page.HomeActivity" />
+        <activity android:name=".page.MovieListActivity" />
+        <activity android:name=".page.MovieGrossActivity" />
+        <activity android:name=".page.CompareActivity" />
+        <activity android:name=".page.MarketActivity" />
+        <activity android:name=".page.EditMarketGrossActivity" />
+        <activity android:name=".page.MarketRankActivity" />
+        <activity
+            android:name=".page.FullChartActivity"
+            android:screenOrientation="landscape" />
+
+        <activity
+            android:name=".page.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme"></activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"

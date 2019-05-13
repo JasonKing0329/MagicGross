@@ -8,12 +8,14 @@ import android.text.TextUtils;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.model.ImageUrlProvider;
 import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.model.entity.MarketDao;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.RankItem;
 
@@ -138,15 +140,20 @@ public class MarketRankViewModel extends BaseViewModel {
                     .build().list();
 
             List<RankItem<MarketGross>> list = new ArrayList<>();
+            int rank = 1;
             for (int i = 0; i < marketGrosses.size(); i ++) {
                 MarketGross gross = marketGrosses.get(i);
                 RankItem item = new RankItem();
+                item.setMovie(gross.getMovie());
+                if (!SettingProperty.isEnableVirtualMovie() && item.getMovie().getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+                    continue;
+                }
+
                 item.setData(gross);
                 item.setSortValue(gross.getGross());
                 item.setValue(FormatUtil.formatUsGross(gross.getGross()));
-                item.setMovie(gross.getMovie());
                 item.setYear(String.valueOf(gross.getMovie().getYear()));
-                if (i < 3) {
+                if (rank <= 3) {
                     item.setImageUrl(ImageUrlProvider.getMovieImageRandom(item.getMovie()));
                 }
                 if (TextUtils.isEmpty(gross.getMovie().getSubName())) {
@@ -155,7 +162,7 @@ public class MarketRankViewModel extends BaseViewModel {
                 else {
                     item.setName(gross.getMovie().getName() + ":" + gross.getMovie().getSubName());
                 }
-                item.setRank(String.valueOf(i + 1));
+                item.setRank(String.valueOf(rank ++));
                 list.add(item);
             }
             e.onNext(list);
@@ -176,12 +183,16 @@ public class MarketRankViewModel extends BaseViewModel {
             while (cursor.moveToNext()) {
                 MarketGross gross = new MarketGross(cursor.getLong(0), cursor.getLong(1), cursor.getLong(2), cursor.getLong(3), cursor.getLong(4)
                     , cursor.getString(5), cursor.getString(6));
+                Movie movie = getDaoSession().getMovieDao().load(gross.getMovieId());
+                if (!SettingProperty.isEnableVirtualMovie() && movie.getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+                    continue;
+                }
+
                 RankItem item = new RankItem();
                 item.setData(gross);
                 item.setSortValue(gross.getGross());
                 item.setValue(FormatUtil.formatUsGross(cursor.getLong(7)));
 
-                Movie movie = getDaoSession().getMovieDao().load(gross.getMovieId());
                 item.setMovie(movie);
                 item.setYear(String.valueOf(movie.getYear()));
                 item.setImageUrl(ImageUrlProvider.getMovieImageRandom(movie));
