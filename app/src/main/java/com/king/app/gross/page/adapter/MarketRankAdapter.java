@@ -6,6 +6,7 @@ import android.view.View;
 import com.king.app.gross.R;
 import com.king.app.gross.base.BaseBindingAdapter;
 import com.king.app.gross.databinding.AdapterMarketRankItemBinding;
+import com.king.app.gross.model.AppGlide;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.viewmodel.bean.RankItem;
 
@@ -33,5 +34,17 @@ public class MarketRankAdapter extends BaseBindingAdapter<AdapterMarketRankItemB
         }
         binding.ivRank.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 
+        if (position < 3) {
+            binding.clImage.setVisibility(View.VISIBLE);
+            binding.tvName.setVisibility(View.GONE);
+            AppGlide.with(binding.ivImage.getContext())
+                    .load(bean.getImageUrl())
+                    .error(R.drawable.bg_movie_default)
+                    .into(binding.ivImage);
+        }
+        else {
+            binding.clImage.setVisibility(View.GONE);
+            binding.tvName.setVisibility(View.VISIBLE);
+        }
     }
 }

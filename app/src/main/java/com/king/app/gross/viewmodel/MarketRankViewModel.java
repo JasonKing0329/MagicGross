@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.model.ImageUrlProvider;
 import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.model.entity.MarketDao;
 import com.king.app.gross.model.entity.MarketGross;
@@ -145,6 +146,9 @@ public class MarketRankViewModel extends BaseViewModel {
                 item.setValue(FormatUtil.formatUsGross(gross.getGross()));
                 item.setMovie(gross.getMovie());
                 item.setYear(String.valueOf(gross.getMovie().getYear()));
+                if (i < 3) {
+                    item.setImageUrl(ImageUrlProvider.getMovieImageRandom(item.getMovie()));
+                }
                 if (TextUtils.isEmpty(gross.getMovie().getSubName())) {
                     item.setName(gross.getMovie().getName());
                 }
@@ -180,6 +184,7 @@ public class MarketRankViewModel extends BaseViewModel {
                 Movie movie = getDaoSession().getMovieDao().load(gross.getMovieId());
                 item.setMovie(movie);
                 item.setYear(String.valueOf(movie.getYear()));
+                item.setImageUrl(ImageUrlProvider.getMovieImageRandom(movie));
                 if (TextUtils.isEmpty(movie.getSubName())) {
                     item.setName(movie.getName());
                 }

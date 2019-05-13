@@ -18,6 +18,8 @@ public class RankItem<T> {
     private double sortValue;
     private String year;
 
+    private String imageUrl;
+
     private T data;
 
     public String getRank() {
@@ -82,5 +84,13 @@ public class RankItem<T> {
 
     public void setData(T data) {
         this.data = data;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

@@ -177,6 +177,10 @@ public class RankViewModel extends BaseViewModel {
         }
     }
 
+    public boolean isShowRate() {
+        return mRankType == RankType.TOTAL || mRankType == RankType.OPENING;
+    }
+
     private class ValueComparator implements Comparator<RankItem> {
 
         @Override

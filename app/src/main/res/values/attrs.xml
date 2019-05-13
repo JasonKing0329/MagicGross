@@ -42,4 +42,10 @@
             <enum name="bottom" value="2" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="ScaleImageView">
+        <attr name="ratioWidth" format="integer"/>
+        <attr name="ratioHeight" format="integer"/>
+        <attr name="baseOnHeight" format="boolean"/>
+    </declare-styleable>
 </resources>

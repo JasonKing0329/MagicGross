@@ -6,6 +6,7 @@ import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.RankType;
 import com.king.app.gross.conf.Region;
+import com.king.app.gross.model.ImageUrlProvider;
 import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
@@ -30,6 +31,7 @@ public class RankModel {
     public RankItem convertMovie(Movie movie, Region region, RankType mRankType) {
         RankItem item = new RankItem();
         item.setMovie(movie);
+        item.setImageUrl(ImageUrlProvider.getMovieImageRandom(movie));
         if (region == Region.CHN) {
             item.setName(movie.getNameChn());
             if (!TextUtils.isEmpty(movie.getSubChnName())) {

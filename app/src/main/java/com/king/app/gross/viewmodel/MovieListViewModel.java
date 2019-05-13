@@ -10,6 +10,7 @@ import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
+import com.king.app.gross.model.ImageUrlProvider;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
@@ -147,17 +148,7 @@ public class MovieListViewModel extends BaseViewModel {
         item.setBean(movie);
         item.setName(movie.getName());
         item.setSubName(movie.getSubName());
-        String folder = AppConfig.IMG_MOVIE + "/" + movie.getName();
-        if (!TextUtils.isEmpty(movie.getSubName())) {
-            folder = folder + "_" + movie.getSubName();
-        }
-        File file = new File(folder);
-        if (file.exists() && file.isDirectory()) {
-            File[] files = file.listFiles();
-            if (files.length > 0) {
-                item.setImageUrl(files[Math.abs(random.nextInt()) % files.length].getPath());
-            }
-        }
+        item.setImageUrl(ImageUrlProvider.getMovieImageRandom(movie, random));
         item.setDate(movie.getDebut());
         item.setIndexColor(ColorUtil.randomWhiteTextBgColor());
         if (TextUtils.isEmpty(movie.getSubChnName())) {

@@ -79,11 +79,13 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
             if (rankItemAdapter == null) {
                 rankItemAdapter = new RankItemAdapter();
                 rankItemAdapter.setList(items);
+                rankItemAdapter.setShowRate(mModel.isShowRate());
                 rankItemAdapter.setOnItemClickListener((view, position, data) -> onClickMovie(data.getMovie()));
                 mBinding.rvMovies.setAdapter(rankItemAdapter);
             }
             else {
                 rankItemAdapter.setList(items);
+                rankItemAdapter.setShowRate(mModel.isShowRate());
                 rankItemAdapter.notifyDataSetChanged();
             }
         });
