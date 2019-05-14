@@ -11,6 +11,7 @@ import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.utils.DebugLog;
 import com.king.app.gross.utils.FileUtil;
+import com.king.app.gross.viewmodel.bean.MojoDefaultBean;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -42,6 +43,10 @@ public class MojoParser extends AbsParser {
 
     public String getMojoDailyUrl(String movieId) {
         return MojoConstants.DAILY_URL + movieId + MojoConstants.URL_END;
+    }
+
+    public String getMojoDefaultUrl(String movieId) {
+        return MojoConstants.DEFAULT_URL + movieId + MojoConstants.URL_END;
     }
 
     public ObservableSource<File> saveFile(ResponseBody responseBody, String path) {
@@ -277,6 +282,32 @@ public class MojoParser extends AbsParser {
             }
             observer.onNext(true);
         };
+    }
+
+    public Observable<MojoDefaultBean> parseDefault(File file) {
+        return Observable.create(e -> {
+            MojoDefaultBean bean = new MojoDefaultBean();
+            // 文件不存在则从网络里重新，虽然这个可以满足文件不存在是从网络里重新下载并且还存到file里，
+            // 但是这种方式不能自定义user agent
+//                Document document = Jsoup.parseForeign(file, "UTF-8", AtpWorldTourParams.URL_RANK);
+
+            Document document = Jsoup.parse(file, "UTF-8");
+            Elements divs = document.select("div.mp_box_content");
+            Element div = divs.get(0);
+            Element table = div.selectFirst("table");
+            Elements trs = table.select("tr");
+            Element domestic = trs.get(0);
+            Element td = domestic.select("td").get(1);
+            bean.setDomestic(parseMoney(td.text()));
+            Element foreign = trs.get(1);
+            td = foreign.select("td").get(1);
+            bean.setForeign(parseMoney(td.text()));
+            Element wolrdwide = trs.get(3);
+            td = wolrdwide.select("td").get(1);
+            bean.setWorldwide(parseMoney(td.text()));
+
+            e.onNext(bean);
+        });
     }
 
 }

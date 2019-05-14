@@ -3,17 +3,21 @@ package com.king.app.gross.page;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.PopupMenu;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.GrossDateType;
+import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.ActivityMovieGrossBinding;
 import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.page.gross.GrossTabFragment;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
 import com.king.app.gross.view.dialog.content.EditGrossFragment;
+import com.king.app.gross.view.dialog.content.ParseMojoFragment;
 import com.king.app.gross.viewmodel.MovieGrossViewModel;
 
 /**
@@ -50,9 +54,15 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
                     showMarketPage();
                     break;
                 case R.id.menu_fetch:
-                    showConfirmCancelMessage("Fetch Mojo data will remove local data, continue?"
-                            , (dialogInterface, i) -> mModel.fetchMojoData()
-                            , null);
+                    if (mModel.getMovie().getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+                        showMessageShort("Virtual movie doesn't have Mojo data");
+                        return;
+                    }
+                    if (TextUtils.isEmpty(mModel.getMovie().getMojoId())) {
+                        showMessageShort("Mojo id is null");
+                        return;
+                    }
+                    parseMojo();
                     break;
             }
         });
@@ -106,6 +116,17 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.group_ft, ftTab, "GrossTabFragment")
                 .commit();
+    }
+
+    private void parseMojo() {
+        ParseMojoFragment content = new ParseMojoFragment();
+        content.setMovie(mModel.getMovie());
+        content.setOnDailyDataChangedListener(() -> mModel.loadRegion(Region.NA));
+        DraggableDialogFragment editDialog = new DraggableDialogFragment.Builder()
+                .setTitle("Gross")
+                .setContentFragment(content)
+                .build();
+        editDialog.show(getSupportFragmentManager(), "EditGross");
     }
 
     private void editGross(Gross gross) {

@@ -22,6 +22,7 @@ public class AppConfig {
 
     public static final String FILE_HTML_FOREIGN = HTML_BASE + "/foreign.html";
     public static final String FILE_HTML_DAILY = HTML_BASE + "/daily.html";
+    public static final String FILE_HTML_DEFAULT = HTML_BASE + "/default.html";
 
     public static final String[] DIRS = new String[] {
             DEF_CONTENT, EXPORT_BASE, HISTORY_BASE, HTML_BASE

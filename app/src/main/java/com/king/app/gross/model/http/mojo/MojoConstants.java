@@ -11,5 +11,10 @@ public class MojoConstants {
      * https://www.boxofficemojo.com/movies/?page=daily&view=chart&id=marvel2018a.htm
      */
     public static final String DAILY_URL = MOJO_URL + "?page=daily&view=chart&id=";
+    /**
+     * https://www.boxofficemojo.com/movies/default.htm?id=detectivepikachu.htm
+     */
+    public static final String DEFAULT_URL = MOJO_URL + "default.htm?id=";
+
     public static final String URL_END = ".htm";
 }

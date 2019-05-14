@@ -7,8 +7,6 @@ import android.text.TextUtils;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
-import com.king.app.gross.conf.AppConfig;
-import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.GrossDateType;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.entity.Gross;
@@ -19,16 +17,12 @@ import com.king.app.gross.model.gross.ChartModel;
 import com.king.app.gross.model.gross.DailyModel;
 import com.king.app.gross.model.gross.WeekendModel;
 import com.king.app.gross.model.gross.WeeklyModel;
-import com.king.app.gross.model.http.mojo.MojoClient;
-import com.king.app.gross.model.http.mojo.MojoParser;
-import com.king.app.gross.page.gross.AxisData;
 import com.king.app.gross.utils.DebugLog;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.GrossPage;
 import com.king.app.gross.viewmodel.bean.SimpleGross;
 import com.king.app.gross.viewmodel.bean.WeekGross;
 
-import java.io.File;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -63,13 +57,10 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private ChartModel chartModel;
 
-    private MojoParser mojoParser;
-
     public MovieGrossViewModel(@NonNull Application application) {
         super(application);
         mDateType = GrossDateType.DAILY;
         chartModel = new ChartModel();
-        mojoParser = new MojoParser();
     }
 
     public void loadMovie(long movieId) {
@@ -545,46 +536,4 @@ public class MovieGrossViewModel extends BaseViewModel {
         return mDateType;
     }
 
-    public void fetchMojoData() {
-        if (mMovie.getIsReal() == AppConstants.MOVIE_VIRTUAL) {
-            messageObserver.setValue("Virtual movie doesn't have Mojo data");
-            return;
-        }
-        if (TextUtils.isEmpty(mMovie.getMojoId())) {
-            messageObserver.setValue("Mojo id is null");
-            return;
-        }
-
-        loadingObserver.setValue(true);
-        MojoClient.getInstance().getService().getHtmlPage(mojoParser.getMojoDailyUrl(mMovie.getMojoId()))
-                .flatMap(responseBody -> mojoParser.saveFile(responseBody, AppConfig.FILE_HTML_DAILY))
-                .flatMap(file -> mojoParser.parseDaily(file, mMovie.getId()))
-//        mojoParser.parseDaily(new File(AppConfig.FILE_HTML_DAILY), mMovie.getId())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<Boolean>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        addDisposable(d);
-                    }
-
-                    @Override
-                    public void onNext(Boolean result) {
-                        loadingObserver.setValue(false);
-                        loadRegion(Region.NA);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        loadingObserver.setValue(false);
-                        messageObserver.setValue("下载失败" + e.getMessage());
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-    }
 }
