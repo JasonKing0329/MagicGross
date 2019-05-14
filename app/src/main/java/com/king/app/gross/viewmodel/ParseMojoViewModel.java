@@ -249,6 +249,8 @@ public class ParseMojoViewModel extends BaseViewModel {
             if (leftGross == null) {
                 leftGross = new Gross();
                 leftGross.setIsLeftAfterDay(day);
+                // 排序是根据这个字段排的
+                leftGross.setDay(day + 1);
                 leftGross.setRegion(Region.NA.ordinal());
                 leftGross.setMovieId(mMovie.getId());
                 leftGross.setSymbol(0);

@@ -1,5 +1,6 @@
 package com.king.app.gross.view.dialog.content;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -11,8 +12,8 @@ import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.FragmentEditMovieBinding;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.setting.SettingProperty;
-import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.view.dialog.DatePickerFragment;
+import com.king.app.gross.viewmodel.EditMovieViewModel;
 
 import java.io.File;
 
@@ -30,6 +31,8 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
 
     protected OnConfirmListener onConfirmListener;
 
+    private EditMovieViewModel mModel;
+
     public void setOnConfirmListener(OnConfirmListener onConfirmListener) {
         this.onConfirmListener = onConfirmListener;
     }
@@ -46,6 +49,17 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
 
     @Override
     protected void initView() {
+        mModel = ViewModelProviders.of(this).get(EditMovieViewModel.class);
+        mModel.loadingObserver.observe(this, show -> {
+            if (show) {
+                showProgress("loading...");
+            }
+            else {
+                dismissProgress();
+            }
+        });
+        mModel.messageObserver.observe(this, msg -> showMessageShort(msg));
+
         mBinding.tvOk.setOnClickListener(view -> updateMovie());
         if (mEditMovie != null) {
             mBinding.etName.setText(mEditMovie.getName());
@@ -65,6 +79,15 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
             mBinding.cbIsReal.setChecked(true);
             mBinding.cbIsReal.setVisibility(View.GONE);
         }
+
+        mBinding.ivDownload.setOnClickListener(e -> mModel.fetchMovie(mBinding.etMojo.getText().toString()));
+        mModel.mojoMovie.observe(this, movie -> {
+            mBinding.etName.setText(movie.getName());
+            mBinding.etNameSub.setText(movie.getSubName());
+            mBinding.etBudget.setText(String.valueOf(movie.getBudget()));
+            mDebutDate = movie.getDebut();
+            mBinding.btnDebut.setText(movie.getDebut());
+        });
     }
 
     private void selectDate() {

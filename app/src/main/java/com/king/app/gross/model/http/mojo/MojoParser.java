@@ -9,6 +9,7 @@ import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.model.entity.MarketDao;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
+import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.utils.DebugLog;
 import com.king.app.gross.utils.FileUtil;
 import com.king.app.gross.viewmodel.bean.MojoDefaultBean;
@@ -308,6 +309,135 @@ public class MojoParser extends AbsParser {
 
             e.onNext(bean);
         });
+    }
+
+
+    public Observable<Movie> parseDefaultMovie(File file) {
+        return Observable.create(e -> {
+            MojoDefaultBean bean = new MojoDefaultBean();
+            // 文件不存在则从网络里重新，虽然这个可以满足文件不存在是从网络里重新下载并且还存到file里，
+            // 但是这种方式不能自定义user agent
+//                Document document = Jsoup.parseForeign(file, "UTF-8", AtpWorldTourParams.URL_RANK);
+
+            Movie movie = new Movie();
+            Document document = Jsoup.parse(file, "UTF-8");
+            Elements divs = document.select("table");
+            try {
+                Element table = divs.get(3);
+                Element tr = table.selectFirst("tr");
+                Element td = tr.select("td").get(1);
+                Element br = td.selectFirst("b");
+                String name = br.text();
+                DebugLog.e("name " + name);
+                if (name.contains(":")) {
+                    String[] arr = name.split(":");
+                    movie.setName(arr[0]);
+                    movie.setSubName(arr[1]);
+                }
+                else {
+                    movie.setName(name);
+                }
+            } catch (Exception exp) {}
+            Element table = divs.get(5);
+            Elements trs = table.select("tr");
+            for (int i = 0; i < trs.size(); i ++) {
+                Element tr = trs.get(i);
+                Elements tds = tr.select("td");
+                for (int j = 0; j < tds.size(); j ++) {
+                    Element td = tds.get(j);
+                    String text = td.text();
+                    DebugLog.e("td " + text);
+                    try {
+                        if (text.startsWith("Domestic Total Gross")) {
+                            String gross = text.substring(text.indexOf(":") + 1).trim();
+                            DebugLog.e("gross " + gross);
+                        }
+//                        else if (text.startsWith("Distributor")) {
+//                            String distributor = text.substring(text.indexOf(":") + 1).trim();
+//                        }
+                        else if (text.startsWith("Release Date")) {
+                            String date = text.substring(text.indexOf(":") + 1).trim();
+                            parseMovieDate(date, movie);
+                            DebugLog.e("debut " + movie.getDebut());
+                        }
+//                        else if (text.startsWith("Genre")) {
+//                            String genre = text.substring(text.indexOf(":") + 1).trim();
+//                        }
+//                        else if (text.startsWith("Runtime")) {
+//                            String runtime = text.substring(text.indexOf(":") + 1).trim();
+//                        }
+//                        else if (text.startsWith("MPAA Rating")) {
+//                            String rating = text.substring(text.indexOf(":") + 1).trim();
+//                        }
+                        else if (text.startsWith("Production Budget")) {
+                            String budgetStr = text.substring(text.indexOf(":") + 1).trim();
+                            long budget = parseBudget(budgetStr);
+                            movie.setBudget(budget);
+                            DebugLog.e("budget " + budget);
+                        }
+                    } catch (Exception exp) {
+                        DebugLog.e("error: td " + text);
+                    }
+                }
+            }
+            e.onNext(movie);
+        });
+    }
+
+    private long parseBudget(String budgetStr) {
+        if ("N/A".equals(budgetStr)) {
+            return 0;
+        }
+        String[] arr = budgetStr.split(" ");
+        int num = Integer.parseInt(arr[0].substring(1));
+        return num * 1000000;
+    }
+
+    private void parseMovieDate(String dateStr, Movie movie) {
+        String[] arr = dateStr.split(",");
+        int year = Integer.parseInt(arr[1].trim());
+        movie.setYear(year);
+        arr = arr[0].split(" ");
+        int day = Integer.parseInt(arr[1]);
+        String dayStr = day < 10 ? "0" + day : String.valueOf(day);
+        String month;
+        if (arr[0].equals("January")) {
+            month = "01";
+        }
+        else if (arr[0].equals("February")) {
+            month = "02";
+        }
+        else if (arr[0].equals("March")) {
+            month = "03";
+        }
+        else if (arr[0].equals("April")) {
+            month = "04";
+        }
+        else if (arr[0].equals("May")) {
+            month = "05";
+        }
+        else if (arr[0].equals("June")) {
+            month = "06";
+        }
+        else if (arr[0].equals("July")) {
+            month = "07";
+        }
+        else if (arr[0].equals("August")) {
+            month = "08";
+        }
+        else if (arr[0].equals("September")) {
+            month = "09";
+        }
+        else if (arr[0].equals("October")) {
+            month = "10";
+        }
+        else if (arr[0].equals("November")) {
+            month = "11";
+        }
+        else {
+            month = "12";
+        }
+        movie.setDebut(year + "-" + month + "-" + dayStr);
     }
 
 }
