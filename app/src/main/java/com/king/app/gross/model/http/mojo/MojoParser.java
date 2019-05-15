@@ -227,10 +227,12 @@ public class MojoParser extends AbsParser {
 //        String ownText = td.ownText();
 //        String toString = td.toString();
 //        String val = td.val();
-        String weekday = tr.child(0).text();
-        String dayGross = tr.child(3).text();
+        Elements tds = tr.select("td");
+        String weekday = tds.get(0).text();
+        String dayGross = tds.get(3).text();
+        String day = tds.get(tds.size() - 1).text();
         Gross gross = new Gross();
-        gross.setDay(index);
+        gross.setDay(Integer.parseInt(day));
         gross.setRegion(Region.NA.ordinal());
         gross.setSymbol(0);
         gross.setMovieId(movieId);

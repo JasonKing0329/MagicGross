@@ -40,7 +40,7 @@ public class ParseMojoViewModel extends BaseViewModel {
 
     public ObservableField<String> defaultText = new ObservableField<>();
 
-    public MutableLiveData<Boolean> getDailySuccess = new MutableLiveData<>();
+    public MutableLiveData<Boolean> notifyDailyDataChanged = new MutableLiveData<>();
 
     public MutableLiveData<String> insertLeftPopup = new MutableLiveData<>();
 
@@ -92,7 +92,8 @@ public class ParseMojoViewModel extends BaseViewModel {
                     @Override
                     public void onNext(Boolean result) {
                         loadingObserver.setValue(false);
-                        getDailySuccess.setValue(true);
+                        notifyDailyDataChanged.setValue(true);
+                        isDailyAcquired.set(View.VISIBLE);
                     }
 
                     @Override
@@ -127,6 +128,7 @@ public class ParseMojoViewModel extends BaseViewModel {
                     public void onNext(Boolean result) {
                         loadingObserver.setValue(false);
                         messageObserver.setValue("解析并保存成功");
+                        isMarketAcquired.set(View.VISIBLE);
                     }
 
                     @Override
@@ -265,5 +267,7 @@ public class ParseMojoViewModel extends BaseViewModel {
         getDaoSession().getGrossDao().insertOrReplace(leftGross);
 
         messageObserver.setValue("Success");
+        // 通知daily数据变化
+        notifyDailyDataChanged.setValue(true);
     }
 }

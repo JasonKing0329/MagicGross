@@ -68,7 +68,7 @@ public class ParseMojoFragment extends DraggableContentFragment<FragmentMojoBind
         mBinding.btnParseDomestic.setOnClickListener(v -> mModel.insertLeft());
         mBinding.btnParseTotal.setOnClickListener(v -> mModel.insertTotal());
 
-        mModel.getDailySuccess.observe(this, success -> {
+        mModel.notifyDailyDataChanged.observe(this, success -> {
             if (onDailyDataChangedListener != null) {
                 onDailyDataChangedListener.onDailyDataChanged();;
             }
