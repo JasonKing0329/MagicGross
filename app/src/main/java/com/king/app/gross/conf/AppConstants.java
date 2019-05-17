@@ -34,4 +34,8 @@ public class AppConstants {
 
     public static final String COMPARE_TITLE_WEEK = "Week ";
     public static final String COMPARE_TITLE_LEFT = "Left";
+
+    public static final int LABEL_STYLE = 0;
+    public static final int LABEL_SERIES = 1;
+
 }

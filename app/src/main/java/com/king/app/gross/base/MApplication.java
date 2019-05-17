@@ -8,6 +8,9 @@ import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.model.entity.DaoMaster;
 import com.king.app.gross.model.entity.DaoSession;
 import com.king.app.gross.model.entity.GrossDao;
+import com.king.app.gross.model.entity.GrossStatDao;
+import com.king.app.gross.model.entity.LabelDao;
+import com.king.app.gross.model.entity.LabelMovieDao;
 import com.king.app.gross.model.entity.MarketDao;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.MovieDao;
@@ -93,6 +96,10 @@ public class MApplication extends Application {
                     db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.MojoId.columnName + " TEXT");
                     MarketDao.createTable(db, true);
                     MarketGrossDao.createTable(db, true);
+                case 5:
+                    LabelDao.createTable(db, true);
+                    LabelMovieDao.createTable(db, true);
+                    GrossStatDao.createTable(db, true);
                     break;
             }
         }
