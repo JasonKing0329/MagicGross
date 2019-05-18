@@ -22,6 +22,8 @@ public class ParseMojoFragment extends DraggableContentFragment<FragmentMojoBind
 
     private OnDailyDataChangedListener onDailyDataChangedListener;
 
+    private OnTotalDataChangedListener onTotalDataChangedListener;
+
     @Override
     protected void bindFragmentHolder(IFragmentHolder holder) {
 
@@ -38,6 +40,10 @@ public class ParseMojoFragment extends DraggableContentFragment<FragmentMojoBind
 
     public void setOnDailyDataChangedListener(OnDailyDataChangedListener onDailyDataChangedListener) {
         this.onDailyDataChangedListener = onDailyDataChangedListener;
+    }
+
+    public void setOnTotalDataChangedListener(OnTotalDataChangedListener onTotalDataChangedListener) {
+        this.onTotalDataChangedListener = onTotalDataChangedListener;
     }
 
     @Override
@@ -70,7 +76,12 @@ public class ParseMojoFragment extends DraggableContentFragment<FragmentMojoBind
 
         mModel.notifyDailyDataChanged.observe(this, success -> {
             if (onDailyDataChangedListener != null) {
-                onDailyDataChangedListener.onDailyDataChanged();;
+                onDailyDataChangedListener.onDailyDataChanged();
+            }
+        });
+        mModel.notifyTotalDataChanged.observe(this, success -> {
+            if (onTotalDataChangedListener != null) {
+                onTotalDataChangedListener.onTotalDataChanged();
             }
         });
         mModel.insertLeftPopup.observe(this, msg -> {
@@ -84,5 +95,9 @@ public class ParseMojoFragment extends DraggableContentFragment<FragmentMojoBind
 
     public interface OnDailyDataChangedListener {
         void onDailyDataChanged();
+    }
+
+    public interface OnTotalDataChangedListener {
+        void onTotalDataChanged();
     }
 }

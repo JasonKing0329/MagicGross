@@ -16,8 +16,6 @@ public class GrossStat {
     @Id
     private Long movieId;
 
-    private int region;
-
     private long us;
 
     private long chn;
@@ -30,11 +28,10 @@ public class GrossStat {
 
     private long worldOpening;
 
-    @Generated(hash = 555165049)
-    public GrossStat(Long movieId, int region, long us, long chn, long world,
-            long usOpening, long chnOpening, long worldOpening) {
+    @Generated(hash = 421825181)
+    public GrossStat(Long movieId, long us, long chn, long world, long usOpening,
+            long chnOpening, long worldOpening) {
         this.movieId = movieId;
-        this.region = region;
         this.us = us;
         this.chn = chn;
         this.world = world;
@@ -53,14 +50,6 @@ public class GrossStat {
 
     public void setMovieId(Long movieId) {
         this.movieId = movieId;
-    }
-
-    public int getRegion() {
-        return this.region;
-    }
-
-    public void setRegion(int region) {
-        this.region = region;
     }
 
     public long getUs() {

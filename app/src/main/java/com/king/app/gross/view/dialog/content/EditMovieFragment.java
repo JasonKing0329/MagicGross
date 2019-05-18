@@ -10,6 +10,8 @@ import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.FragmentEditMovieBinding;
+import com.king.app.gross.model.StatCreator;
+import com.king.app.gross.model.entity.GrossStat;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.view.dialog.DatePickerFragment;
@@ -167,6 +169,16 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         createImageFolder();
         boolean isInsert = mEditMovie.getId() == null;
         MApplication.getInstance().getDaoSession().getMovieDao().insertOrReplace(mEditMovie);
+
+        if (isInsert) {
+            GrossStat stat = new GrossStat();
+            stat.setMovieId(mEditMovie.getId());
+            MApplication.getInstance().getDaoSession().getGrossStatDao().insert(stat);
+        }
+        else {
+            // 可能修改了汇率，重新统计
+            new StatCreator().statisticMovieInstant(mEditMovie);
+        }
 
         if (onConfirmListener == null) {
             dismiss();

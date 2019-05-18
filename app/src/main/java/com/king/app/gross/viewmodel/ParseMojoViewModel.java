@@ -42,6 +42,8 @@ public class ParseMojoViewModel extends BaseViewModel {
 
     public MutableLiveData<Boolean> notifyDailyDataChanged = new MutableLiveData<>();
 
+    public MutableLiveData<Boolean> notifyTotalDataChanged = new MutableLiveData<>();
+
     public MutableLiveData<String> insertLeftPopup = new MutableLiveData<>();
 
     private Movie mMovie;
@@ -224,6 +226,7 @@ public class ParseMojoViewModel extends BaseViewModel {
         getDaoSession().getGrossDao().insertOrReplace(gross);
         
         messageObserver.setValue("Success");
+        notifyTotalDataChanged.setValue(true);
     }
 
     public void insertLeft() {

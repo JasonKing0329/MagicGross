@@ -3,7 +3,6 @@ package com.king.app.gross.model.gross;
 import android.text.TextUtils;
 
 import com.king.app.gross.base.MApplication;
-import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.RankType;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.ImageUrlProvider;
@@ -12,12 +11,10 @@ import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.RankItem;
-import com.king.app.gross.viewmodel.bean.SimpleGross;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.greenrobot.greendao.query.WhereCondition;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -106,36 +103,14 @@ public class RankModel {
         }
     }
 
-    private long getWorldWideGross(Movie movie) {
-        // 优先加载is total的数据，没有才按day by day加载
-        long gross = queryGrossByIsTotal(movie, Region.WORLDWIDE.ordinal());
-        if (gross == 0) {
-            gross = queryGrossByDay(movie, Region.WORLDWIDE.ordinal(), null);
-        }
-        return gross;
-    }
-
-    private long getWorldWideOpening(Movie movie) {
-        // 优先加载is total的数据，没有才按day by day加载
-        long gross = queryOpeningByIsTotal(movie, Region.WORLDWIDE.ordinal());
-        if (gross == 0) {
-            gross = queryGrossByDay(movie, Region.WORLDWIDE.ordinal(), true, GrossDao.Properties.Day.le(7));
-        }
-        return gross;
-    }
-
     private void loadTotalValue(Movie movie, Region region, RankItem item) {
-        // 优先加载is total的数据，没有才按day by day加载
-        long gross = queryGrossByIsTotal(movie, region.ordinal());
-        if (gross == 0) {
-            gross = queryGrossByDay(movie, region.ordinal(), null);
-        }
+        long gross = getTotalGross(movie, region);
         item.setSortValue(gross);
         formatGross(region, item, gross);
 
         if (region != Region.WORLDWIDE) {
             // 计算相对全球占比
-            long total = getWorldWideGross(movie);
+            long total = movie.getGrossStat().getWorld();
             if (region == Region.CHN) {
                 item.setRate(FormatUtil.pointZ((double) gross / (double) total / movie.getUsToYuan() * 100d) + "%");
             }
@@ -146,17 +121,13 @@ public class RankModel {
     }
 
     private void loadOpeningValue(Movie movie, Region region, RankItem item) {
-        // 优先加载is total的数据，没有才按day by day加载
-        long gross = queryOpeningByIsTotal(movie, region.ordinal());
-        if (gross == 0) {
-            gross = queryGrossByDay(movie, region.ordinal(), true, GrossDao.Properties.Day.le(7));
-        }
+        long gross = getOpeningGross(movie, region);
         item.setSortValue(gross);
         formatGross(region, item, gross);
 
         if (region != Region.WORLDWIDE) {
             // 计算相对全球占比
-            long total = getWorldWideOpening(movie);
+            long total = movie.getGrossStat().getWorldOpening();
             if (total > 0 && gross > 0) {
                 if (region == Region.CHN) {
                     item.setRate(FormatUtil.pointZ((double) gross / (double) total / movie.getUsToYuan() * 100d) + "%");
@@ -169,15 +140,8 @@ public class RankModel {
     }
 
     private void loadRateValue(Movie movie, Region region, RankItem item) {
-        // 优先加载is total的数据，没有才按day by day加载
-        long total = queryGrossByIsTotal(movie, region.ordinal());
-        if (total == 0) {
-            total = queryGrossByDay(movie, region.ordinal(), null);
-        }
-        long opening = queryOpeningByIsTotal(movie, region.ordinal());
-        if (opening == 0) {
-            opening = queryGrossByDay(movie, region.ordinal(), true, GrossDao.Properties.Day.le(7));
-        }
+        long total = getTotalGross(movie, region);
+        long opening = getOpeningGross(movie, region);
         if (opening > 0) {
             item.setSortValue((double) total / (double) opening);
         }
@@ -377,32 +341,48 @@ public class RankModel {
         return sum;
     }
 
-    private long queryGrossByIsTotal(Movie movie, int region) {
-        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
-        List<Gross> list = dao.queryBuilder()
-                .where(GrossDao.Properties.MovieId.eq(movie.getId()))
-                .where(GrossDao.Properties.Region.eq(region))
-                .where(GrossDao.Properties.IsTotal.eq(AppConstants.GROSS_IS_TOTAL))
-                .build().list();
-        // 加入过isTotal的数据，只取这一条，不进行day by day的计算
-        if (list.size() > 0) {
-            return list.get(0).getGross();
+    private long getTotalGross(Movie movie, Region region) {
+        long gross = 0;
+        switch (region) {
+            case NA:
+                gross = movie.getGrossStat().getUs();
+                break;
+            case CHN:
+                gross = movie.getGrossStat().getChn();
+                break;
+            case WORLDWIDE:
+                gross = movie.getGrossStat().getWorld();
+                break;
+            case OVERSEA:
+                gross = movie.getGrossStat().getWorld() - movie.getGrossStat().getUs();
+                break;
+            case OVERSEA_NO_CHN:
+                gross = movie.getGrossStat().getWorld() - movie.getGrossStat().getUs() - (long) (movie.getGrossStat().getChn() / movie.getUsToYuan());
+                break;
         }
-        return 0;
+        return gross;
     }
 
-    private long queryOpeningByIsTotal(Movie movie, int region) {
-        GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
-        List<Gross> list = dao.queryBuilder()
-                .where(GrossDao.Properties.MovieId.eq(movie.getId()))
-                .where(GrossDao.Properties.Region.eq(region))
-                .where(GrossDao.Properties.IsTotal.eq(AppConstants.GROSS_IS_OPENING))
-                .build().list();
-        // 加入过isTotal的数据，只取这一条，不进行day by day的计算
-        if (list.size() > 0) {
-            return list.get(0).getGross();
+    private long getOpeningGross(Movie movie, Region region) {
+        long gross = 0;
+        switch (region) {
+            case NA:
+                gross = movie.getGrossStat().getUsOpening();
+                break;
+            case CHN:
+                gross = movie.getGrossStat().getChnOpening();
+                break;
+            case WORLDWIDE:
+                gross = movie.getGrossStat().getWorldOpening();
+                break;
+            case OVERSEA:
+                gross = movie.getGrossStat().getWorldOpening() - movie.getGrossStat().getUsOpening();
+                break;
+            case OVERSEA_NO_CHN:
+                gross = movie.getGrossStat().getWorldOpening() - movie.getGrossStat().getUsOpening() - (long) (movie.getGrossStat().getChnOpening() / movie.getUsToYuan());
+                break;
         }
-        return 0;
+        return gross;
     }
 
 }

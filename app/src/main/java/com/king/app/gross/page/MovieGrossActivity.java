@@ -1,7 +1,6 @@
 package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
@@ -121,7 +120,11 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
     private void parseMojo() {
         ParseMojoFragment content = new ParseMojoFragment();
         content.setMovie(mModel.getMovie());
-        content.setOnDailyDataChangedListener(() -> mModel.loadRegion(Region.NA));
+        content.setOnDailyDataChangedListener(() -> {
+            mModel.loadRegion(Region.NA);
+            mModel.statistic();
+        });
+        content.setOnTotalDataChangedListener(() -> mModel.statistic());
         DraggableDialogFragment editDialog = new DraggableDialogFragment.Builder()
                 .setTitle("Gross")
                 .setContentFragment(content)

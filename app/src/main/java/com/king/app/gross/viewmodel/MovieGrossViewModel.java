@@ -9,8 +9,10 @@ import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.GrossDateType;
 import com.king.app.gross.conf.Region;
+import com.king.app.gross.model.StatCreator;
 import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
+import com.king.app.gross.model.entity.GrossStat;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.model.gross.ChartModel;
@@ -57,10 +59,13 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private ChartModel chartModel;
 
+    private StatCreator statCreator;
+
     public MovieGrossViewModel(@NonNull Application application) {
         super(application);
         mDateType = GrossDateType.DAILY;
         chartModel = new ChartModel();
+        statCreator = new StatCreator();
     }
 
     public void loadMovie(long movieId) {
@@ -101,6 +106,39 @@ public class MovieGrossViewModel extends BaseViewModel {
         else {
             onGrossRegionChanged(gross.getRegion());
         }
+
+        // 重新统计movie_stat表里的数据
+        statistic();
+    }
+
+    /**
+     * 统计movie_stat表里的数据
+     */
+    public void statistic() {
+        statCreator.statisticMovie(mMovie)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<GrossStat>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(GrossStat grossStat) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     public void onGrossRegionChanged(int region) {

@@ -3,6 +3,8 @@ package com.king.app.gross.model.entity;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.ToOne;
+import org.greenrobot.greendao.DaoException;
 
 /**
  * Desc:
@@ -35,6 +37,20 @@ public class Movie {
     private long budget;
 
     private String mojoId;
+
+    @ToOne(joinProperty = "id")
+    private GrossStat grossStat;
+
+    /** Used to resolve relations */
+    @Generated(hash = 2040040024)
+    private transient DaoSession daoSession;
+
+    /** Used for active entity operations. */
+    @Generated(hash = 1042217376)
+    private transient MovieDao myDao;
+
+    @Generated(hash = 859527616)
+    private transient Long grossStat__resolvedKey;
 
     @Generated(hash = 667280219)
     public Movie(Long id, String name, String nameChn, String subName,
@@ -143,6 +159,79 @@ public class Movie {
 
     public void setMojoId(String mojoId) {
         this.mojoId = mojoId;
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1042867517)
+    public GrossStat getGrossStat() {
+        Long __key = this.id;
+        if (grossStat__resolvedKey == null
+                || !grossStat__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            GrossStatDao targetDao = daoSession.getGrossStatDao();
+            GrossStat grossStatNew = targetDao.load(__key);
+            synchronized (this) {
+                grossStat = grossStatNew;
+                grossStat__resolvedKey = __key;
+            }
+        }
+        return grossStat;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 2146775533)
+    public void setGrossStat(GrossStat grossStat) {
+        synchronized (this) {
+            this.grossStat = grossStat;
+            id = grossStat == null ? null : grossStat.getMovieId();
+            grossStat__resolvedKey = id;
+        }
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 128553479)
+    public void delete() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.delete(this);
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 1942392019)
+    public void refresh() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.refresh(this);
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 713229351)
+    public void update() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.update(this);
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 215161401)
+    public void __setDaoSession(DaoSession daoSession) {
+        this.daoSession = daoSession;
+        myDao = daoSession != null ? daoSession.getMovieDao() : null;
     }
 
 }

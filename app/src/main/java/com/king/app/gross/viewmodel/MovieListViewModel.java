@@ -7,14 +7,12 @@ import android.text.TextUtils;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
-import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.ImageUrlProvider;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
-import com.king.app.gross.model.gross.DailyModel;
 import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.ColorUtil;
 import com.king.app.gross.utils.FormatUtil;
@@ -22,7 +20,6 @@ import com.king.app.gross.viewmodel.bean.MovieGridItem;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -176,24 +173,26 @@ public class MovieListViewModel extends BaseViewModel {
                 item.setFlag("#");
             }
         }
-        DailyModel model = new DailyModel(movie);
         if (mRegionInList == Region.CHN.ordinal()) {
-            item.setGross(FormatUtil.formatChnGross(model.queryTotalGross(mRegionInList)));
+            item.setGross(FormatUtil.formatChnGross(movie.getGrossStat().getChn()));
+        }
+        else if (mRegionInList == Region.NA.ordinal()) {
+            item.setGross(FormatUtil.formatUsGross(movie.getGrossStat().getUs()));
         }
         else {
-            item.setGross(FormatUtil.formatUsGross(model.queryTotalGross(mRegionInList)));
+            item.setGross(FormatUtil.formatUsGross(movie.getGrossStat().getWorld()));
         }
-        long gross = model.queryTotalGross(Region.CHN.ordinal());
+        long gross = movie.getGrossStat().getChn();
         if (gross > 0) {
             item.setGrossCnNum(gross);
             item.setGrossCn(FormatUtil.formatChnGross(gross));
         }
-        gross = model.queryTotalGross(Region.NA.ordinal());
+        gross = movie.getGrossStat().getUs();
         if (gross > 0) {
             item.setGrossUsNum(gross);
             item.setGrossUs(FormatUtil.formatUsGross(gross));
         }
-        gross = model.queryTotalGross(Region.WORLDWIDE.ordinal());
+        gross = movie.getGrossStat().getWorld();
         if (gross > 0) {
             item.setGrossWorldNum(gross);
             item.setGrossWorld(FormatUtil.formatUsGross(gross));
@@ -265,6 +264,9 @@ public class MovieListViewModel extends BaseViewModel {
     }
 
     public void reloadMovie(Movie movie) {
+//        movie.refresh();
+        // 这里用movie.refresh没用，因为StatCreator里detach movie的操作影响不了实体本身，必须重新加载才行
+        movie = getDaoSession().getMovieDao().load(movie.getId());
         if (moviesObserver.getValue() != null) {
             MovieGridItem item = convertMovie(movie, new Random());
             for (int i = 0; i < moviesObserver.getValue().size(); i ++) {
