@@ -84,8 +84,12 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
 
         mBinding.ivDownload.setOnClickListener(e -> mModel.fetchMovie(mBinding.etMojo.getText().toString()));
         mModel.mojoMovie.observe(this, movie -> {
-            mBinding.etName.setText(movie.getName());
-            mBinding.etNameSub.setText(movie.getSubName());
+            if (!TextUtils.isEmpty(movie.getName())) {
+                mBinding.etName.setText(movie.getName().trim());
+            }
+            if (!TextUtils.isEmpty(movie.getSubName())) {
+                mBinding.etNameSub.setText(movie.getSubName().trim());
+            }
             mBinding.etBudget.setText(String.valueOf(movie.getBudget()));
             mDebutDate = movie.getDebut();
             mBinding.btnDebut.setText(movie.getDebut());

@@ -271,7 +271,7 @@ public class MovieListViewModel extends BaseViewModel {
             MovieGridItem item = convertMovie(movie, new Random());
             for (int i = 0; i < moviesObserver.getValue().size(); i ++) {
                 MovieGridItem mi = moviesObserver.getValue().get(i);
-                if (mi.getBean().getId() == movie.getId()) {
+                if (mi.getBean().getId().longValue() == movie.getId().longValue()) {
                     moviesObserver.getValue().set(i, item);
                     notifyUpdatePosition.setValue(i);
                     break;
