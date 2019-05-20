@@ -30,13 +30,35 @@
             app:titleSize="18dp"
             app:maxShowIcon="4"
             app:supportSearch="false"/>
+        <TextView
+            android:id="@+id/tv_title_year"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/tag_parent_height"
+            android:background="@color/white"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="年份"
+            android:gravity="center"
+            android:textColor="@color/text_second"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/actionbar"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_year"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/tag_parent_height"
+            android:background="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_title_year"
+            app:layout_constraintTop_toBottomOf="@id/actionbar"
+            tools:listitem="@layout/adapter_rank_tag_region" />
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_movies"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/actionbar"
+            app:layout_constraintTop_toBottomOf="@id/rv_year"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:listitem="@layout/adapter_movie_list_wild"/>
 
@@ -97,7 +119,7 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@id/group_menu"
-            app:layout_constraintTop_toBottomOf="@id/actionbar"/>
+            app:layout_constraintTop_toBottomOf="@id/rv_year"/>
 
     </android.support.constraint.ConstraintLayout>
 </layout>

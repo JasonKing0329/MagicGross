@@ -38,4 +38,7 @@ public class AppConstants {
     public static final int LABEL_STYLE = 0;
     public static final int LABEL_SERIES = 1;
 
+    public static final String TAG_YEAR_ALL = "全部";
+    public static final String TAG_YEAR_AFTER = "以后";
+
 }

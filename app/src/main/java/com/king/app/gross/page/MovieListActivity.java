@@ -26,6 +26,7 @@ import com.king.app.gross.page.adapter.AbsMovieListAdapter;
 import com.king.app.gross.page.adapter.IndexAdapter;
 import com.king.app.gross.page.adapter.MovieListWildAdapter;
 import com.king.app.gross.page.adapter.SelectedMovieAdapter;
+import com.king.app.gross.page.adapter.TagRegionAdapter;
 import com.king.app.gross.utils.ScreenUtils;
 import com.king.app.gross.view.dialog.AlertDialogFragment;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
@@ -72,6 +73,8 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
         mBinding.setModel(mModel);
         mBinding.executePendingBindings();
 
+        initActionbar();
+
         mBinding.groupSelectContainer.setVisibility(View.GONE);
 
         mBinding.rvIndex.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -94,6 +97,26 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
             }
         });
 
+        mBinding.rvYear.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        mBinding.groupMenu.setOnMenuItemListener(menuId -> {
+            switch (menuId) {
+                case R.id.menu_top:
+                    mBinding.rvMovies.scrollToPosition(0);
+                    break;
+                case R.id.menu_index:
+                    if (mBinding.rvIndex.getVisibility() == View.GONE) {
+                        mBinding.rvIndex.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        mBinding.rvIndex.setVisibility(View.GONE);
+                    }
+                    break;
+            }
+        });
+    }
+
+    private void initActionbar() {
         mBinding.actionbar.setOnBackListener(() -> onBackPressed());
         mBinding.actionbar.setOnMenuItemListener(menuId -> {
             switch (menuId) {
@@ -192,21 +215,6 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
             mBinding.actionbar.showConfirmStatus(ID_SELECT_MODE);
         }
 
-        mBinding.groupMenu.setOnMenuItemListener(menuId -> {
-            switch (menuId) {
-                case R.id.menu_top:
-                    mBinding.rvMovies.scrollToPosition(0);
-                    break;
-                case R.id.menu_index:
-                    if (mBinding.rvIndex.getVisibility() == View.GONE) {
-                        mBinding.rvIndex.setVisibility(View.VISIBLE);
-                    }
-                    else {
-                        mBinding.rvIndex.setVisibility(View.GONE);
-                    }
-                    break;
-            }
-        });
     }
 
     private void setSelectResult() {
@@ -314,6 +322,12 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
 
     @Override
     protected void initData() {
+        mModel.yearsObserver.observe(this, list -> {
+            TagRegionAdapter adapter = new TagRegionAdapter();
+            adapter.setList(list);
+            adapter.setOnItemClickListener((view, position, data) -> mModel.filterYear(data.getTag()));
+            mBinding.rvYear.setAdapter(adapter);
+        });
         mModel.moviesObserver.observe(this, list -> showMovies(list));
         mModel.indexListObserver.observe(this, list -> showIndex(list));
         mModel.notifyUpdatePosition.observe(this, position -> adapter.notifyItemChanged(position));
@@ -378,7 +392,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
         content.setOnConfirmListener(new EditMovieFragment.OnConfirmListener() {
             @Override
             public boolean onMovieInserted(Movie movie) {
-                mModel.loadMovies(movie);
+                mModel.onMovieInserted(movie);
                 return true;
             }
 

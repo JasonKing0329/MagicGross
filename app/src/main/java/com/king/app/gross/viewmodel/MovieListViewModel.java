@@ -17,10 +17,12 @@ import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.ColorUtil;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.MovieGridItem;
+import com.king.app.gross.viewmodel.bean.RankTag;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -53,6 +55,8 @@ public class MovieListViewModel extends BaseViewModel {
 
     public MutableLiveData<List<String>> indexListObserver = new MutableLiveData<>();
 
+    public MutableLiveData<List<RankTag>> yearsObserver = new MutableLiveData<>();
+
     private List<MovieGridItem> mMovieList;
 
     private Map<Long, Boolean> checkMap;
@@ -67,6 +71,8 @@ public class MovieListViewModel extends BaseViewModel {
 
     private List<String> indexList;
 
+    private String mYear;
+
     public MovieListViewModel(@NonNull Application application) {
         super(application);
         checkMap = new HashMap<>();
@@ -75,15 +81,42 @@ public class MovieListViewModel extends BaseViewModel {
         mRegionInList = SettingProperty.getRegionTypeInMovieList();
     }
 
+    /**
+     * 第一次加载，创建年份
+     */
     public void loadMovies() {
-        loadMovies(null);
+        mYear = AppConstants.TAG_YEAR_ALL;
+        loadMovies(null, true);
     }
 
-    public void loadMovies(Movie showMovie) {
+    /**
+     * 改变了排序方式、标签，不需要重新创建标签
+     */
+    public void onParamsChanged() {
+        loadMovies(null, false);
+    }
+
+    /**
+     * 新增movie，重新加载列表以及年份，最后滚动到新增movie
+     * @param showMovie
+     */
+    public void onMovieInserted(Movie showMovie) {
+        mYear = AppConstants.TAG_YEAR_ALL;
+        loadMovies(showMovie, true);
+    }
+
+    private void loadMovies(Movie showMovie, boolean createTags) {
         loadingObserver.setValue(true);
         queryMovies()
                 .flatMap(list -> toGridItems(list))
-                .flatMap(list -> createIndex(list))
+                .flatMap(list -> {
+                    if (createTags) {
+                        return createYears(list).flatMap(list1 -> createIndex(list1));
+                    }
+                    else {
+                        return createIndex(list);
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<List<MovieGridItem>>() {
@@ -130,6 +163,14 @@ public class MovieListViewModel extends BaseViewModel {
                     .queryBuilder();
             if (!SettingProperty.isEnableVirtualMovie()) {
                 builder.where(MovieDao.Properties.IsReal.eq(AppConstants.MOVIE_REAL));
+            }
+            // 过滤年份
+            if (mYear.endsWith(AppConstants.TAG_YEAR_AFTER)) {
+                int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+                builder.where(MovieDao.Properties.Year.gt(currentYear));
+            }
+            else if (!mYear.equals(AppConstants.TAG_YEAR_ALL)) {
+                builder.where(MovieDao.Properties.Year.eq(Integer.parseInt(mYear)));
             }
             // debut与name可以在这里直接排，gross需要在赋值后排
             if (mSortType == AppConstants.MOVIE_SORT_DATE) {
@@ -215,6 +256,47 @@ public class MovieListViewModel extends BaseViewModel {
         });
     }
 
+    /**
+     *
+     * @param list 已按year升序排序
+     * @return
+     */
+    private Observable<List<MovieGridItem>> createYears(List<MovieGridItem> list) {
+        return Observable.create(observer -> {
+            List<RankTag> tags = new ArrayList<>();
+
+            int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+
+            Map<String, Boolean> yearMap = new HashMap<>();
+            for (MovieGridItem item:list) {
+                int year = item.getBean().getYear();
+                String key;
+                if (year > currentYear) {
+                    key = currentYear + AppConstants.TAG_YEAR_AFTER;
+                }
+                else {
+                    key = String.valueOf(year);
+                }
+                if (yearMap.get(key) == null) {
+                    yearMap.put(key, true);
+                    RankTag tag = new RankTag();
+                    tag.setTag(key);
+                    tags.add(tag);
+                }
+            }
+
+            // 年份由近及远
+            Collections.reverse(tags);
+
+            RankTag all = new RankTag();
+            all.setTag(AppConstants.TAG_YEAR_ALL);
+            tags.add(0, all);
+
+            yearsObserver.postValue(tags);
+            observer.onNext(list);
+        });
+    }
+
     private ObservableSource<List<MovieGridItem>> createIndex(List<MovieGridItem> list) {
         return observer -> {
             indexMap.clear();
@@ -282,6 +364,11 @@ public class MovieListViewModel extends BaseViewModel {
 
     public int getIndexPosition(String data) {
         return indexMap.get(data);
+    }
+
+    public void filterYear(String year) {
+        mYear = year;
+        onParamsChanged();
     }
 
     private class GrossComparator implements Comparator<MovieGridItem> {
@@ -399,7 +486,7 @@ public class MovieListViewModel extends BaseViewModel {
     public void changeSortType(int sortType) {
         if (mSortType != sortType) {
             mSortType = sortType;
-            loadMovies();
+            onParamsChanged();
         }
     }
 
@@ -415,7 +502,7 @@ public class MovieListViewModel extends BaseViewModel {
         if (mRegionInList != regionInList) {
             mRegionInList = regionInList;
             SettingProperty.setRegionTypeInMovieList(regionInList);
-            loadMovies();
+            onParamsChanged();
         }
     }
 
