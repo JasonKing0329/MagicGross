@@ -87,7 +87,7 @@ public class DailyModel {
             SimpleGross sg = new SimpleGross();
             sg.setBean(gross);
             if (gross.getIsLeftAfterDay() > 0) {
-                sg.setDay("Left");
+                sg.setDay(AppConstants.COMPARE_TITLE_LEFT);
                 sg.setDayOfWeek("");
             }
             else {
@@ -108,6 +108,7 @@ public class DailyModel {
             sg.setGrossDay(FormatUtil.pointZZ((double) gross.getGross() / (double) 10000));
             sg.setGrossValue(gross.getGross());
             // 累计以单位为个位显示
+            sg.setGrossSumValue(sum);
             if (gross.getRegion() == Region.CHN.ordinal()) {
                 sg.setGrossSum(FormatUtil.formatChnGross(sum));
             }

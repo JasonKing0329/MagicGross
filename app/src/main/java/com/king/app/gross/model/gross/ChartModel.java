@@ -6,7 +6,6 @@ import com.king.app.gross.model.compare.CompareChart;
 import com.king.app.gross.page.gross.AxisData;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.view.widget.chart.adapter.LineData;
-import com.king.app.gross.viewmodel.CompareViewModel;
 import com.king.app.gross.viewmodel.bean.CompareItem;
 import com.king.app.gross.viewmodel.bean.SimpleGross;
 
@@ -25,7 +24,7 @@ import io.reactivex.ObservableSource;
  */
 public class ChartModel {
 
-    public static String formatAxisString(Region region, int position) {
+    public static String formatDailyAxis(Region region, int position) {
         if (region == Region.CHN) {
             if (position < 100) {
                 return position / 10 + "千万";
@@ -45,6 +44,21 @@ public class ChartModel {
             }
             else {
                 double ft = (double) position / (double) 1000;
+                return FormatUtil.pointZ(ft) + "亿";
+            }
+        }
+    }
+
+    public static String formatAccumulatedAxis(Region region, int position) {
+        if (region == Region.CHN) {
+            return position / 10 + "亿";
+        }
+        else {
+            if (position < 100) {
+                return position / 10 + "千万";
+            }
+            else {
+                double ft = (double) position / (double) 100;
                 return FormatUtil.pointZ(ft) + "亿";
             }
         }
@@ -142,7 +156,7 @@ public class ChartModel {
         return data;
     }
 
-    public ObservableSource<CompareChart> createChart(List<CompareItem> list, int lineCount, Region region) {
+    public ObservableSource<CompareChart> createDailyChart(List<CompareItem> list, int lineCount, Region region) {
         return observer -> {
             CompareChart chart = new CompareChart();
             List<CompareItem> dayList = new ArrayList<>();
@@ -239,6 +253,122 @@ public class ChartModel {
         };
     }
 
+    public ObservableSource<CompareChart> createAccumulatedChart(List<CompareItem> list, int lineCount, Region region) {
+        return observer -> {
+            CompareChart chart = new CompareChart();
+            List<CompareItem> dayList = new ArrayList<>();
+            for (int i = 0; i < list.size(); i ++) {
+                // accumulated加总计与daily
+                if (list.get(i).isDay()) {
+                    dayList.add(list.get(i));
+                }
+            }
+
+            if (dayList.size() == 0) {
+                observer.onNext(chart);
+                return;
+            }
+
+            chart.setxCount(dayList.size());
+            chart.setxTextList(new ArrayList<>());
+            chart.setLineDataList(new ArrayList<>());
+            for (int i = 0; i < lineCount; i ++) {
+                chart.getLineDataList().add(new LineData());
+            }
+            long max = 0;
+            // 时间线性
+            for (int day = 0; day < dayList.size(); day ++) {
+                CompareItem dayItem = dayList.get(day);
+                String key = dayItem.getKey();
+                if (key.startsWith(AppConstants.COMPARE_TITLE_WEEK)) {
+                    key = key.substring(AppConstants.COMPARE_TITLE_WEEK.length());
+                }
+                chart.getxTextList().add(key);
+                List<SimpleGross> grosses = dayItem.getGrossList();
+                // movie所代表的线段
+                for (int line = 0; line < grosses.size(); line ++) {
+                    LineData lineData = chart.getLineDataList().get(line);
+                    SimpleGross gross = grosses.get(line);
+                    if (gross == null) {
+
+                    }
+                    else {
+                        if (lineData.getValues() == null) {
+                            lineData.setValues(new ArrayList<>());
+                            lineData.setValuesText(new ArrayList<>());
+                            lineData.setStartX(day);
+                        }
+                        int value;
+                        if (gross.isLeft() || (gross.getBean() != null && gross.getBean().getIsLeftAfterDay() > 0)) {
+                            // left在线段上与前一天持平
+                            try {
+                                value = lineData.getValues().get(lineData.getValues().size() - 1);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                value = 0;
+                            }
+                        }
+                        else {
+                            long realGross = gross.getGrossSumValue();
+                            if (region == Region.CHN) {
+                                // 人民币单位以千万计
+                                value = (int) (realGross / 10000000);
+                            }
+                            else {
+                                // 美元单位以百万计
+                                value = (int) (realGross / 1000000);
+                            }
+                            if (realGross > max) {
+                                max = realGross;
+                            }
+                        }
+                        lineData.getValues().add(value);
+
+                        setLineDataValueText(day, line, lineData, dayList, region);
+                        lineData.setEndX(day);
+                    }
+                }
+            }
+
+            if (region == Region.CHN) {
+                // 累计以千万计
+                int top = (int) (max / 10000000 + 1);
+                chart.setyCount(top);
+            }
+            else {
+                // 累计以百万计
+                int top = (int) (max / 1000000 + 1);
+                chart.setyCount(top);
+            }
+            observer.onNext(chart);
+        };
+    }
+
+    private void setLineDataValueText(int day, int line, LineData lineData, List<CompareItem> dayList, Region region) {
+        SimpleGross gross = dayList.get(day).getGrossList().get(line);
+        SimpleGross lastGross = null;
+        try {
+            lastGross = dayList.get(day - 1).getGrossList().get(line);
+        } catch (Exception e) {}
+
+        long point;
+        if (region == Region.CHN) {
+            point = 500000000;// 5亿
+        }
+        else {
+            point = 100000000;// 1亿
+        }
+        long grossCloseTo = gross.getGrossSumValue() / point;
+        long lastGrossCloseTo = (lastGross == null ? 0 : lastGross.getGrossSumValue() / point);
+        if (grossCloseTo == lastGrossCloseTo) {
+            lineData.getValuesText().add("");
+        }
+        // 达到突破金额
+        else {
+            lineData.getValuesText().add(gross.getGrossSum());
+        }
+    }
+
     private class CompareKeyComparator implements Comparator<CompareItem> {
 
         @Override
@@ -252,6 +382,9 @@ public class ChartModel {
             String key = item.getKey();
             // left排在最后
             if (AppConstants.COMPARE_TITLE_LEFT.equals(key)) {
+                key = "ZZZZZ";
+            }
+            else if (AppConstants.COMPARE_TITLE_LEFT.equals(key)) {
                 key = "ZZZZZ";
             }
             return key;

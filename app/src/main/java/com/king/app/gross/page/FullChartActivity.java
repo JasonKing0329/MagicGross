@@ -1,17 +1,16 @@
 package com.king.app.gross.page;
 
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MvvmActivity;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.ActivityFullChartBinding;
 import com.king.app.gross.model.compare.CompareChart;
-import com.king.app.gross.model.compare.CompareInstance;
 import com.king.app.gross.model.gross.ChartModel;
-import com.king.app.gross.page.adapter.CompareMovieAdapter;
+import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.page.adapter.FullChartMovieAdapter;
 import com.king.app.gross.view.widget.chart.adapter.IAxis;
 import com.king.app.gross.view.widget.chart.adapter.LineChartAdapter;
@@ -65,6 +64,7 @@ public class FullChartActivity extends MvvmActivity<ActivityFullChartBinding, Ba
         mBinding.chart.setVisibility(View.VISIBLE);
         mBinding.chart.setDrawAxisY(true);
         mBinding.chart.setDegreeCombine(1);
+        mBinding.chart.setDrawDashGrid(SettingProperty.getCompareType() == AppConstants.COMPARE_TYPE_ACCU);
         mBinding.chart.setAxisX(new IAxis() {
             @Override
             public int getDegreeCount() {
@@ -109,7 +109,12 @@ public class FullChartActivity extends MvvmActivity<ActivityFullChartBinding, Ba
 
             @Override
             public String getTextAt(int position) {
-                return ChartModel.formatAxisString(ChartDataProvider.getRegion(), position);
+                if (SettingProperty.getCompareType() == AppConstants.COMPARE_TYPE_ACCU) {
+                    return ChartModel.formatAccumulatedAxis(ChartDataProvider.getRegion(), position);
+                }
+                else {
+                    return ChartModel.formatDailyAxis(ChartDataProvider.getRegion(), position);
+                }
             }
 
             @Override

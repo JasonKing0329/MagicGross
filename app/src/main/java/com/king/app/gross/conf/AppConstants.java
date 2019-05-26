@@ -34,11 +34,16 @@ public class AppConstants {
 
     public static final String COMPARE_TITLE_WEEK = "Week ";
     public static final String COMPARE_TITLE_LEFT = "Left";
+    public static final String COMPARE_TITLE_TOTAL_CHN = "累计";
+    public static final String COMPARE_TITLE_ZERO_CHN = "零点场";
 
     public static final int LABEL_STYLE = 0;
     public static final int LABEL_SERIES = 1;
 
     public static final String TAG_YEAR_ALL = "全部";
     public static final String TAG_YEAR_AFTER = "以后";
+
+    public static final int COMPARE_TYPE_DAILY = 0;
+    public static final int COMPARE_TYPE_ACCU = 1;
 
 }

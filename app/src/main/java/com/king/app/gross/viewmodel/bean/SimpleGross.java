@@ -17,6 +17,7 @@ public class SimpleGross {
     private String dropWeek;
     private String grossSum;
     private long grossValue;
+    private long grossSumValue;
     private boolean isLeft;
 
     private Gross bean;
@@ -91,5 +92,13 @@ public class SimpleGross {
 
     public void setLeft(boolean left) {
         isLeft = left;
+    }
+
+    public long getGrossSumValue() {
+        return grossSumValue;
+    }
+
+    public void setGrossSumValue(long grossSumValue) {
+        this.grossSumValue = grossSumValue;
     }
 }

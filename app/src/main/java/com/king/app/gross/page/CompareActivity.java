@@ -10,11 +10,13 @@ import android.view.View;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.ActivityCompareBinding;
 import com.king.app.gross.model.compare.CompareChart;
 import com.king.app.gross.model.compare.CompareInstance;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.gross.ChartModel;
+import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.page.adapter.CompareItemAdapter;
 import com.king.app.gross.page.adapter.CompareMovieAdapter;
 import com.king.app.gross.utils.ListUtil;
@@ -88,8 +90,27 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
                     movieAdapter.notifyDataSetChanged();
                     updateChart(mModel.chartObserver.getValue());
                     break;
+                case R.id.menu_type:
+                    int type = SettingProperty.getCompareType();
+                    if (type == AppConstants.COMPARE_TYPE_ACCU) {
+                        SettingProperty.setCompareType(AppConstants.COMPARE_TYPE_DAILY);
+                        mBinding.actionbar.updateMenuText(R.id.menu_type, "Accumulated");
+                    }
+                    else {
+                        SettingProperty.setCompareType(AppConstants.COMPARE_TYPE_ACCU);
+                        mBinding.actionbar.updateMenuText(R.id.menu_type, "Daily");
+                    }
+                    mModel.loadCompareItems();
+                    break;
             }
         });
+        int type = SettingProperty.getCompareType();
+        if (type == AppConstants.COMPARE_TYPE_ACCU) {
+            mBinding.actionbar.updateMenuText(R.id.menu_type, "Daily");
+        }
+        else {
+            mBinding.actionbar.updateMenuText(R.id.menu_type, "Accumulated");
+        }
     }
 
     private void selectRegion() {
@@ -153,6 +174,7 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
         mBinding.chart.setVisibility(View.VISIBLE);
         mBinding.chart.setDrawAxisY(true);
         mBinding.chart.setDegreeCombine(1);
+        mBinding.chart.setDrawDashGrid(SettingProperty.getCompareType() == AppConstants.COMPARE_TYPE_ACCU);
         mBinding.chart.setAxisX(new IAxis() {
             @Override
             public int getDegreeCount() {
@@ -197,7 +219,12 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
 
             @Override
             public String getTextAt(int position) {
-                return ChartModel.formatAxisString(mModel.getRegion(), position);
+                if (SettingProperty.getCompareType() == AppConstants.COMPARE_TYPE_ACCU) {
+                    return ChartModel.formatAccumulatedAxis(mModel.getRegion(), position);
+                }
+                else {
+                    return ChartModel.formatDailyAxis(mModel.getRegion(), position);
+                }
             }
 
             @Override

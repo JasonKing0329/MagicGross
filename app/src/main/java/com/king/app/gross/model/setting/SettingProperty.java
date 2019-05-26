@@ -82,6 +82,14 @@ public class SettingProperty {
         return getBoolean("pref_enable_virtual");
     }
 
+    public static void setCompareType(int enable) {
+        setInt("compare_type", enable);
+    }
+
+    public static int getCompareType() {
+        return getInt("compare_type");
+    }
+
     public static void setEditGrossPref(EditGrossPref pref) {
         setString("pref_edit_gross", new Gson().toJson(pref));
     }

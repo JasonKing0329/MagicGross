@@ -420,6 +420,9 @@ public abstract class AxisChart extends View implements View.OnTouchListener {
         int xCount = axisX.getDegreeCount();
         int yCount = axisY.getDegreeCount();
         for (int i = 0; i < xCount; i ++) {
+            if (axisX.isNotDraw(i)) {
+                continue;
+            }
             // 原点+延长线+刻度间隔
             int x = getDegreeX(i);
             boolean drawDegree = false;
@@ -441,6 +444,9 @@ public abstract class AxisChart extends View implements View.OnTouchListener {
             }
         }
         for (int i = 0; i < yCount; i ++) {
+            if (axisY.isNotDraw(i)) {
+                continue;
+            }
             if (i > 0) {
                 int y = getDegreeY(i);
 //                canvas.drawLine(startX, y, getWidth() - mPadding, y, mPaint);

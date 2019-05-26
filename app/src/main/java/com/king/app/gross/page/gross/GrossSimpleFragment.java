@@ -162,7 +162,7 @@ public class GrossSimpleFragment extends BaseBindingFragment<FragmentGrossSimple
             @Override
             public String getTextAt(int position) {
 
-                return ChartModel.formatAxisString(page.region, position);
+                return ChartModel.formatDailyAxis(page.region, position);
             }
 
             @Override

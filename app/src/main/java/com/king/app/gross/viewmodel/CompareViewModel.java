@@ -14,6 +14,7 @@ import com.king.app.gross.model.compare.CompareInstance;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.gross.ChartModel;
 import com.king.app.gross.model.gross.DailyModel;
+import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.CompareItem;
 import com.king.app.gross.viewmodel.bean.SimpleGross;
@@ -60,7 +61,12 @@ public class CompareViewModel extends BaseViewModel {
                 .flatMap(list -> {
                     int size = CompareInstance.getInstance().getMovieList().size();
                     compareItemsObserver.postValue(list);
-                    return chartModel.createChart(list, size, mRegion);
+                    if (SettingProperty.getCompareType() == AppConstants.COMPARE_TYPE_ACCU) {
+                        return chartModel.createAccumulatedChart(list, size, mRegion);
+                    }
+                    else {
+                        return chartModel.createDailyChart(list, size, mRegion);
+                    }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -94,7 +100,12 @@ public class CompareViewModel extends BaseViewModel {
         return Observable.create(e -> {
             List<CompareItem> list = new ArrayList<>();
             list.addAll(queryBasic());
-            list.addAll(queryDayByDay());
+            if (SettingProperty.getCompareType() == AppConstants.COMPARE_TYPE_ACCU) {
+                list.addAll(queryAccumulated());
+            }
+            else {
+                list.addAll(queryDayByDay());
+            }
             e.onNext(list);
         });
     }
@@ -247,7 +258,7 @@ public class CompareViewModel extends BaseViewModel {
                         item.getGrossList().add(null);
                     }
                     map.put(key, item);
-                    if (key.equals("零点场")) {
+                    if (key.equals(AppConstants.COMPARE_TITLE_ZERO_CHN)) {
                         list.add(0, item);
                     }
                     else {
@@ -257,12 +268,12 @@ public class CompareViewModel extends BaseViewModel {
                 item.getValues().set(i, gross.getGrossDay());
                 item.getGrossList().set(i, gross);
             }
-            CompareItem item = map.get("累计");
+            CompareItem item = map.get(AppConstants.COMPARE_TITLE_TOTAL_CHN);
             long total = dailyModel.queryTotalGross(mRegion.ordinal());
             if (item == null) {
                 item = new CompareItem();
                 item.setDay(true);
-                item.setKey("累计");
+                item.setKey(AppConstants.COMPARE_TITLE_TOTAL_CHN);
                 item.setTotal(true);
                 item.setValues(new ArrayList<>());
                 item.setGrossList(new ArrayList<>());
@@ -270,7 +281,7 @@ public class CompareViewModel extends BaseViewModel {
                     item.getValues().add("--");
                     item.getGrossList().add(null);
                 }
-                map.put("累计", item);
+                map.put(AppConstants.COMPARE_TITLE_TOTAL_CHN, item);
                 list.add(item);
             }
             item.getValues().set(i, mRegion == Region.CHN ? FormatUtil.formatChnGross(total):FormatUtil.formatUsGross(total));
@@ -290,6 +301,105 @@ public class CompareViewModel extends BaseViewModel {
             }
         }
         return list;
+    }
+
+    private List<CompareItem> queryAccumulated() {
+        List<CompareItem> list = new ArrayList<>();
+        int size = CompareInstance.getInstance().getMovieList().size();
+        Map<String, CompareItem> map = new HashMap<>();
+        for (int i = 0; i < size; i ++) {
+            Movie movie = CompareInstance.getInstance().getMovieList().get(i);
+            DailyModel dailyModel = new DailyModel(movie);
+            List<SimpleGross> grosses;
+            switch (mRegion) {
+                case OVERSEA:
+                    grosses = dailyModel.getOversea();
+                    break;
+                case WORLDWIDE:
+                    grosses = dailyModel.getWorldWide();
+                    break;
+                default:
+                    grosses = dailyModel.getGross(mRegion.ordinal());
+                    break;
+            }
+
+            for (SimpleGross gross:grosses) {
+                String key = gross.getDay();
+                if (key == null) {
+                    continue;
+                }
+                else if (key.equals(AppConstants.COMPARE_TITLE_LEFT)) {
+                    continue;
+                }
+                CompareItem item = map.get(key);
+                if (item == null) {
+                    item = new CompareItem();
+                    item.setDay(true);
+                    item.setKey(key);
+                    item.setValues(new ArrayList<>());
+                    item.setGrossList(new ArrayList<>());
+                    for (int n = 0; n < size; n ++) {
+                        item.getValues().add("--");
+                        item.getGrossList().add(null);
+                    }
+                    map.put(key, item);
+                    if (key.equals(AppConstants.COMPARE_TITLE_ZERO_CHN)) {
+                        list.add(0, item);
+                    }
+                    else {
+                        list.add(item);
+                    }
+                }
+                item.getValues().set(i, gross.getGrossSum());
+                item.getGrossList().set(i, gross);
+            }
+            CompareItem item = map.get(AppConstants.COMPARE_TITLE_TOTAL_CHN);
+            long total = dailyModel.queryTotalGross(mRegion.ordinal());
+            if (item == null) {
+                item = new CompareItem();
+                item.setDay(true);
+                item.setKey(AppConstants.COMPARE_TITLE_TOTAL_CHN);
+                item.setTotal(true);
+                item.setValues(new ArrayList<>());
+                item.setGrossList(new ArrayList<>());
+                for (int n = 0; n < size; n ++) {
+                    item.getValues().add("--");
+                    item.getGrossList().add(null);
+                }
+                map.put(AppConstants.COMPARE_TITLE_TOTAL_CHN, item);
+                list.add(item);
+            }
+            item.getValues().set(i, mRegion == Region.CHN ? FormatUtil.formatChnGross(total):FormatUtil.formatUsGross(total));
+
+            // 为了比较出winIndex
+            SimpleGross sg = new SimpleGross();
+            sg.setGrossSumValue(total);
+            item.getGrossList().set(i, sg);
+        }
+
+        // create win index
+        for (CompareItem item:list) {
+            item.setWinIndex(-1);
+            if (item.isDay()) {
+                int index = compareSumValues(item.getGrossList());
+                item.setWinIndex(index);
+            }
+        }
+        return list;
+    }
+
+    private int compareSumValues(List<SimpleGross> grossList) {
+        int index = -1;
+        long max = 0;
+        for (int i = 0; i < grossList.size(); i ++) {
+            if (grossList.get(i) != null) {
+                if (grossList.get(i).getGrossSumValue() > max) {
+                    max = grossList.get(i).getGrossSumValue();
+                    index = i;
+                }
+            }
+        }
+        return index;
     }
 
     private int compareValues(List<SimpleGross> grossList) {
