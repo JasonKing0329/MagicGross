@@ -1,7 +1,6 @@
 package com.king.app.gross.model.http.mojo;
 
 import com.king.app.gross.base.MApplication;
-import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
@@ -60,7 +59,7 @@ public class MojoParser extends AbsParser {
         });
     }
 
-    public Observable<Boolean> parseForeign(File file, long movieId) {
+    public Observable<Boolean> parseForeign(File file, long movieId, boolean clearAll) {
         return Observable.create((ObservableOnSubscribe<List<MarketGross>>) e -> {
 
             List<MarketGross> insertList = new ArrayList<>();
@@ -90,7 +89,7 @@ public class MojoParser extends AbsParser {
             }
 
             e.onNext(insertList);
-        }).flatMap(list -> insertAndRelateForeign(list, movieId));
+        }).flatMap(list -> insertAndRelateForeign(list, movieId, clearAll));
     }
 
     private void parseForeignTr(Element tr, MarketGross gross){
@@ -145,15 +144,17 @@ public class MojoParser extends AbsParser {
         return null;
     }
 
-    private ObservableSource<Boolean> insertAndRelateForeign(List<MarketGross> insertList, long movieId) {
+    private ObservableSource<Boolean> insertAndRelateForeign(List<MarketGross> insertList, long movieId, boolean clearAll) {
         return observer -> {
             if (insertList.size() > 0) {
-                // delete movie related first
                 MarketGrossDao dao = MApplication.getInstance().getDaoSession().getMarketGrossDao();
-                dao.queryBuilder().where(MarketGrossDao.Properties.MovieId.eq(movieId))
-                        .buildDelete()
-                        .executeDeleteWithoutDetachingEntities();
-                dao.detachAll();
+                if (clearAll) {
+                    // delete movie related first
+                    dao.queryBuilder().where(MarketGrossDao.Properties.MovieId.eq(movieId))
+                            .buildDelete()
+                            .executeDeleteWithoutDetachingEntities();
+                    dao.detachAll();
+                }
 
                 // relate to market and movie
                 for (int i = 0; i < insertList.size(); i ++) {
@@ -178,14 +179,45 @@ public class MojoParser extends AbsParser {
                     }
                 }
 
-                // insert list
-                dao.insertInTx(insertList);
+                if (clearAll) {
+                    // insert list
+                    dao.insertInTx(insertList);
+                }
+                else {
+                    List<MarketGross> inserts = new ArrayList<>();
+                    List<MarketGross> updates = new ArrayList<>();
+                    // insert or replace
+                    for (MarketGross marketGross:insertList) {
+                        MarketGross local = dao.queryBuilder()
+                                .where(MarketGrossDao.Properties.MovieId.eq(movieId))
+                                .where(MarketGrossDao.Properties.MarketId.eq(marketGross.getMarketId()))
+                                .build().unique();
+                        if (local == null) {
+                            inserts.add(marketGross);
+                        }
+                        else {
+                            local.setDebut(marketGross.getDebut());
+                            local.setGross(marketGross.getGross());
+                            local.setOpening(marketGross.getOpening());
+                            local.setEndDate(marketGross.getEndDate());
+                            updates.add(local);
+                        }
+                    }
+                    if (inserts.size() > 0) {
+                        DebugLog.e("insert size " + inserts.size());
+                        dao.insertInTx(inserts);
+                    }
+                    if (updates.size() > 0) {
+                        DebugLog.e("update size " + updates.size());
+                        dao.updateInTx(updates);
+                    }
+                }
             }
             observer.onNext(true);
         };
     }
 
-    public Observable<Boolean> parseDaily(File file, long movieId) {
+    public Observable<Boolean> parseDaily(File file, long movieId, boolean clearAll) {
         return Observable.create((ObservableOnSubscribe<List<Gross>>) e -> {
 
             List<Gross> insertList = new ArrayList<>();
@@ -217,7 +249,7 @@ public class MojoParser extends AbsParser {
             }
 
             e.onNext(insertList);
-        }).flatMap(list -> insertAndRelateDaily(list, movieId));
+        }).flatMap(list -> insertAndRelateDaily(list, movieId, clearAll));
     }
 
     private Gross parseDailyTr(int index, Element tr, long movieId){
@@ -269,19 +301,49 @@ public class MojoParser extends AbsParser {
         return day;
     }
 
-    private ObservableSource<Boolean> insertAndRelateDaily(List<Gross> insertList, long movieId) {
+    private ObservableSource<Boolean> insertAndRelateDaily(List<Gross> insertList, long movieId, boolean clearAll) {
         return observer -> {
             if (insertList.size() > 0) {
-                // delete movie related first
                 GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
-                dao.queryBuilder()
-                        .where(GrossDao.Properties.MovieId.eq(movieId))
-                        .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
-                        .buildDelete()
-                        .executeDeleteWithoutDetachingEntities();
+                if (clearAll) {
+                    // delete movie related first
+                    dao.queryBuilder()
+                            .where(GrossDao.Properties.MovieId.eq(movieId))
+                            .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
+                            .buildDelete()
+                            .executeDeleteWithoutDetachingEntities();
+                    dao.detachAll();
+                    dao.insertInTx(insertList);
+                }
+                else {
+                    List<Gross> inserts = new ArrayList<>();
+                    List<Gross> updates = new ArrayList<>();
+                    // insert or replace
+                    for (Gross gross:insertList) {
+                        Gross local = dao.queryBuilder()
+                                .where(GrossDao.Properties.MovieId.eq(movieId))
+                                .where(GrossDao.Properties.Region.eq(Region.NA.ordinal()))
+                                .where(GrossDao.Properties.Day.eq(gross.getDay()))
+                                .build().unique();
+                        if (local == null) {
+                            inserts.add(gross);
+                        }
+                        else {
+                            local.setDayOfWeek(gross.getDayOfWeek());
+                            local.setGross(gross.getGross());
+                            updates.add(local);
+                        }
+                    }
+                    if (inserts.size() > 0) {
+                        DebugLog.e("insert size " + inserts.size());
+                        dao.insertInTx(inserts);
+                    }
+                    if (updates.size() > 0) {
+                        DebugLog.e("update size " + updates.size());
+                        dao.updateInTx(updates);
+                    }
+                }
                 dao.detachAll();
-
-                dao.insertInTx(insertList);
             }
             observer.onNext(true);
         };

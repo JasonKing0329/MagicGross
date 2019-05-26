@@ -42,9 +42,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
         mBinding.actionbar.setOnMenuItemListener(menuId -> {
             switch (menuId) {
                 case R.id.menu_download:
-                    showConfirmCancelMessage("Fetch html will remove data in database, continue?"
-                            , (dialogInterface, i) -> mModel.fetchForeignData()
-                            , null);
+                    mModel.fetchForeignData();
                     break;
                 case R.id.menu_edit:
                     editMarketGross();

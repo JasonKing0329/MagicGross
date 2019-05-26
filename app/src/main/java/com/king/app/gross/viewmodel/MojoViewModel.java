@@ -17,12 +17,10 @@ import com.king.app.gross.model.http.mojo.MojoClient;
 import com.king.app.gross.model.http.mojo.MojoParser;
 import com.king.app.gross.page.bean.ContinentGross;
 import com.king.app.gross.page.bean.MarketTotal;
-import com.king.app.gross.utils.FileUtil;
 import com.king.app.gross.utils.FormatUtil;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,7 +34,6 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.ResponseBody;
 
 public class MojoViewModel extends BaseViewModel {
 
@@ -169,7 +166,7 @@ public class MojoViewModel extends BaseViewModel {
         loadingObserver.setValue(true);
         MojoClient.getInstance().getService().getHtmlPage(parser.getMojoForeignUrl(movieObserver.getValue().getMojoId()))
                 .flatMap(responseBody -> parser.saveFile(responseBody, AppConfig.FILE_HTML_FOREIGN))
-                .flatMap(file -> parser.parseForeign(file, movieObserver.getValue().getId()))
+                .flatMap(file -> parser.parseForeign(file, movieObserver.getValue().getId(), false))
 //        parser.parseForeign(new File(AppConfig.FILE_HTML_FOREIGN), movieObserver.getValue().getId())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())

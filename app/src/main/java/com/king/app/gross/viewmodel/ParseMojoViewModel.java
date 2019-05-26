@@ -77,11 +77,11 @@ public class ParseMojoViewModel extends BaseViewModel {
         }
     }
 
-    public void fetchDailyData() {
+    public void fetchDailyData(boolean clearAll) {
         loadingObserver.setValue(true);
         MojoClient.getInstance().getService().getHtmlPage(mojoParser.getMojoDailyUrl(mMovie.getMojoId()))
                 .flatMap(responseBody -> mojoParser.saveFile(responseBody, AppConfig.FILE_HTML_DAILY))
-                .flatMap(file -> mojoParser.parseDaily(file, mMovie.getId()))
+                .flatMap(file -> mojoParser.parseDaily(file, mMovie.getId(), clearAll))
 //        mojoParser.parseDaily(new File(AppConfig.FILE_HTML_DAILY), mMovie.getId())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -112,11 +112,11 @@ public class ParseMojoViewModel extends BaseViewModel {
                 });
     }
 
-    public void fetchMarketData() {
+    public void fetchMarketData(boolean clearAll) {
         loadingObserver.setValue(true);
         MojoClient.getInstance().getService().getHtmlPage(mojoParser.getMojoForeignUrl(mMovie.getMojoId()))
                 .flatMap(responseBody -> mojoParser.saveFile(responseBody, AppConfig.FILE_HTML_FOREIGN))
-                .flatMap(file -> mojoParser.parseForeign(file, mMovie.getId()))
+                .flatMap(file -> mojoParser.parseForeign(file, mMovie.getId(), clearAll))
 //        mojoParser.parseForeign(new File(AppConfig.FILE_HTML_FOREIGN), mMovie.getId())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -254,12 +254,12 @@ public class ParseMojoViewModel extends BaseViewModel {
             if (leftGross == null) {
                 leftGross = new Gross();
                 leftGross.setIsLeftAfterDay(day);
-                // 排序是根据这个字段排的
-                leftGross.setDay(day + 1);
                 leftGross.setRegion(Region.NA.ordinal());
                 leftGross.setMovieId(mMovie.getId());
                 leftGross.setSymbol(0);
             }
+            // 排序是根据这个字段排的
+            leftGross.setDay(day + 1);
             leftGross.setGross(left);
 
             insertLeftPopup.setValue(buffer.toString());

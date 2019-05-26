@@ -146,5 +146,25 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_parse_total" />
+
+        <CheckBox
+            android:id="@+id/cb_clear_daily"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Clear All"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_daily"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/btn_daily" />
+
+        <CheckBox
+            android:id="@+id/cb_clear_market"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Clear All"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_market"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/btn_market" />
     </android.support.constraint.ConstraintLayout>
 </layout>

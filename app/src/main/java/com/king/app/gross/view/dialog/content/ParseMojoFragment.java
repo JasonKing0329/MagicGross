@@ -61,14 +61,24 @@ public class ParseMojoFragment extends DraggableContentFragment<FragmentMojoBind
         mBinding.setModel(mModel);
 
         mBinding.btnDaily.setOnClickListener(v -> {
-            showConfirmCancelMessage("Fetch Mojo data will remove local data, continue?"
-                    , (dialogInterface, i) -> mModel.fetchDailyData()
-                    , null);
+            if (mBinding.cbClearDaily.isChecked()) {
+                showConfirmCancelMessage("Fetch Mojo data will remove local data, continue?"
+                        , (dialogInterface, i) -> mModel.fetchDailyData(true)
+                        , null);
+            }
+            else {
+                mModel.fetchDailyData(false);
+            }
         });
         mBinding.btnMarket.setOnClickListener(v -> {
-            showConfirmCancelMessage("Fetch Mojo data will remove local data, continue?"
-                    , (dialogInterface, i) -> mModel.fetchMarketData()
-                    , null);
+            if (mBinding.cbClearDaily.isChecked()) {
+                showConfirmCancelMessage("Fetch Mojo data will remove local data, continue?"
+                        , (dialogInterface, i) -> mModel.fetchMarketData(true)
+                        , null);
+            }
+            else {
+                mModel.fetchMarketData(false);
+            }
         });
         mBinding.btnDefault.setOnClickListener(v -> mModel.fetchDefaultData());
         mBinding.btnParseDomestic.setOnClickListener(v -> mModel.insertLeft());
