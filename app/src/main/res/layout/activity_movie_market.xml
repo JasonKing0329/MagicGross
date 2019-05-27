@@ -142,6 +142,18 @@
                 app:layout_constraintBottom_toBottomOf="@+id/tv_undisclosed_title"
                 app:layout_constraintEnd_toStartOf="@+id/tv_undisclosed_total"
                 app:layout_constraintTop_toTopOf="@+id/tv_undisclosed_title" />
+
+            <ImageView
+                android:id="@+id/iv_edit_total"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:padding="4dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_total"
+                app:layout_constraintStart_toEndOf="@+id/tv_total"
+                app:layout_constraintTop_toTopOf="@+id/tv_total"
+                app:srcCompat="@drawable/ic_edit_grey_700_24dp" />
         </android.support.constraint.ConstraintLayout>
 
         <android.support.v7.widget.RecyclerView

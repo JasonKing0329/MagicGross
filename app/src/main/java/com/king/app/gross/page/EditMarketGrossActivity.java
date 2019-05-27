@@ -48,6 +48,7 @@ public class EditMarketGrossActivity extends MvvmActivity<ActivityEditMarketGros
     protected void initView() {
         mBinding.setModel(mModel);
 
+        mBinding.actionbar.setOnBackListener(() -> onBackPressed());
         mBinding.actionbar.showConfirmStatus(ID_CONFIRM);
         mBinding.actionbar.setOnConfirmListener(new OnConfirmListener() {
             @Override

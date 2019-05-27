@@ -10,11 +10,12 @@ import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.FragmentGrossTabBinding;
 
 /**
- * Desc:
+ * Desc: 按照Region区域以Viewpager形式呈现的daily page
  *
  * @author：Jing Yang
  * @date: 2018/6/7 17:18
  */
+@Deprecated
 public class GrossTabFragment extends BaseBindingFragment<FragmentGrossTabBinding> {
 
     private SimplePagerAdapter pagerAdapter;

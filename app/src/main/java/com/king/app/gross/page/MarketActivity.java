@@ -19,6 +19,7 @@ import com.king.app.gross.page.adapter.MarketGroupAdapter;
 import com.king.app.gross.utils.ScreenUtils;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
 import com.king.app.gross.view.dialog.content.EditMarketGrossFragment;
+import com.king.app.gross.view.dialog.content.EditMarketTotalFragment;
 import com.king.app.gross.viewmodel.MojoViewModel;
 
 public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, MojoViewModel> {
@@ -52,6 +53,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
                     break;
             }
         });
+        mBinding.actionbar.setOnBackListener(() -> onBackPressed());
 
         mBinding.actionbar.registerPopupMenu(R.id.menu_sort);
         mBinding.actionbar.setPopupMenuProvider((iconMenuId, anchorView) -> {
@@ -62,6 +64,8 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             return null;
         });
         mBinding.setTotal(mModel.getMarketTotal());
+
+        mBinding.ivEditTotal.setOnClickListener(v -> editMarketTotal());
     }
 
     private void editMarketGross() {
@@ -74,6 +78,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         switch (requestCode) {
             case REQUEST_EDIT:
+                mModel.onMarketGrossChanged();
                 mModel.loadMovie(getMovieId());
                 break;
         }
@@ -114,6 +119,9 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
     @Override
     protected void initData() {
         mModel.movieObserver.observe(this, movie -> {
+            if (movie.getIsReal() == 1) {
+                mBinding.ivEditTotal.setVisibility(View.GONE);
+            }
             if (TextUtils.isEmpty(movie.getSubName())) {
                 mBinding.actionbar.setTitle(movie.getName());
             }
@@ -185,6 +193,21 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             return false;
         });
         menu.show();
+    }
+
+    private void editMarketTotal() {
+        if (mModel.movieObserver.getValue().getIsReal() == AppConstants.MOVIE_REAL) {
+            showMessageShort("Real movie didn't support to be changed");
+            return;
+        }
+        EditMarketTotalFragment content = new EditMarketTotalFragment();
+        content.setMovie(mModel.movieObserver.getValue());
+        content.setOnDataChangedListener(() -> mModel.onTotalChanged());
+        DraggableDialogFragment dialog = new DraggableDialogFragment.Builder()
+                .setTitle("Total")
+                .setContentFragment(content)
+                .build();
+        dialog.show(getSupportFragmentManager(), "EditMarketTotalFragment");
     }
 
 }

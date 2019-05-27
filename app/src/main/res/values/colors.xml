@@ -17,6 +17,7 @@
     <color name="text_main">#333333</color>
     <color name="text_second">#666666</color>
     <color name="text_sub">#999999</color>
+    <color name="text_red">#f1303d</color>
 
     <color name="white">#ffffff</color>
     <color name="tab_text_focus">#FFD600</color>

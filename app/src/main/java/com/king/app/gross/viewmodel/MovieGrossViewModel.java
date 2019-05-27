@@ -7,9 +7,10 @@ import android.text.TextUtils;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.GrossDateType;
 import com.king.app.gross.conf.Region;
-import com.king.app.gross.model.StatCreator;
+import com.king.app.gross.model.gross.StatModel;
 import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.GrossStat;
@@ -59,13 +60,13 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private ChartModel chartModel;
 
-    private StatCreator statCreator;
+    private StatModel statModel;
 
     public MovieGrossViewModel(@NonNull Application application) {
         super(application);
         mDateType = GrossDateType.DAILY;
         chartModel = new ChartModel();
-        statCreator = new StatCreator();
+        statModel = new StatModel();
     }
 
     public void loadMovie(long movieId) {
@@ -115,7 +116,11 @@ public class MovieGrossViewModel extends BaseViewModel {
      * 统计movie_stat表里的数据
      */
     public void statistic() {
-        statCreator.statisticMovie(mMovie)
+        // virtual movie重新计算world wide
+        if (AppConstants.MOVIE_VIRTUAL == mMovie.getIsReal()) {
+            statModel.statWorldWide(mMovie);
+        }
+        statModel.statisticMovie(mMovie)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<GrossStat>() {

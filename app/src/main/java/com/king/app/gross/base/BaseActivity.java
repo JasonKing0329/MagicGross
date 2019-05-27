@@ -31,19 +31,17 @@ public abstract class BaseActivity extends AppCompatActivity {
         //also prevent from system screenshot
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
 
-        if (updateStatusBarColor()) {
-            ScreenUtils.setStatusBarColor(this, getResources().getColor(R.color.status_bar_bg));
-        }
+        updateStatusBarColor();
 
         super.onCreate(savedInstanceState);
     }
 
     /**
-     * 仅LoginActivity不应用，单独覆写
+     * 子类可单独覆写
      * @return
      */
-    protected boolean updateStatusBarColor() {
-        return true;
+    protected void updateStatusBarColor() {
+        ScreenUtils.setStatusBarColor(this, getResources().getColor(R.color.status_bar_bg));
     }
 
     protected abstract int getContentView();

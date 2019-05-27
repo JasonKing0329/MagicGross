@@ -12,8 +12,10 @@ import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.Region;
+import com.king.app.gross.model.gross.StatModel;
 import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
+import com.king.app.gross.model.entity.GrossStat;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.http.mojo.MojoClient;
@@ -54,9 +56,12 @@ public class ParseMojoViewModel extends BaseViewModel {
 
     private Gross leftGross;
 
+    private StatModel statModel;
+
     public ParseMojoViewModel(@NonNull Application application) {
         super(application);
         mojoParser = new MojoParser();
+        statModel = new StatModel();
     }
 
     public void loadDefaultData(Movie movie) {
@@ -95,6 +100,7 @@ public class ParseMojoViewModel extends BaseViewModel {
                     public void onNext(Boolean result) {
                         loadingObserver.setValue(false);
                         notifyDailyDataChanged.setValue(true);
+                        statistic();
                         isDailyAcquired.set(View.VISIBLE);
                     }
 
@@ -224,7 +230,10 @@ public class ParseMojoViewModel extends BaseViewModel {
         }
         gross.setGross(mojoDefaultBean.getWorldwide());
         getDaoSession().getGrossDao().insertOrReplace(gross);
-        
+        getDaoSession().getGrossDao().detachAll();
+
+        statistic();
+
         messageObserver.setValue("Success");
         notifyTotalDataChanged.setValue(true);
     }
@@ -268,9 +277,42 @@ public class ParseMojoViewModel extends BaseViewModel {
 
     public void confirmInsertLeft() {
         getDaoSession().getGrossDao().insertOrReplace(leftGross);
+        getDaoSession().getGrossDao().detachAll();
+        statistic();
 
         messageObserver.setValue("Success");
         // 通知daily数据变化
         notifyDailyDataChanged.setValue(true);
     }
+
+    /**
+     * 统计movie_stat表里的数据
+     */
+    public void statistic() {
+        statModel.statisticMovie(mMovie)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<GrossStat>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(GrossStat grossStat) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
 }

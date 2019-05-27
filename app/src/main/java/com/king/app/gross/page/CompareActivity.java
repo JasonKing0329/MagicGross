@@ -147,8 +147,8 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
     }
 
     private void showMoviePage(Movie data) {
-        Intent intent = new Intent().setClass(this, MovieGrossActivity.class);
-        intent.putExtra(MovieGrossActivity.EXTRA_MOVIE_ID, data.getId());
+        Intent intent = new Intent().setClass(this, MovieActivity.class);
+        intent.putExtra(MovieActivity.EXTRA_MOVIE_ID, data.getId());
         startActivity(intent);
     }
 

@@ -63,16 +63,40 @@
         <item name="android:layout_height">50dp</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:background">@drawable/ripple_bg_white</item>
     </style>
 
-    <style name="TvMovieParamTitle">
+    <style name="TvMovieTitleBase">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginTop">16dp</item>
         <item name="android:textSize">18dp</item>
         <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="TvMovieParamTitle" parent="TvMovieTitleBase">
+        <item name="android:layout_marginTop">16dp</item>
+    </style>
+
+    <style name="SeasonTheme" parent="CustomActionBarTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">#eeeeee</item>
+        <item name="android:actionMenuTextColor">@color/white</item>
+    </style>
+
+    <!--设置以下内容使MovieActivity页面的head图片延伸到系统状态栏下，使系统通知图标浮于图片之上
+    由于BaseActivity设置了status bar背景颜色，所以MovieActivity里要取消父类实现
+    另外，这样设置会让页面布局整体向上平移系统状态栏的高度，该页面又使用了coordinatelayout结合appbarlayout的效果，
+    为了让TitleBar不与系统通知图标重叠，在xml里对TitleBar设置一个marginTop就可以达到只将图片平移上去的效果-->
+    <style name="OverStatusBarTheme" parent="CustomActionBarTheme">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
 </resources>

@@ -37,14 +37,6 @@ public abstract class MvvmActivity<T extends ViewDataBinding, VM extends BaseVie
         initData();
     }
 
-    /**
-     * 仅LoginActivity不应用，单独覆写
-     * @return
-     */
-    protected boolean updateStatusBarColor() {
-        return true;
-    }
-
     protected abstract VM createViewModel();
 
     protected abstract void initData();

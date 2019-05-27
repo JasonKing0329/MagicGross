@@ -10,7 +10,7 @@ import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.FragmentEditMovieBinding;
-import com.king.app.gross.model.StatCreator;
+import com.king.app.gross.model.gross.StatModel;
 import com.king.app.gross.model.entity.GrossStat;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.setting.SettingProperty;
@@ -181,7 +181,7 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         }
         else {
             // 可能修改了汇率，重新统计
-            new StatCreator().statisticMovieInstant(mEditMovie);
+            new StatModel().statisticMovieInstant(mEditMovie);
         }
 
         if (onConfirmListener == null) {

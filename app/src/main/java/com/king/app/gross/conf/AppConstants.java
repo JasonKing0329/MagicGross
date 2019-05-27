@@ -43,6 +43,11 @@ public class AppConstants {
     public static final String TAG_YEAR_ALL = "全部";
     public static final String TAG_YEAR_AFTER = "以后";
 
+    public static final long MARKET_TOTAL_ID = 0;
+
+    public static final String MARKET_UNDISCLOSED_NAME = "Undisclosed";
+    public static final long MARKET_UNDISCLOSED_ID = -1;
+
     public static final int COMPARE_TYPE_DAILY = 0;
     public static final int COMPARE_TYPE_ACCU = 1;
 

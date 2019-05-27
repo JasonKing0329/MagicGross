@@ -12,9 +12,8 @@ import com.king.app.gross.conf.RankType;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.FragmentRankBinding;
 import com.king.app.gross.model.entity.Movie;
-import com.king.app.gross.page.EditMarketGrossActivity;
 import com.king.app.gross.page.MarketRankActivity;
-import com.king.app.gross.page.MovieGrossActivity;
+import com.king.app.gross.page.MovieActivity;
 import com.king.app.gross.page.adapter.RankItemAdapter;
 import com.king.app.gross.page.adapter.TagRegionAdapter;
 import com.king.app.gross.viewmodel.RankViewModel;
@@ -97,8 +96,8 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
     }
 
     private void onClickMovie(Movie movie) {
-        Intent intent = new Intent().setClass(getContext(), MovieGrossActivity.class);
-        intent.putExtra(MovieGrossActivity.EXTRA_MOVIE_ID, movie.getId());
+        Intent intent = new Intent().setClass(getContext(), MovieActivity.class);
+        intent.putExtra(MovieActivity.EXTRA_MOVIE_ID, movie.getId());
         startActivity(intent);
     }
 }

@@ -13,7 +13,7 @@ import com.king.app.gross.conf.GrossDateType;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.ActivityMovieGrossBinding;
 import com.king.app.gross.model.entity.Gross;
-import com.king.app.gross.page.gross.GrossTabFragment;
+import com.king.app.gross.page.gross.GrossSimpleFragment;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
 import com.king.app.gross.view.dialog.content.EditGrossFragment;
 import com.king.app.gross.view.dialog.content.ParseMojoFragment;
@@ -29,9 +29,11 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
 
     public static final String EXTRA_MOVIE_ID = "movie_id";
 
+    public static final String EXTRA_MOVIE_REGION = "movie_region";
+
     private DraggableDialogFragment editDialog;
 
-    private GrossTabFragment ftTab;
+    private GrossSimpleFragment ftDaily;
 
     @Override
     protected int getContentView() {
@@ -47,10 +49,7 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
                     editGross(null);
                     break;
                 case R.id.menu_chart:
-                    ftTab.toggleChart();
-                    break;
-                case R.id.menu_market:
-                    showMarketPage();
+                    ftDaily.toggleChart();
                     break;
                 case R.id.menu_fetch:
                     if (mModel.getMovie().getIsReal() == AppConstants.MOVIE_VIRTUAL) {
@@ -82,15 +81,15 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
             switch (menuItem.getItemId()) {
                 case R.id.menu_date_daily:
                     mModel.setDateType(GrossDateType.DAILY);
-                    ftTab.onDateTypeChanged();
+                    ftDaily.onDateTypeChanged();
                     break;
                 case R.id.menu_date_weekend:
                     mModel.setDateType(GrossDateType.WEEKEND);
-                    ftTab.onDateTypeChanged();
+                    ftDaily.onDateTypeChanged();
                     break;
                 case R.id.menu_date_weekly:
                     mModel.setDateType(GrossDateType.WEEKLY);
-                    ftTab.onDateTypeChanged();
+                    ftDaily.onDateTypeChanged();
                     break;
             }
             return true;
@@ -111,9 +110,9 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
 
         mModel.editObserver.observe(this, gross -> editGross(gross));
 
-        ftTab = new GrossTabFragment();
+        ftDaily = GrossSimpleFragment.newInstance(getIntent().getIntExtra(EXTRA_MOVIE_REGION, 0));
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.group_ft, ftTab, "GrossTabFragment")
+                .replace(R.id.group_ft, ftDaily, "GrossSimpleFragment")
                 .commit();
     }
 
@@ -122,7 +121,6 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
         content.setMovie(mModel.getMovie());
         content.setOnDailyDataChangedListener(() -> {
             mModel.loadRegion(Region.NA);
-            mModel.statistic();
         });
         content.setOnTotalDataChangedListener(() -> mModel.statistic());
         DraggableDialogFragment editDialog = new DraggableDialogFragment.Builder()
@@ -159,9 +157,4 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
         return getIntent().getLongExtra(EXTRA_MOVIE_ID, -1);
     }
 
-    private void showMarketPage() {
-        Intent intent = new Intent().setClass(this, MarketActivity.class);
-        intent.putExtra(MarketActivity.EXTRA_MOVIE_ID, getMovieId());
-        startActivity(intent);
-    }
 }
