@@ -92,6 +92,7 @@ public class MovieActivity extends MvvmActivity<ActivityMovieBinding, MovieViewM
     }
 
     private void editMovie(Movie movie) {
+        final double oldExchange = movie.getUsToYuan();
         EditMovieFragment content = new EditMovieFragment();
         content.setEditMovie(movie);
         content.setOnConfirmListener(new EditMovieFragment.OnConfirmListener() {
@@ -102,7 +103,12 @@ public class MovieActivity extends MvvmActivity<ActivityMovieBinding, MovieViewM
 
             @Override
             public boolean onMovieUpdated(Movie movie) {
-                mModel.loadMovie(getMovieId());
+                if (movie.getUsToYuan() != oldExchange && movie.getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+                    mModel.statVirtualChn();
+                }
+                else {
+                    mModel.loadMovie(getMovieId());
+                }
                 return true;
             }
         });

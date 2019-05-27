@@ -16,6 +16,7 @@ import com.king.app.gross.model.entity.GrossStat;
 import com.king.app.gross.model.entity.GrossStatDao;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.model.gross.StatModel;
 import com.king.app.gross.utils.FormatUtil;
 
 import io.reactivex.Observable;
@@ -166,5 +167,33 @@ public class MovieViewModel extends BaseViewModel {
             grossMarket.set(marketCount + " Markets");
             observer.onNext(movie);
         };
+    }
+
+    public void statVirtualChn() {
+        new StatModel().statVirtualChn(movieObserver.getValue())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<GrossStat>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(GrossStat stat) {
+                        loadMovie(movieObserver.getValue().getId());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        messageObserver.setValue(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 }

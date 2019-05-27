@@ -9,10 +9,11 @@ import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.GrossStat;
 import com.king.app.gross.model.entity.GrossStatDao;
+import com.king.app.gross.model.entity.Market;
+import com.king.app.gross.model.entity.MarketDao;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
-import com.king.app.gross.model.gross.DailyModel;
 import com.king.app.gross.utils.DebugLog;
 
 import org.greenrobot.greendao.database.Database;
@@ -128,35 +129,104 @@ public class StatModel {
         });
     }
 
-    public void statOversea(Movie movie) {
-        long[] markets = sumMarket(movie);
-        long undisOpenSum = 0;
-        long undisSum = 0;
-        MarketGross undisclosed = getUndisclosed(movie);
-        if (undisclosed != null) {
-            undisOpenSum = undisclosed.getOpening();
-            undisSum = undisclosed.getGross();
-        }
-        insertOversea(movie, markets[0], markets[1], undisOpenSum, undisSum);
+    /**
+     * chn变化：market变化、oversea变化、world wide变化、gross_stat变化
+     * @param movie
+     * @return
+     */
+    public Observable<GrossStat> statVirtualChn(Movie movie) {
+        DebugLog.e("");
+        return Observable.create(e -> {
+            DailyModel model = new DailyModel(movie);
+            long chnOpen = model.queryOpeningGross(Region.CHN.ordinal());
+            long chn = model.queryTotalGross(Region.CHN.ordinal());
+
+            // market变化
+            convertChnMarketGross(movie, chnOpen, chn);
+
+            // oversea变化
+            long[] markets = sumMarket(movie);
+            long undisOpenSum = 0;
+            long undisSum = 0;
+            MarketGross undisclosed = getUndisclosed(movie);
+            if (undisclosed != null) {
+                undisOpenSum = undisclosed.getOpening();
+                undisSum = undisclosed.getGross();
+            }
+            insertOversea(movie, markets[0], markets[1], undisOpenSum, undisSum);
+
+            // world wide变化
+            long naOpen = model.queryOpeningGross(Region.NA.ordinal());
+            long na = model.queryTotalGross(Region.NA.ordinal());
+            insertWorld(movie, markets[0], markets[1], undisOpenSum, undisSum, naOpen, na);
+
+            // gross_stat变化
+            GrossStat stat = statisticMovieInstant(movie);
+
+            e.onNext(stat);
+        });
     }
 
-    public void statWorldWide(Movie movie) {
-        long[] markets = sumMarket(movie);
-        long undisOpenSum = 0;
-        long undisSum = 0;
-        MarketGross undisclosed = getUndisclosed(movie);
-        if (undisclosed != null) {
-            undisOpenSum = undisclosed.getOpening();
-            undisSum = undisclosed.getGross();
-        }
-        long naOpen = 0;
-        long na = 0;
-        GrossStat stat = getGrossStat(movie);
-        if (stat != null) {
-            naOpen = stat.getUsOpening();
-            na = stat.getUs();
-        }
-        insertWorld(movie, markets[0], markets[1], undisOpenSum, undisSum, naOpen, na);
+    /**
+     * na变化：world wide变化、gross_stat变化
+     * @param movie
+     * @return
+     */
+    public Observable<GrossStat> statVirtualNa(Movie movie) {
+        DebugLog.e("");
+        return Observable.create(e -> {
+            DailyModel model = new DailyModel(movie);
+
+            // world wide变化
+            long[] markets = sumMarket(movie);
+            long undisOpenSum = 0;
+            long undisSum = 0;
+            MarketGross undisclosed = getUndisclosed(movie);
+            if (undisclosed != null) {
+                undisOpenSum = undisclosed.getOpening();
+                undisSum = undisclosed.getGross();
+            }
+            long naOpen = model.queryOpeningGross(Region.NA.ordinal());
+            long na = model.queryTotalGross(Region.NA.ordinal());
+            insertWorld(movie, markets[0], markets[1], undisOpenSum, undisSum, naOpen, na);
+
+            // gross_stat变化
+            GrossStat stat = statisticMovieInstant(movie);
+
+            e.onNext(stat);
+        });
+    }
+
+    /**
+     * market变化：oversea变化，world wide变化、gross_stat变化
+     * @param movie
+     * @return
+     */
+    public Observable<GrossStat> statVirtualMarket(Movie movie) {
+        DebugLog.e("");
+        return Observable.create(e -> {
+            DailyModel model = new DailyModel(movie);
+            // oversea变化
+            long[] markets = sumMarket(movie);
+            long undisOpenSum = 0;
+            long undisSum = 0;
+            MarketGross undisclosed = getUndisclosed(movie);
+            if (undisclosed != null) {
+                undisOpenSum = undisclosed.getOpening();
+                undisSum = undisclosed.getGross();
+            }
+            insertOversea(movie, markets[0], markets[1], undisOpenSum, undisSum);
+
+            // world wide变化
+            long naOpen = model.queryOpeningGross(Region.NA.ordinal());
+            long na = model.queryTotalGross(Region.NA.ordinal());
+            insertWorld(movie, markets[0], markets[1], undisOpenSum, undisSum, naOpen, na);
+
+            // gross_stat变化
+            GrossStat stat = statisticMovieInstant(movie);
+
+            e.onNext(stat);
+        });
     }
 
     public long[] sumMarket(Movie movie) {
@@ -207,6 +277,7 @@ public class StatModel {
         }
         world.setGross(market + undis + na);
         grossDao.insertOrReplace(world);
+        DebugLog.e("total " + world.getGross());
 
         world = grossDao.queryBuilder()
                 .where(GrossDao.Properties.MovieId.eq(movie.getId()))
@@ -225,6 +296,7 @@ public class StatModel {
         }
         world.setGross(marketOpen + undisOpen + naOpen);
         grossDao.insertOrReplace(world);
+        DebugLog.e("opening " + world.getGross());
         grossDao.detachAll();
     }
 
@@ -247,6 +319,7 @@ public class StatModel {
         }
         oversea.setGross(market + undis);
         grossDao.insertOrReplace(oversea);
+        DebugLog.e("total " + oversea.getGross());
 
         oversea = grossDao.queryBuilder()
                 .where(GrossDao.Properties.MovieId.eq(movie.getId()))
@@ -265,7 +338,40 @@ public class StatModel {
         }
         oversea.setGross(marketOpen + undisOpen);
         grossDao.insertOrReplace(oversea);
+        DebugLog.e("opening " + oversea.getGross());
         grossDao.detachAll();
     }
 
+    private MarketGross convertChnMarketGross(Movie movie, long chnOpen, long chn) {
+        Market market = MApplication.getInstance().getDaoSession().getMarketDao().queryBuilder()
+                .where(MarketDao.Properties.Name.eq("China"))
+                .build().unique();
+        if (market == null) {
+            market = new Market();
+            market.setName("China");
+            market.setNameChn("中国");
+            market.setContinent("Asia");
+            MApplication.getInstance().getDaoSession().getMarketDao().insert(market);
+            MApplication.getInstance().getDaoSession().getMarketDao().detachAll();
+        }
+
+        MarketGrossDao marketGrossDao = MApplication.getInstance().getDaoSession().getMarketGrossDao();
+        MarketGross gross = marketGrossDao.queryBuilder()
+                .where(MarketGrossDao.Properties.MovieId.eq(movie.getId()))
+                .where(MarketGrossDao.Properties.MarketId.eq(market.getId()))
+                .build().unique();
+        if (gross == null) {
+            gross = new MarketGross();
+            gross.setMovieId(movie.getId());
+            gross.setMarketId(market.getId());
+            gross.setDebut(movie.getDebut());
+        }
+        gross.setOpening((long) (chnOpen / movie.getUsToYuan()));
+        gross.setGross((long) (chn / movie.getUsToYuan()));
+        marketGrossDao.insertOrReplace(gross);
+        marketGrossDao.detachAll();
+
+        DebugLog.e("opening " + gross.getOpening() + ", total " + gross.getGross());
+        return gross;
+    }
 }

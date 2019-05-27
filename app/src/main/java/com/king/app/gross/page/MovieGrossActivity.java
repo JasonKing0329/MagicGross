@@ -1,7 +1,6 @@
 package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -106,14 +105,18 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
     protected void initData() {
         mModel.titleText.observe(this, s -> mBinding.actionbar.setTitle(s));
 
-        mModel.loadMovie(getMovieId());
+        mModel.loadMovie(getMovieId(), getRegion());
 
         mModel.editObserver.observe(this, gross -> editGross(gross));
 
-        ftDaily = GrossSimpleFragment.newInstance(getIntent().getIntExtra(EXTRA_MOVIE_REGION, 0));
+        ftDaily = GrossSimpleFragment.newInstance(getRegion());
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.group_ft, ftDaily, "GrossSimpleFragment")
                 .commit();
+    }
+
+    private int getRegion(){
+        return getIntent().getIntExtra(EXTRA_MOVIE_REGION, 0);
     }
 
     private void parseMojo() {

@@ -50,6 +50,8 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     private Movie mMovie;
 
+    private int mRegion;
+
     private GrossDateType mDateType;
 
     private DailyModel dailyModel;
@@ -69,7 +71,8 @@ public class MovieGrossViewModel extends BaseViewModel {
         statModel = new StatModel();
     }
 
-    public void loadMovie(long movieId) {
+    public void loadMovie(long movieId, int region) {
+        mRegion = region;
         try {
             mMovie = MApplication.getInstance().getDaoSession().getMovieDao()
                     .queryBuilder()
@@ -116,11 +119,19 @@ public class MovieGrossViewModel extends BaseViewModel {
      * 统计movie_stat表里的数据
      */
     public void statistic() {
-        // virtual movie重新计算world wide
-        if (AppConstants.MOVIE_VIRTUAL == mMovie.getIsReal()) {
-            statModel.statWorldWide(mMovie);
+        Observable<GrossStat> observable;
+        if (AppConstants.MOVIE_REAL == mMovie.getIsReal()) {
+            observable = statModel.statisticMovie(mMovie);
         }
-        statModel.statisticMovie(mMovie)
+        else {
+            if (mRegion == Region.CHN.ordinal()) {
+                observable = statModel.statVirtualChn(mMovie);
+            }
+            else {
+                observable = statModel.statVirtualNa(mMovie);
+            }
+        }
+        observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<GrossStat>() {
@@ -131,7 +142,6 @@ public class MovieGrossViewModel extends BaseViewModel {
 
                     @Override
                     public void onNext(GrossStat grossStat) {
-
                     }
 
                     @Override
@@ -568,6 +578,7 @@ public class MovieGrossViewModel extends BaseViewModel {
         GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
         dao.delete(gross);
         dao.detachAll();
+        statistic();
         onGrossRegionChanged(gross.getRegion());
     }
 

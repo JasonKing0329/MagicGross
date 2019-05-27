@@ -133,7 +133,11 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             if (adapter == null || mBinding.rvMarkets.getAdapter() == groupAdapter) {
                 adapter = new MarketGrossAdapter();
                 adapter.setList(list);
-                adapter.setOnItemClickListener((view, position, data) -> editMarketGross(position, data));
+                adapter.setOnItemClickListener((view, position, data) -> {
+                    if (mModel.enableEditMarket(data)) {
+                        editMarketGross(position, data);
+                    }
+                });
                 mBinding.rvMarkets.setAdapter(adapter);
             }
             else {

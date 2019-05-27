@@ -9,12 +9,12 @@ import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.AppConstants;
-import com.king.app.gross.model.gross.StatModel;
 import com.king.app.gross.model.entity.GrossStat;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
+import com.king.app.gross.model.gross.StatModel;
 import com.king.app.gross.model.http.mojo.MojoClient;
 import com.king.app.gross.model.http.mojo.MojoParser;
 import com.king.app.gross.page.bean.ContinentGross;
@@ -22,7 +22,6 @@ import com.king.app.gross.page.bean.MarketTotal;
 import com.king.app.gross.utils.DebugLog;
 import com.king.app.gross.utils.FormatUtil;
 
-import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
@@ -396,6 +395,15 @@ public class MojoViewModel extends BaseViewModel {
         onMarketGrossChanged();
     }
 
+    public boolean enableEditMarket(MarketGross data) {
+        if (movieObserver.getValue().getIsReal() == AppConstants.MOVIE_VIRTUAL &&
+                data.getMarket().getName().equals("China")) {
+            messageObserver.setValue("You must modify China data in daily page!");
+            return false;
+        }
+        return true;
+    }
+
     private class MarketGrossComparator implements Comparator<MarketGross> {
 
         @Override
@@ -438,16 +446,17 @@ public class MojoViewModel extends BaseViewModel {
     public void onMarketGrossChanged() {
         if (movieObserver.getValue().getIsReal() == AppConstants.MOVIE_VIRTUAL) {
             marketChange()
+                    .flatMap(result -> statModel.statVirtualMarket(movieObserver.getValue()))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
-                    .subscribe(new Observer<Boolean>() {
+                    .subscribe(new Observer<GrossStat>() {
                         @Override
                         public void onSubscribe(Disposable d) {
                             addDisposable(d);
                         }
 
                         @Override
-                        public void onNext(Boolean aBoolean) {
+                        public void onNext(GrossStat aBoolean) {
 
                         }
 
@@ -484,10 +493,6 @@ public class MojoViewModel extends BaseViewModel {
 
             marketTotal.setGross(FormatUtil.formatUsGross(marketSum + undisSum));
             marketTotal.setOpening(FormatUtil.formatUsGross(marketOpenSum + undisOpenSum));
-
-            statModel.statOversea(movieObserver.getValue());
-            statModel.statWorldWide(movieObserver.getValue());
-            statModel.statisticMovieInstant(movieObserver.getValue());
             e.onNext(true);
         });
     }

@@ -11,6 +11,7 @@ import android.view.View;
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConfig;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.gross.StatModel;
 import com.king.app.gross.model.entity.Gross;
@@ -23,6 +24,7 @@ import com.king.app.gross.model.http.mojo.MojoParser;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.MojoDefaultBean;
 
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -289,7 +291,14 @@ public class ParseMojoViewModel extends BaseViewModel {
      * 统计movie_stat表里的数据
      */
     public void statistic() {
-        statModel.statisticMovie(mMovie)
+        Observable<GrossStat> observable;
+        if (mMovie.getIsReal() == AppConstants.MOVIE_REAL) {
+            observable = statModel.statisticMovie(mMovie);
+        }
+        else {
+            observable = statModel.statVirtualNa(mMovie);
+        }
+        observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<GrossStat>() {
