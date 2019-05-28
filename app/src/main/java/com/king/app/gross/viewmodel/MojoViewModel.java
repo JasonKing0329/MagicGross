@@ -296,7 +296,7 @@ public class MojoViewModel extends BaseViewModel {
         return Observable.create(e -> {
             QueryBuilder<MarketGross> builder = MApplication.getInstance().getDaoSession().getMarketGrossDao().queryBuilder();
             builder.where(MarketGrossDao.Properties.MovieId.eq(movieObserver.getValue().getId()));
-            builder.where(MarketGrossDao.Properties.MarketId.notEq(0));
+            builder.where(MarketGrossDao.Properties.MarketId.gt(AppConstants.MARKET_TOTAL_ID));
             if (type == AppConstants.MARKET_GROSS_SORT_TOTAL) {
                 builder.orderDesc(MarketGrossDao.Properties.Gross);
             }
