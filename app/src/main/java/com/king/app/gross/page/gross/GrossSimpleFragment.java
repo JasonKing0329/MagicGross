@@ -11,11 +11,14 @@ import com.king.app.gross.base.IFragmentHolder;
 import com.king.app.gross.conf.GrossDateType;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.FragmentGrossSimpleBinding;
+import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.gross.ChartModel;
 import com.king.app.gross.page.adapter.GrossSimpleAdapter;
 import com.king.app.gross.page.adapter.GrossWeekAdapter;
 import com.king.app.gross.utils.DebugLog;
 import com.king.app.gross.utils.ListUtil;
+import com.king.app.gross.view.dialog.DraggableDialogFragment;
+import com.king.app.gross.view.dialog.content.EditGrossFragment;
 import com.king.app.gross.view.widget.chart.adapter.IAxis;
 import com.king.app.gross.view.widget.chart.adapter.LineChartAdapter;
 import com.king.app.gross.view.widget.chart.adapter.LineData;
@@ -43,6 +46,8 @@ public class GrossSimpleFragment extends BaseBindingFragment<FragmentGrossSimple
     private Region mRegion;
 
     private GrossDateType mDateType;
+
+    private DraggableDialogFragment editDialog;
 
     public static GrossSimpleFragment newInstance(int region) {
         GrossSimpleFragment fragment = new GrossSimpleFragment();
@@ -79,6 +84,10 @@ public class GrossSimpleFragment extends BaseBindingFragment<FragmentGrossSimple
 
         DebugLog.e("region " + mRegion);
         mModel.grossObserver.observe(this, grossPage -> onReceiveData(grossPage));
+        mModel.forceScrollTo.observe(this, position -> {
+            LinearLayoutManager layoutManager = (LinearLayoutManager) mBinding.rvGross.getLayoutManager();
+            layoutManager.scrollToPositionWithOffset(position, 0);
+        });
         mModel.loadRegion(mRegion);
     }
 
@@ -213,8 +222,51 @@ public class GrossSimpleFragment extends BaseBindingFragment<FragmentGrossSimple
 
         adapter = new GrossSimpleAdapter();
         adapter.setList(grossPage.list);
-        adapter.setOnItemClickListener((view, position, data) -> mModel.editGross(data));
+        adapter.setOnItemClickListener((view, position, data) -> editGross(position, data.getBean()));
         mBinding.rvGross.setAdapter(adapter);
+    }
+
+    public void addNewGross() {
+        editGross(-1, null);
+    }
+
+    public void editGross(int position, Gross gross) {
+        EditGrossFragment content = new EditGrossFragment();
+        content.setGross(gross);
+        content.setMovie(mModel.getMovie());
+        content.setOnGrossListener(gross1 -> {
+            if (position == -1) {
+                // 结束后滚动到底部
+                mModel.onGrossChanged(gross1, mModel.getGrossSize());
+            }
+            else {
+                // 结束后滚动到当前状态位置
+                LinearLayoutManager manager = (LinearLayoutManager) mBinding.rvGross.getLayoutManager();
+                int scroll = manager.findFirstVisibleItemPosition();
+                mModel.onGrossChanged(gross1, scroll);
+            }
+        });
+        editDialog = new DraggableDialogFragment.Builder()
+                .setTitle("Gross")
+                .setShowDelete(gross != null)
+                .setOnDeleteListener(view -> {
+                    // 结束后滚动到当前状态位置
+                    LinearLayoutManager manager = (LinearLayoutManager) mBinding.rvGross.getLayoutManager();
+                    int scroll = manager.findFirstVisibleItemPosition();
+                    warningDelete(gross, scroll);
+                })
+                .setContentFragment(content)
+                .build();
+        editDialog.show(getChildFragmentManager(), "EditGross");
+    }
+
+    private void warningDelete(Gross gross, int scroll) {
+        showConfirmCancelMessage("Are you sure to delete?"
+                , (dialogInterface, i) -> {
+                    mModel.deleteGross(gross, scroll);
+                    editDialog.dismissAllowingStateLoss();
+                }
+                , null);
     }
 
     public void onDateTypeChanged() {

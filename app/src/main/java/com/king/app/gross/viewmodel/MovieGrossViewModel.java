@@ -22,6 +22,7 @@ import com.king.app.gross.model.gross.WeekendModel;
 import com.king.app.gross.model.gross.WeeklyModel;
 import com.king.app.gross.utils.DebugLog;
 import com.king.app.gross.utils.FormatUtil;
+import com.king.app.gross.utils.ListUtil;
 import com.king.app.gross.viewmodel.bean.GrossPage;
 import com.king.app.gross.viewmodel.bean.SimpleGross;
 import com.king.app.gross.viewmodel.bean.WeekGross;
@@ -46,8 +47,6 @@ public class MovieGrossViewModel extends BaseViewModel {
 
     public MutableLiveData<GrossPage> grossObserver = new MutableLiveData<>();
 
-    public MutableLiveData<Gross> editObserver = new MutableLiveData<>();
-
     private Movie mMovie;
 
     private int mRegion;
@@ -63,6 +62,10 @@ public class MovieGrossViewModel extends BaseViewModel {
     private ChartModel chartModel;
 
     private StatModel statModel;
+
+    private int scrollPosition;
+    private boolean enableScroll;
+    public MutableLiveData<Integer> forceScrollTo = new MutableLiveData<>();
 
     public MovieGrossViewModel(@NonNull Application application) {
         super(application);
@@ -98,21 +101,18 @@ public class MovieGrossViewModel extends BaseViewModel {
         return mMovie;
     }
 
-    public void onGrossChanged(Gross gross) {
-        DebugLog.e("region " + gross.getRegion());
-        // oversea与worldwide的编辑事件只针对于is total的数据，不影响其他部分的运算
-        if (gross.getRegion() == Region.OVERSEA.ordinal()) {
-            loadOversea();
-        }
-        else if (gross.getRegion() == Region.WORLDWIDE.ordinal()) {
-            loadWorldWide();
-        }
-        else {
-            onGrossRegionChanged(gross.getRegion());
-        }
+    public int getGrossSize() {
+        return grossObserver.getValue() == null ? 0:ListUtil.getSize(grossObserver.getValue().list);
+    }
 
+    public void onGrossChanged(Gross gross, int scrollPosition) {
+        DebugLog.e("region " + gross.getRegion());
         // 重新统计movie_stat表里的数据
         statistic();
+
+        enableScroll = true;
+        this.scrollPosition = scrollPosition;
+        onGrossRegionChanged(gross.getRegion());
     }
 
     /**
@@ -159,17 +159,9 @@ public class MovieGrossViewModel extends BaseViewModel {
     public void onGrossRegionChanged(int region) {
         if (region == Region.NA.ordinal()) {
             loadRegion(Region.NA);
-            loadWorldWide();
         }
         else if (region == Region.CHN.ordinal()) {
             loadRegion(Region.CHN);
-            loadOversea();
-            loadWorldWide();
-        }
-        else if (region == Region.OVERSEA_NO_CHN.ordinal()) {
-            loadRegion(Region.OVERSEA_NO_CHN);
-            loadOversea();
-            loadWorldWide();
         }
     }
 
@@ -180,78 +172,14 @@ public class MovieGrossViewModel extends BaseViewModel {
     public void loadRegion(Region region) {
         switch (mDateType) {
             case WEEKEND:
-                loadWeekend(region);
+                loadWeekendRegion(region);
                 break;
             case WEEKLY:
-                loadWeekly(region);
+                loadWeeklyRegion(region);
                 break;
             default:
-                loadDaily(region);
+                loadDailyRegion(region);
                 break;
-        }
-    }
-
-    private void loadOversea() {
-        switch (mDateType) {
-            case WEEKEND:
-                loadWeekendOversea();
-                break;
-            case WEEKLY:
-                loadWeeklyOversea();
-                break;
-            default:
-                loadDailyOversea();
-                break;
-        }
-    }
-
-    private void loadWorldWide() {
-        switch (mDateType) {
-            case WEEKEND:
-                loadWeekendWorldWide();
-                break;
-            case WEEKLY:
-                loadWeeklyWorldWide();
-                break;
-            default:
-                loadDailyWorldWide();
-                break;
-        }
-    }
-
-    private void loadDaily(Region region) {
-        if (region == Region.OVERSEA) {
-            loadDailyOversea();
-        }
-        else if (region == Region.WORLDWIDE) {
-            loadDailyWorldWide();
-        }
-        else {
-            loadDailyRegion(region);
-        }
-    }
-
-    public void loadWeekly(Region region) {
-        if (region == Region.OVERSEA) {
-            loadWeeklyOversea();
-        }
-        else if (region == Region.WORLDWIDE) {
-            loadWeeklyWorldWide();
-        }
-        else {
-            loadWeeklyRegion(region);
-        }
-    }
-
-    public void loadWeekend(Region region) {
-        if (region == Region.OVERSEA) {
-            loadWeekendOversea();
-        }
-        else if (region == Region.WORLDWIDE) {
-            loadWeekendWorldWide();
-        }
-        else {
-            loadWeekendRegion(region);
         }
     }
 
@@ -326,6 +254,13 @@ public class MovieGrossViewModel extends BaseViewModel {
                     @Override
                     public void onNext(GrossPage page) {
                         grossObserver.setValue(page);
+
+                        if (enableScroll) {
+                            // 滚动后马上重置enableScroll
+                            enableScroll = false;
+
+                            forceScrollTo.setValue(scrollPosition);
+                        }
                     }
 
                     @Override
@@ -567,14 +502,10 @@ public class MovieGrossViewModel extends BaseViewModel {
                 });
     }
 
-    public void editGross(SimpleGross data) {
-        // na, chn, oversea_no_chn with day by day shouldn't be edited
-        if (data.getBean() != null) {
-            editObserver.setValue(data.getBean());
-        }
-    }
+    public void deleteGross(Gross gross, int scrollToPosition) {
+        enableScroll = true;
+        this.scrollPosition = scrollToPosition;
 
-    public void deleteGross(Gross gross) {
         GrossDao dao = MApplication.getInstance().getDaoSession().getGrossDao();
         dao.delete(gross);
         dao.detachAll();

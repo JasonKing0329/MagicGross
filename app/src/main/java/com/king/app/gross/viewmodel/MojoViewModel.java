@@ -64,6 +64,10 @@ public class MojoViewModel extends BaseViewModel {
         statModel = new StatModel();
     }
 
+    public boolean isGroupType() {
+        return groupType == TYPE_GROUP;
+    }
+
     public void loadMovie(long movieId) {
         try {
             Movie movie = MApplication.getInstance().getDaoSession().getMovieDao()

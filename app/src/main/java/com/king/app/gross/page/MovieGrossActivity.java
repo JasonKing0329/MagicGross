@@ -11,10 +11,8 @@ import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.GrossDateType;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.ActivityMovieGrossBinding;
-import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.page.gross.GrossSimpleFragment;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
-import com.king.app.gross.view.dialog.content.EditGrossFragment;
 import com.king.app.gross.view.dialog.content.ParseMojoFragment;
 import com.king.app.gross.viewmodel.MovieGrossViewModel;
 
@@ -30,8 +28,6 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
 
     public static final String EXTRA_MOVIE_REGION = "movie_region";
 
-    private DraggableDialogFragment editDialog;
-
     private GrossSimpleFragment ftDaily;
 
     @Override
@@ -45,7 +41,7 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
         mBinding.actionbar.setOnMenuItemListener(menuId -> {
             switch (menuId) {
                 case R.id.menu_add:
-                    editGross(null);
+                    ftDaily.addNewGross();
                     break;
                 case R.id.menu_chart:
                     ftDaily.toggleChart();
@@ -107,8 +103,6 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
 
         mModel.loadMovie(getMovieId(), getRegion());
 
-        mModel.editObserver.observe(this, gross -> editGross(gross));
-
         ftDaily = GrossSimpleFragment.newInstance(getRegion());
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.group_ft, ftDaily, "GrossSimpleFragment")
@@ -131,29 +125,6 @@ public class MovieGrossActivity extends MvvmActivity<ActivityMovieGrossBinding, 
                 .setContentFragment(content)
                 .build();
         editDialog.show(getSupportFragmentManager(), "EditGross");
-    }
-
-    private void editGross(Gross gross) {
-        EditGrossFragment content = new EditGrossFragment();
-        content.setGross(gross);
-        content.setMovie(mModel.getMovie());
-        content.setOnGrossListener(gross1 -> mModel.onGrossChanged(gross1));
-        editDialog = new DraggableDialogFragment.Builder()
-                .setTitle("Gross")
-                .setShowDelete(gross != null)
-                .setOnDeleteListener(view -> warningDelete(gross))
-                .setContentFragment(content)
-                .build();
-        editDialog.show(getSupportFragmentManager(), "EditGross");
-    }
-
-    private void warningDelete(Gross gross) {
-        showConfirmCancelMessage("Are you sure to delete?"
-                , (dialogInterface, i) -> {
-                    mModel.deleteGross(gross);
-                    editDialog.dismissAllowingStateLoss();
-                }
-                , null);
     }
 
     private long getMovieId() {

@@ -43,6 +43,14 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
         mBinding.actionbar.setOnMenuItemListener(menuId -> {
             switch (menuId) {
                 case R.id.menu_download:
+                    if (mModel.movieObserver.getValue().getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+                        showMessageShort("Virtual movie doesn't have Mojo data");
+                        return;
+                    }
+                    if (TextUtils.isEmpty(mModel.movieObserver.getValue().getMojoId())) {
+                        showMessageShort("Mojo id is null");
+                        return;
+                    }
                     mModel.fetchForeignData();
                     break;
                 case R.id.menu_edit:
@@ -119,7 +127,7 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
     @Override
     protected void initData() {
         mModel.movieObserver.observe(this, movie -> {
-            if (movie.getIsReal() == 1) {
+            if (movie.getIsReal() == AppConstants.MOVIE_REAL) {
                 mBinding.ivEditTotal.setVisibility(View.GONE);
             }
             if (TextUtils.isEmpty(movie.getSubName())) {
@@ -149,7 +157,11 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
             if (groupAdapter == null || mBinding.rvMarkets.getAdapter() == adapter) {
                 groupAdapter = new MarketGroupAdapter();
                 groupAdapter.setList(list);
-                groupAdapter.setOnClickItemListener((HeadChildBindingAdapter.OnClickItemListener<MarketGross>) (view, position, item) -> editMarketGross(position, item));
+                groupAdapter.setOnClickItemListener((HeadChildBindingAdapter.OnClickItemListener<MarketGross>) (view, position, item) -> {
+                    if (mModel.enableEditMarket(item)) {
+                        editMarketGross(position, item);
+                    }
+                });
                 mBinding.rvMarkets.setAdapter(groupAdapter);
             }
             else {
@@ -166,7 +178,12 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
         content.setMarketGross(gross);
         content.setOnUpdateListener(marketGross -> {
             mModel.updateMarketGross(gross);
-            adapter.notifyItemChanged(position);
+            if (mModel.isGroupType()) {
+                groupAdapter.notifyItemChanged(position);
+            }
+            else {
+                adapter.notifyItemChanged(position);
+            }
         });
         editDialog = new DraggableDialogFragment.Builder()
                 .setTitle(gross.getMarket().getName())
@@ -177,7 +194,12 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
                             , (dialogInterface, i) -> {
                                 editDialog.dismissAllowingStateLoss();
                                 mModel.removeItem(position);
-                                adapter.notifyDataSetChanged();
+                                if (mModel.isGroupType()) {
+                                    groupAdapter.notifyDataSetChanged();
+                                }
+                                else {
+                                    adapter.notifyDataSetChanged();
+                                }
                             }
                             , null);
                 })
