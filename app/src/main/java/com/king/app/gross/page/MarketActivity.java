@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.PopupMenu;
 
 import com.king.app.gross.R;
+import com.king.app.gross.base.BaseRecyclerAdapter;
 import com.king.app.gross.base.HeadChildBindingAdapter;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.conf.AppConstants;
@@ -146,6 +147,10 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
                         editMarketGross(position, data);
                     }
                 });
+                adapter.setOnItemLongClickListener((view, position, data) -> {
+                    showMarketPage(data);
+                    return true;
+                });
                 mBinding.rvMarkets.setAdapter(adapter);
             }
             else {
@@ -171,6 +176,12 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
         });
 
         mModel.loadMovie(getMovieId());
+    }
+
+    private void showMarketPage(MarketGross data) {
+        Intent intent = new Intent(this, MarketPageActivity.class);
+        intent.putExtra(MarketPageActivity.EXTRA_MARKET_ID, data.getMarketId());
+        startActivity(intent);
     }
 
     private void editMarketGross(int position, MarketGross gross) {

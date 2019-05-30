@@ -28,4 +28,11 @@ public class AppConfig {
             DEF_CONTENT, EXPORT_BASE, HISTORY_BASE, HTML_BASE
             , IMG_BASE, IMG_MOVIE
     };
+
+    /**
+     * 不属于本程序的外部路径
+     */
+    public static final String RACE_IMG_FLAG = SDCARD + "/race/img/flag";
+    public static final String RACE_IMG_COUNTRY = SDCARD + "/race/img/country";
+
 }

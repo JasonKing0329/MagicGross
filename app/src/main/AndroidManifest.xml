@@ -52,6 +52,8 @@
         <activity android:name=".page.MarketRankActivity" />
         <activity android:name=".page.MovieActivity"
             android:theme="@style/OverStatusBarTheme"/>
+        <activity android:name=".page.MarketPageActivity"
+            android:theme="@style/OverStatusBarTheme"/>
         <activity
             android:name=".page.FullChartActivity"
             android:screenOrientation="landscape" />

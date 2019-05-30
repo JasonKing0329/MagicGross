@@ -3,6 +3,7 @@ package com.king.app.gross.model.entity;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Transient;
 
 /**
  * Desc:
@@ -21,6 +22,9 @@ public class Market {
     private String nameChn;
 
     private String continent;
+
+    @Transient
+    private String imageUrl;
 
     @Generated(hash = 1504232295)
     public Market(Long id, String name, String nameChn, String continent) {
@@ -66,4 +70,11 @@ public class Market {
         this.continent = continent;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

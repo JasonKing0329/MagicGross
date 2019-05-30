@@ -1,6 +1,7 @@
 package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 
@@ -49,6 +50,10 @@ public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, 
                 marketAdapter.setList(list);
                 marketAdapter.setOnClickHeadListener((HeadChildBindingAdapter.OnClickHeadListener<String>) (view, position, head) -> mModel.loadContinentRank(head));
                 marketAdapter.setOnClickItemListener((HeadChildBindingAdapter.OnClickItemListener<Market>) (view, position, market) -> mModel.loadMarketRank(market));
+                marketAdapter.setOnLongClickItemListener((view, position, item) -> {
+                    showMarketPage(item);
+                    return true;
+                });
                 mBinding.rvMarket.setAdapter(marketAdapter);
             }
             else {
@@ -75,6 +80,12 @@ public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, 
         });
 
         mModel.loadMarkets();
+    }
+
+    private void showMarketPage(Market market) {
+        Intent intent = new Intent(this, MarketPageActivity.class);
+        intent.putExtra(MarketPageActivity.EXTRA_MARKET_ID, market.getId());
+        startActivity(intent);
     }
 
     private void editMarketGross(int position, MarketGross gross) {

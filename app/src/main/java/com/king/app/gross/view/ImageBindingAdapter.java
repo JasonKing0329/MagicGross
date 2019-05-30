@@ -11,7 +11,7 @@ import com.king.app.gross.utils.DebugLog;
 public class ImageBindingAdapter {
 
     /**
-     * 处于recyclerView中的菜品图片（提前下单、点餐页、购物车）
+     * movie cover
      * @param view
      * @param url
      */
@@ -22,6 +22,21 @@ public class ImageBindingAdapter {
                 .load(url)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .error(R.drawable.bg_movie_default)
+                .into(view);
+    }
+
+    /**
+     * market image
+     * @param view
+     * @param url
+     */
+    @BindingAdapter({"marketImage"})
+    public static void setMarketImage(ImageView view, String url) {
+        DebugLog.e(url);
+        AppGlide.with(view.getContext())
+                .load(url)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .error(R.drawable.def_market)
                 .into(view);
     }
 

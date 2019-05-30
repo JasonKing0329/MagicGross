@@ -1,0 +1,143 @@
+package com.king.app.gross.viewmodel;
+
+import android.app.Application;
+import android.arch.lifecycle.MutableLiveData;
+import android.databinding.ObservableField;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
+
+import com.king.app.gross.base.BaseViewModel;
+import com.king.app.gross.conf.AppConstants;
+import com.king.app.gross.model.ImageUrlProvider;
+import com.king.app.gross.model.entity.Market;
+import com.king.app.gross.model.entity.MarketGross;
+import com.king.app.gross.model.entity.MarketGrossDao;
+import com.king.app.gross.model.setting.SettingProperty;
+import com.king.app.gross.utils.FormatUtil;
+import com.king.app.gross.viewmodel.bean.RankItem;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
+/**
+ * Desc:
+ *
+ * @author：Jing Yang
+ * @date: 2019/5/30 10:26
+ */
+public class MarketPageViewModel extends BaseViewModel {
+
+    public ObservableField<String> marketImageUrl = new ObservableField<>();
+
+    public ObservableField<String> marketName = new ObservableField<>();
+
+    public ObservableField<String> marketChnName = new ObservableField<>();
+
+    public ObservableField<String> marketContinent = new ObservableField<>();
+
+    public ObservableField<String> marketCount = new ObservableField<>();
+
+    public MutableLiveData<List<RankItem<MarketGross>>> moviesObserver = new MutableLiveData<>();
+
+    public MarketPageViewModel(@NonNull Application application) {
+        super(application);
+    }
+
+    public void loadMarket(long marketId) {
+        loadingObserver.setValue(true);
+        getMarket(marketId)
+                .flatMap(market -> {
+                    marketImageUrl.set(market.getImageUrl());
+                    marketName.set(market.getName());
+                    if (!TextUtils.isEmpty(market.getNameChn())) {
+                        marketChnName.set(market.getNameChn());
+                    }
+                    if (!TextUtils.isEmpty(market.getContinent())) {
+                        marketContinent.set(market.getContinent());
+                    }
+                    return getMarketRankItems(market);
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<RankItem<MarketGross>>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(List<RankItem<MarketGross>> rankItems) {
+                        loadingObserver.setValue(false);
+                        moviesObserver.setValue(rankItems);
+                        if (rankItems.size() <= 1) {
+                            marketCount.set(rankItems.size() + " Movie");
+                        }
+                        else {
+                            marketCount.set(rankItems.size() + " Movies");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        loadingObserver.setValue(false);
+                        messageObserver.setValue(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private Observable<Market> getMarket(long marketId) {
+        return Observable.create(e -> {
+            Market market = getDaoSession().getMarketDao().load(marketId);
+            market.setImageUrl(ImageUrlProvider.getMarketImage(market));
+            e.onNext(market);
+        });
+    }
+
+    private Observable<List<RankItem<MarketGross>>> getMarketRankItems(Market data) {
+        return Observable.create(e -> {
+            List<MarketGross> marketGrosses = getDaoSession().getMarketGrossDao().queryBuilder()
+                    .where(MarketGrossDao.Properties.MarketId.eq(data.getId()))
+                    .orderDesc(MarketGrossDao.Properties.Gross)
+                    .build().list();
+
+            List<RankItem<MarketGross>> list = new ArrayList<>();
+            int rank = 1;
+            for (int i = 0; i < marketGrosses.size(); i ++) {
+                MarketGross gross = marketGrosses.get(i);
+                RankItem item = new RankItem();
+                item.setMovie(gross.getMovie());
+                if (!SettingProperty.isEnableVirtualMovie() && item.getMovie().getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+                    continue;
+                }
+
+                item.setData(gross);
+                item.setSortValue(gross.getGross());
+                item.setValue(FormatUtil.formatUsGross(gross.getGross()));
+                item.setYear(String.valueOf(gross.getMovie().getYear()));
+                item.setImageUrl(ImageUrlProvider.getMovieImageRandom(item.getMovie()));
+                if (TextUtils.isEmpty(gross.getMovie().getSubName())) {
+                    item.setName(gross.getMovie().getName());
+                }
+                else {
+                    item.setName(gross.getMovie().getName() + ":" + gross.getMovie().getSubName());
+                }
+                item.setRank(String.valueOf(rank ++));
+                list.add(item);
+            }
+            e.onNext(list);
+        });
+    }
+
+}

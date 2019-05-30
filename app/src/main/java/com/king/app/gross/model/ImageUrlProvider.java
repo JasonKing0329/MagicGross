@@ -3,9 +3,11 @@ package com.king.app.gross.model;
 import android.text.TextUtils;
 
 import com.king.app.gross.conf.AppConfig;
+import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.model.entity.Movie;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Random;
 
 /**
@@ -36,4 +38,44 @@ public class ImageUrlProvider {
         return url;
     }
 
+    public static String getMarketImage(Market market) {
+        // 优先取中文名
+        // 优先取country目录图片，其次取flag目录图片
+        String name = market.getNameChn();
+        if (TextUtils.isEmpty(name)) {
+            name = market.getName();
+        }
+        if (!TextUtils.isEmpty(name)) {
+            File folder = new File(AppConfig.RACE_IMG_COUNTRY + "/" + name);
+            if (folder.exists() && folder.isDirectory()) {
+                File[] files = folder.listFiles(new ImageFilter());
+                if (files.length > 0) {
+                    int index = Math.abs(new Random().nextInt()) % files.length;
+                    return files[index].getPath();
+                }
+            }
+            String[] extras = new String[]{".jpg", ".jpeg", ".png", ".bmp", ".gif"};
+            for (String extra:extras) {
+                File file = new File(AppConfig.RACE_IMG_FLAG + "/" + name + extra);
+                if (file.exists()) {
+                    return file.getPath();
+                }
+            }
+        }
+        return null;
+    }
+
+    public static class ImageFilter implements FileFilter {
+
+        @Override
+        public boolean accept(File file) {
+            String[] extras = new String[]{".jpg", ".jpeg", ".png", ".bmp", ".gif"};
+            for (String extra:extras) {
+                if (file.getName().endsWith(extra)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 }

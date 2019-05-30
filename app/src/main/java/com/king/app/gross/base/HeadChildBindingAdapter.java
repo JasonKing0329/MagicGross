@@ -27,6 +27,8 @@ public abstract class HeadChildBindingAdapter<VH extends ViewDataBinding, VI ext
 
     protected OnClickItemListener onClickItemListener;
 
+    protected OnLongClickItemListener<I> onLongClickItemListener;
+
     public void setList(List<Object> list) {
         this.list = list;
     }
@@ -37,6 +39,10 @@ public abstract class HeadChildBindingAdapter<VH extends ViewDataBinding, VI ext
 
     public void setOnClickItemListener(OnClickItemListener onClickItemListener) {
         this.onClickItemListener = onClickItemListener;
+    }
+
+    public void setOnLongClickItemListener(OnLongClickItemListener<I> onLongClickItemListener) {
+        this.onLongClickItemListener = onLongClickItemListener;
     }
 
     protected abstract Class getItemClass();
@@ -56,12 +62,15 @@ public abstract class HeadChildBindingAdapter<VH extends ViewDataBinding, VI ext
             VH binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext())
                     , getHeaderRes(), parent, false);
             BindingHolder holder = new BindingHolder(binding.getRoot());
+            holder.itemView.setOnClickListener(v -> onClickHead(holder.itemView, holder.getLayoutPosition(), (H) list.get(holder.getLayoutPosition())));
             return holder;
         }
         else {
             VI binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext())
                     , getItemRes(), parent, false);
             BindingHolder holder = new BindingHolder(binding.getRoot());
+            holder.itemView.setOnClickListener(v -> onClickItem(holder.itemView, holder.getLayoutPosition(), (I) list.get(holder.getLayoutPosition())));
+            holder.itemView.setOnLongClickListener(v -> onLongClickItem(holder.itemView, holder.getLayoutPosition(), (I) list.get(holder.getLayoutPosition())));
             return holder;
         }
     }
@@ -75,13 +84,11 @@ public abstract class HeadChildBindingAdapter<VH extends ViewDataBinding, VI ext
         if (getItemViewType(position) == TYPE_HEAD) {
             VH binding = DataBindingUtil.getBinding(holder.itemView);
             onBindHead(binding, position, (H) list.get(position));
-            holder.itemView.setOnClickListener(v -> onClickHead(holder.itemView, position, (H) list.get(position)));
             binding.executePendingBindings();
         }
         else {
             VI binding = DataBindingUtil.getBinding(holder.itemView);
             onBindItem(binding, position, (I) list.get(position));
-            holder.itemView.setOnClickListener(v -> onClickItem(holder.itemView, position, (I) list.get(position)));
             binding.executePendingBindings();
         }
     }
@@ -102,6 +109,13 @@ public abstract class HeadChildBindingAdapter<VH extends ViewDataBinding, VI ext
         }
     }
 
+    private boolean onLongClickItem(View view, int position, I item) {
+        if (onLongClickItemListener != null) {
+            return onLongClickItemListener.onLongClickItem(view, position, item);
+        }
+        return false;
+    }
+
     @Override
     public int getItemCount() {
         return list == null ? 0:list.size();// 首尾分别为header和footer
@@ -120,5 +134,9 @@ public abstract class HeadChildBindingAdapter<VH extends ViewDataBinding, VI ext
 
     public interface OnClickItemListener<I> {
         void onClickItem(View view, int position, I item);
+    }
+
+    public interface OnLongClickItemListener<I> {
+        boolean onLongClickItem(View view, int position, I item);
     }
 }

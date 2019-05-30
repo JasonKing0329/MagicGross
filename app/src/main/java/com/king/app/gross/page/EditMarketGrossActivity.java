@@ -14,6 +14,7 @@ import com.king.app.gross.R;
 import com.king.app.gross.base.BaseRecyclerAdapter;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityEditMarketGrossBinding;
+import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.page.adapter.EditMarketGrossAdapter;
 import com.king.app.gross.page.bean.EditMarketGrossBean;
 import com.king.app.gross.utils.FormatUtil;
@@ -140,6 +141,10 @@ public class EditMarketGrossActivity extends MvvmActivity<ActivityEditMarketGros
             if (adapter == null) {
                 adapter = new EditMarketGrossAdapter();
                 adapter.setOnItemClickListener((view, position, data) -> editMarketGross(position, data));
+                adapter.setOnItemLongClickListener((view, position, data) -> {
+                    showMarketPage(data.getBean());
+                    return true;
+                });
                 adapter.setList(list);
                 mBinding.rvMarkets.setAdapter(adapter);
             }
@@ -158,6 +163,12 @@ public class EditMarketGrossActivity extends MvvmActivity<ActivityEditMarketGros
                 adapter.notifyItemChanged(position);
             }
         }, mModel.getEditInitText(data));
+    }
+
+    private void showMarketPage(Market market) {
+        Intent intent = new Intent(this, MarketPageActivity.class);
+        intent.putExtra(MarketPageActivity.EXTRA_MARKET_ID, market.getId());
+        startActivity(intent);
     }
 
     private long getMovieId() {
