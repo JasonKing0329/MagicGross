@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="16dp"
-            android:entries="@array/region"
+            android:entries="@array/compare_region"
             app:layout_constraintStart_toEndOf="@+id/tv_title_region"
             app:layout_constraintTop_toBottomOf="@+id/et_day" />
 

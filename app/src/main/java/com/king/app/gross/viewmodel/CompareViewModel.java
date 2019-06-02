@@ -2,15 +2,21 @@ package com.king.app.gross.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
+import android.database.Cursor;
 import android.databinding.ObservableField;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.king.app.gross.base.BaseViewModel;
+import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.compare.CompareChart;
 import com.king.app.gross.model.compare.CompareInstance;
+import com.king.app.gross.model.entity.Market;
+import com.king.app.gross.model.entity.MarketDao;
+import com.king.app.gross.model.entity.MarketGross;
+import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.gross.ChartModel;
 import com.king.app.gross.model.gross.DailyModel;
@@ -46,6 +52,8 @@ public class CompareViewModel extends BaseViewModel {
 
     public MutableLiveData<CompareChart> chartObserver = new MutableLiveData<>();
 
+    public MutableLiveData<Boolean> hideChart = new MutableLiveData<>();
+
     private ChartModel chartModel;
 
     public CompareViewModel(@NonNull Application application) {
@@ -56,6 +64,51 @@ public class CompareViewModel extends BaseViewModel {
     }
 
     public void loadCompareItems() {
+        switch (mRegion) {
+            case NA:
+            case CHN:
+                loadDaily();
+                break;
+            case MARKET:
+            case MARKET_OPEN:
+                loadMarket();
+                break;
+        }
+    }
+
+    private void loadMarket() {
+        loadingObserver.setValue(true);
+        queryCompares()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<CompareItem>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(List<CompareItem> list) {
+                        loadingObserver.setValue(false);
+                        hideChart.setValue(true);
+                        compareItemsObserver.setValue(list);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        loadingObserver.setValue(false);
+                        messageObserver.setValue(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private void loadDaily() {
         loadingObserver.setValue(true);
         queryCompares()
                 .flatMap(list -> {
@@ -100,14 +153,113 @@ public class CompareViewModel extends BaseViewModel {
         return Observable.create(e -> {
             List<CompareItem> list = new ArrayList<>();
             list.addAll(queryBasic());
-            if (SettingProperty.getCompareType() == AppConstants.COMPARE_TYPE_ACCU) {
-                list.addAll(queryAccumulated());
-            }
-            else {
-                list.addAll(queryDayByDay());
+            switch (mRegion) {
+                case NA:
+                case CHN:
+                    if (SettingProperty.getCompareType() == AppConstants.COMPARE_TYPE_ACCU) {
+                        list.addAll(queryAccumulated());
+                    }
+                    else {
+                        list.addAll(queryDayByDay());
+                    }
+                    break;
+                case MARKET:
+                case MARKET_OPEN:
+                    list.addAll(queryMarket());
+                    break;
             }
             e.onNext(list);
         });
+    }
+
+    private List<CompareItem> queryMarket() {
+        List<CompareItem> list = new ArrayList<>();
+
+        List<Market> markets = getDaoSession().getMarketDao().queryBuilder()
+                .orderAsc(MarketDao.Properties.Continent, MarketDao.Properties.Name)
+                .build().list();
+        List<CompareItem> allMarkets = new ArrayList<>();
+        Map<Long, CompareItem> map = new HashMap<>();
+        int size = CompareInstance.getInstance().getMovieList().size();
+        for (Market market:markets) {
+            CompareItem item = new CompareItem();
+            item.setBean(market);
+            item.setKey(market.getName());
+            allMarkets.add(item);
+            map.put(market.getId(), item);
+        }
+        for (int i = 0; i < size; i ++) {
+            Movie movie = CompareInstance.getInstance().getMovieList().get(i);
+            List<MarketGross> marketGrosses = getDaoSession().getMarketGrossDao().queryBuilder()
+                    .where(MarketGrossDao.Properties.MovieId.eq(movie.getId()))
+                    .where(MarketGrossDao.Properties.MarketId.gt(AppConstants.MARKET_TOTAL_ID))
+                    .build().list();
+            for (MarketGross gross:marketGrosses) {
+                CompareItem item = map.get(gross.getMarketId());
+                if (item.getValues() == null) {
+                    item.setValues(new ArrayList<>());
+                    item.setGrossList(new ArrayList<>());
+                    for (int j = 0; j < size; j ++) {
+                        item.getValues().add("-");
+                        item.getGrossList().add(null);
+                    }
+                }
+                item.getValues().set(i, FormatUtil.formatUsGross(gross.getGross()));
+
+                SimpleGross sg = new SimpleGross();
+                sg.setGrossValue(gross.getGross());// 用于后面计算winIndex
+                item.getGrossList().set(i, sg);
+            }
+        }
+
+        String lastContinent = null;
+        for (CompareItem item:allMarkets) {
+            if (item.getValues() == null) {
+                continue;
+            }
+            Market market = (Market) item.getBean();
+            String continent = market.getContinent();
+            if (!TextUtils.isEmpty(continent)) {
+                if (!continent.equals(lastContinent)) {
+                    list.add(countContinent(continent));
+                    lastContinent = continent;
+                }
+            }
+            // create win index
+            item.setWinIndex(-1);
+            int index = compareValues(item.getGrossList());
+            item.setWinIndex(index);
+            list.add(item);
+        }
+        return list;
+    }
+
+    private CompareItem countContinent(String continent) {
+        int size = CompareInstance.getInstance().getMovieList().size();
+        CompareItem item = new CompareItem();
+        item.setKey(continent);
+        item.setValues(new ArrayList<>());
+        item.setGrossList(new ArrayList<>());
+        String sql = "SELECT SUM(gross) AS total FROM market_gross mg\n" +
+                " JOIN market m ON mg.market_id = m._id\n" +
+                " WHERE m.continent=? AND mg.movie_id=?\n" +
+                " ORDER BY total DESC";
+        for (int i = 0; i < size; i ++) {
+            Movie movie = CompareInstance.getInstance().getMovieList().get(i);
+            Cursor cursor = MApplication.getInstance().getDatabase().rawQuery(sql,new String[]{continent, String.valueOf(movie.getId())});
+            if (cursor.moveToNext()) {
+                long gross = cursor.getLong(0);
+                item.getValues().add(FormatUtil.formatUsGross(gross));
+
+                SimpleGross sg = new SimpleGross();
+                sg.setGrossValue(gross);
+                item.getGrossList().add(sg);// 用于计算winIndex
+            }
+        }
+        item.setWinIndex(-1);
+        int index = compareValues(item.getGrossList());
+        item.setWinIndex(index);
+        return item;
     }
 
     private List<CompareItem> queryBasic() {
@@ -438,14 +590,11 @@ public class CompareViewModel extends BaseViewModel {
             case CHN:
                 text = "中国";
                 break;
-            case OVERSEA_NO_CHN:
-                text = "海外（除中国）";
-                break;
-            case OVERSEA:
+            case MARKET:
                 text = "海外";
                 break;
-            case WORLDWIDE:
-                text = "全球";
+            case MARKET_OPEN:
+                text = "海外开画";
                 break;
             default:
                 text = "北美";
@@ -458,8 +607,8 @@ public class CompareViewModel extends BaseViewModel {
         return mRegion;
     }
 
-    public void changeRegion(int which) {
-        mRegion = Region.values()[which];
+    public void changeRegion(Region region) {
+        mRegion = region;
         regionText.set(getRegionText(mRegion));
         loadCompareItems();
     }

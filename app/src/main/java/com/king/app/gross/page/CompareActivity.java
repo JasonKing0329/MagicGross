@@ -11,6 +11,7 @@ import android.view.View;
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.conf.AppConstants;
+import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.ActivityCompareBinding;
 import com.king.app.gross.model.compare.CompareChart;
 import com.king.app.gross.model.compare.CompareInstance;
@@ -80,9 +81,11 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
                 case R.id.menu_chart:
                     if (mBinding.chart.getVisibility() == View.VISIBLE) {
                         mBinding.chart.setVisibility(View.GONE);
+                        mBinding.ivFull.setVisibility(View.GONE);
                     }
                     else {
                         mBinding.chart.setVisibility(View.VISIBLE);
+                        mBinding.ivFull.setVisibility(View.VISIBLE);
                     }
                     break;
                 case R.id.menu_change_color:
@@ -115,7 +118,22 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
 
     private void selectRegion() {
         new AlertDialogFragment()
-            .setItems(getResources().getStringArray(R.array.region), (dialog, which) -> mModel.changeRegion(which))
+            .setItems(getResources().getStringArray(R.array.compare_region), (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        mModel.changeRegion(Region.NA);
+                        break;
+                    case 1:
+                        mModel.changeRegion(Region.CHN);
+                        break;
+                    case 2:
+                        mModel.changeRegion(Region.MARKET);
+                        break;
+                    case 3:
+                        mModel.changeRegion(Region.MARKET_OPEN);
+                        break;
+                }
+            })
             .show(getSupportFragmentManager(), "AlertDialogFragment");
     }
 
@@ -129,7 +147,16 @@ public class CompareActivity extends MvvmActivity<ActivityCompareBinding, Compar
 
         mModel.compareItemsObserver.observe(this, compareItems -> showCompareItems(compareItems));
 
-        mModel.chartObserver.observe(this, data -> updateChart(data));
+        mModel.chartObserver.observe(this, data -> {
+            mBinding.chart.setVisibility(View.VISIBLE);
+            mBinding.ivFull.setVisibility(View.VISIBLE);
+            updateChart(data);
+        });
+
+        mModel.hideChart.observe(this, data -> {
+            mBinding.chart.setVisibility(View.GONE);
+            mBinding.ivFull.setVisibility(View.GONE);
+        });
 
         if (!ListUtil.isEmpty(CompareInstance.getInstance().getMovieList())) {
             GridLayoutManager manager = new GridLayoutManager(this, CompareInstance.getInstance().getMovieList().size());

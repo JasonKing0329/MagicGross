@@ -229,7 +229,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
 
     private void selectGrossType() {
         new AlertDialogFragment()
-                .setItems(getResources().getStringArray(R.array.region), (dialog, which) -> mModel.updateRegionInList(which))
+                .setItems(getResources().getStringArray(R.array.compare_region), (dialog, which) -> mModel.updateRegionInList(which))
                 .show(getSupportFragmentManager(), "AlertDialogFragment");
     }
 

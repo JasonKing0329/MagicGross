@@ -15,6 +15,7 @@ public class CompareItem {
     private int winIndex;
     private boolean isDay;
     private boolean isTotal;
+    private Object bean;
 
     public CompareItem() {
         winIndex = -1;
@@ -68,4 +69,11 @@ public class CompareItem {
         this.grossList = grossList;
     }
 
+    public Object getBean() {
+        return bean;
+    }
+
+    public void setBean(Object bean) {
+        this.bean = bean;
+    }
 }

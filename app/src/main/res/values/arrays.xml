@@ -9,12 +9,11 @@
         <item>6</item>
         <item>7</item>
     </string-array>
-    <string-array name="region">
+    <string-array name="compare_region">
         <item>North America</item>
         <item>China</item>
-        <item>Oversea except China</item>
-        <item>Oversea</item>
-        <item>World Wide</item>
+        <item>Market</item>
+        <item>Market Opening</item>
     </string-array>
     <string-array name="gross_unit">
         <item>万</item>
