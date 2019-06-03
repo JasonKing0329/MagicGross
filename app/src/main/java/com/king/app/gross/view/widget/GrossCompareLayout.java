@@ -48,7 +48,7 @@ public class GrossCompareLayout extends LinearLayout {
             Drawable drawable = getResources().getDrawable(R.drawable.shape_divider_hor);
             View divider = new View(getContext());
             divider.setBackground(drawable);
-            addView(divider, new LayoutParams(ScreenUtils.dp2px(1), LayoutParams.MATCH_PARENT));
+            addView(divider, new LayoutParams(getResources().getDimensionPixelSize(R.dimen.divider), LayoutParams.MATCH_PARENT));
         }
 
         LayoutParams params = new LayoutParams(0, LayoutParams.WRAP_CONTENT);

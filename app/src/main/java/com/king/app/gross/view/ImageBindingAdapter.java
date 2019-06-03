@@ -40,4 +40,19 @@ public class ImageBindingAdapter {
                 .into(view);
     }
 
+    /**
+     * market flag
+     * @param view
+     * @param url
+     */
+    @BindingAdapter({"marketFlag"})
+    public static void setMarketFlag(ImageView view, String url) {
+        DebugLog.e(url);
+        AppGlide.with(view.getContext())
+                .load(url)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .error(R.drawable.def_market)
+                .into(view);
+    }
+
 }

@@ -76,6 +76,7 @@ public class MarketRankViewModel extends BaseViewModel {
             List<Object> unknownList = new ArrayList<>();
             String continent = null;
             for (Market market:markets) {
+                market.setImageUrl(ImageUrlProvider.getMarketFlag(market));
                 String cont = market.getContinent();
                 if (cont == null) {
                     unknownList.add(market);

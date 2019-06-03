@@ -11,6 +11,7 @@ import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
+import com.king.app.gross.model.ImageUrlProvider;
 import com.king.app.gross.model.compare.CompareChart;
 import com.king.app.gross.model.compare.CompareInstance;
 import com.king.app.gross.model.entity.Market;
@@ -185,6 +186,7 @@ public class CompareViewModel extends BaseViewModel {
             CompareItem item = new CompareItem();
             item.setBean(market);
             item.setKey(market.getName());
+            item.setImageUrl(ImageUrlProvider.getMarketFlag(market));
             allMarkets.add(item);
             map.put(market.getId(), item);
         }
@@ -204,10 +206,17 @@ public class CompareViewModel extends BaseViewModel {
                         item.getGrossList().add(null);
                     }
                 }
-                item.getValues().set(i, FormatUtil.formatUsGross(gross.getGross()));
+                long value;
+                if (mRegion == Region.MARKET_OPEN) {
+                    value = gross.getOpening();
+                }
+                else {
+                    value = gross.getGross();
+                }
+                item.getValues().set(i, FormatUtil.formatUsGross(value));
 
                 SimpleGross sg = new SimpleGross();
-                sg.setGrossValue(gross.getGross());// 用于后面计算winIndex
+                sg.setGrossValue(value);// 用于后面计算winIndex
                 item.getGrossList().set(i, sg);
             }
         }
@@ -238,9 +247,18 @@ public class CompareViewModel extends BaseViewModel {
         int size = CompareInstance.getInstance().getMovieList().size();
         CompareItem item = new CompareItem();
         item.setKey(continent);
+        item.setGroup(true);
         item.setValues(new ArrayList<>());
         item.setGrossList(new ArrayList<>());
-        String sql = "SELECT SUM(gross) AS total FROM market_gross mg\n" +
+
+        String sumColumn;
+        if (mRegion == Region.MARKET_OPEN) {
+            sumColumn = "opening";
+        }
+        else {
+            sumColumn = "gross";
+        }
+        String sql = "SELECT SUM(" + sumColumn + ") AS total FROM market_gross mg\n" +
                 " JOIN market m ON mg.market_id = m._id\n" +
                 " WHERE m.continent=? AND mg.movie_id=?\n" +
                 " ORDER BY total DESC";

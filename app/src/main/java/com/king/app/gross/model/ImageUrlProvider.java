@@ -65,6 +65,25 @@ public class ImageUrlProvider {
         return null;
     }
 
+    public static String getMarketFlag(Market market) {
+        // 优先取中文名
+        // 然后取flag目录图片
+        String name = market.getNameChn();
+        if (TextUtils.isEmpty(name)) {
+            name = market.getName();
+        }
+        if (!TextUtils.isEmpty(name)) {
+            String[] extras = new String[]{".jpg", ".jpeg", ".png", ".bmp", ".gif"};
+            for (String extra:extras) {
+                File file = new File(AppConfig.RACE_IMG_FLAG + "/" + name + extra);
+                if (file.exists()) {
+                    return file.getPath();
+                }
+            }
+        }
+        return null;
+    }
+
     public static class ImageFilter implements FileFilter {
 
         @Override

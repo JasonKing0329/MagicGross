@@ -12,29 +12,39 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/cl_item"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground">
+        <ImageView
+            android:id="@+id/iv_flag"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:visibility="@{bean.imageUrl == null ? View.GONE:View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:marketFlag="@{bean.imageUrl}"/>
         <TextView
             android:id="@+id/tv_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{bean.name}"
             android:textColor="@drawable/selector_market_text"
+            android:textSize="10dp"
             android:gravity="center"
-            android:layout_marginTop="8dp"
-            android:background="?android:attr/selectableItemBackground"
             app:layout_constraintBottom_toTopOf="@+id/tv_chn_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/iv_flag" />
         <TextView
             android:id="@+id/tv_chn_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{bean.nameChn}"
+            android:textSize="10dp"
             android:textColor="@drawable/selector_market_text"
             android:gravity="center"
             android:layout_marginBottom="8dp"
-            android:background="?android:attr/selectableItemBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

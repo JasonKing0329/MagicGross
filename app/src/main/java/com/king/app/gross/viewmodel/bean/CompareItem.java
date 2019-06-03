@@ -16,6 +16,8 @@ public class CompareItem {
     private boolean isDay;
     private boolean isTotal;
     private Object bean;
+    private String imageUrl;
+    private boolean isGroup;
 
     public CompareItem() {
         winIndex = -1;
@@ -75,5 +77,21 @@ public class CompareItem {
 
     public void setBean(Object bean) {
         this.bean = bean;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public boolean isGroup() {
+        return isGroup;
+    }
+
+    public void setGroup(boolean group) {
+        isGroup = group;
     }
 }

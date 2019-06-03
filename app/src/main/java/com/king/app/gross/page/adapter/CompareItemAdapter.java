@@ -1,5 +1,7 @@
 package com.king.app.gross.page.adapter;
 
+import android.graphics.Color;
+
 import com.king.app.gross.R;
 import com.king.app.gross.base.BaseBindingAdapter;
 import com.king.app.gross.databinding.AdapterCompareItemBinding;
@@ -23,6 +25,12 @@ public class CompareItemAdapter extends BaseBindingAdapter<AdapterCompareItemBin
         binding.setBean(bean);
         binding.executePendingBindings();
 
+        if (bean.isGroup()) {
+            binding.getRoot().setBackgroundColor(Color.parseColor("#efefef"));
+        }
+        else {
+            binding.getRoot().setBackgroundColor(Color.WHITE);
+        }
         for (int i = 0; i < bean.getValues().size(); i ++) {
             binding.groupCompare.setCell(i, bean.getValues().get(i));
             if (i == bean.getWinIndex()) {
