@@ -14,10 +14,21 @@ import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.GrossStat;
 import com.king.app.gross.model.entity.GrossStatDao;
+import com.king.app.gross.model.entity.Market;
+import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.model.gross.StatModel;
+import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.utils.FormatUtil;
+
+import org.greenrobot.greendao.query.QueryBuilder;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -62,6 +73,8 @@ public class MovieViewModel extends BaseViewModel {
 
     public MutableLiveData<Movie> movieObserver = new MutableLiveData<>();
 
+    public ObservableField<String> marketRankInfo = new ObservableField<>();
+
     public MovieViewModel(@NonNull Application application) {
         super(application);
     }
@@ -83,6 +96,7 @@ public class MovieViewModel extends BaseViewModel {
                     public void onNext(Movie movie) {
                         loadingObserver.setValue(false);
                         movieObserver.setValue(movie);
+                        loadRankInfo();
                     }
 
                     @Override
@@ -195,5 +209,132 @@ public class MovieViewModel extends BaseViewModel {
 
                     }
                 });
+    }
+
+    private class RankItem {
+        Market market;
+        int rank;
+        int total;
+    }
+
+    private void loadRankInfo() {
+        getMarketRankInfo()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        marketRankInfo.set(s);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private Observable<String> getMarketRankInfo() {
+        return Observable.create(e -> {
+            long movieId = movieObserver.getValue().getId();
+            List<MarketGross> marketGrosses = getDaoSession().getMarketGrossDao().queryBuilder()
+                    .where(MarketGrossDao.Properties.MovieId.eq(movieId))
+                    .build().list();
+            List<RankItem> items = new ArrayList<>();
+            for (MarketGross mg:marketGrosses) {
+                QueryBuilder<MarketGross> builder = getDaoSession().getMarketGrossDao().queryBuilder();
+                if (!SettingProperty.isEnableVirtualMovie()) {
+                    builder.join(MarketGrossDao.Properties.MovieId, Movie.class)
+                            .where(MovieDao.Properties.IsReal.eq(AppConstants.MOVIE_REAL));
+                }
+                List<MarketGross> movies = builder
+                        .where(MarketGrossDao.Properties.MarketId.eq(mg.getMarketId()))
+                        .where(MarketGrossDao.Properties.MarketId.gt(AppConstants.MARKET_TOTAL_ID))
+                        .orderDesc(MarketGrossDao.Properties.Gross)
+                        .build().list();
+
+                // 只取大市场的排名（market_gross记录超过100）
+                if (movies.size() >= 100) {
+                    RankItem item = new RankItem();
+                    item.market = mg.getMarket();
+                    item.total = movies.size();
+                    item.rank = findRankInMarket(movieId, movies);
+                    items.add(item);
+                }
+            }
+            // 按rank升序排名
+            Collections.sort(items, new RankComparator());
+
+            String info = formatRankInfo(items);
+            e.onNext(info);
+        });
+    }
+
+    private int findRankInMarket(long movieId, List<MarketGross> movies) {
+        for (int i = 0; i < movies.size(); i ++) {
+            if (movieId == movies.get(i).getMovieId()) {
+                return i + 1;
+            }
+        }
+        return 0;
+    }
+
+    private String formatRankInfo(List<RankItem> items) {
+        StringBuffer buffer = new StringBuffer();
+        String lastGroup = null;
+        for (RankItem item:items) {
+            String group = getGroupRank(item.rank);
+            if (!group.equals(lastGroup)) {
+                lastGroup = group;
+                buffer.append("\n").append(group).append("\n");
+            }
+            buffer.append(item.market.getName()).append("(").append(item.rank).append("/").append(item.total).append(")  ");
+        }
+        return buffer.toString();
+    }
+
+    private String getGroupRank(int rank) {
+        if (rank == 1) {
+            return "Champion";
+        }
+        else if (rank < 4) {
+            return "Top 3";
+        }
+        else if (rank <= 10) {
+            return "Top 10";
+        }
+        else if (rank <= 20) {
+            return "Top 11-20";
+        }
+        else if (rank <= 30) {
+            return "Top 21-30";
+        }
+        else if (rank <= 50) {
+            return "Top 31-50";
+        }
+        else if (rank <= 100) {
+            return "Top 51-100";
+        }
+        else {
+            return "Out of 100";
+        }
+    }
+
+    private class RankComparator implements Comparator<RankItem> {
+
+        @Override
+        public int compare(RankItem left, RankItem right) {
+            return left.rank - right.rank;
+        }
     }
 }
