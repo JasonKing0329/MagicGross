@@ -5,6 +5,10 @@
         android:title="Movies"
         android:icon="@drawable/ic_movie_white_24dp"
         app:showAsAction="ifRoom"/>
+    <item android:id="@+id/menu_date"
+        android:title="Date Range"
+        android:icon="@drawable/ic_date_range_white_24dp"
+        app:showAsAction="ifRoom"/>
     <item android:id="@+id/menu_load_from"
         android:title="Load from"
         app:showAsAction="never"/>

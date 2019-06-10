@@ -2,6 +2,7 @@ package com.king.app.gross.page.gross;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 
@@ -16,6 +17,7 @@ import com.king.app.gross.page.MarketRankActivity;
 import com.king.app.gross.page.MovieActivity;
 import com.king.app.gross.page.adapter.RankItemAdapter;
 import com.king.app.gross.page.adapter.TagRegionAdapter;
+import com.king.app.gross.viewmodel.HomeViewModel;
 import com.king.app.gross.viewmodel.RankViewModel;
 
 /**
@@ -26,7 +28,21 @@ import com.king.app.gross.viewmodel.RankViewModel;
 
 public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewModel> {
 
+    private static final String ARG_START = "start_date";
+    private static final String ARG_END = "end_date";
+
+    private HomeViewModel homeViewModel;
+
     private RankItemAdapter rankItemAdapter;
+
+    public static RankFragment newInstance(String startDate, String endDate) {
+        RankFragment fragment = new RankFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString(ARG_START, startDate);
+        bundle.putString(ARG_END, endDate);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
 
     @Override
     protected void bindFragmentHolder(IFragmentHolder holder) {
@@ -46,6 +62,7 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
     @Override
     protected void onCreate(View view) {
         mBinding.setModel(mModel);
+        homeViewModel = ViewModelProviders.of(getActivity()).get(HomeViewModel.class);
 
         mBinding.rvRegion.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         mBinding.rvType.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -60,7 +77,7 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
             adapter.setOnItemClickListener((view, position, data) -> {
                 Region region = (Region) data.getBean();
                 if (region == Region.MARKET) {
-                    showMarketPage();
+                    homeViewModel.openMarketRankPage.setValue(true);
                 }
                 else {
                     mModel.changeRegion((Region) data.getBean());
@@ -88,11 +105,8 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
                 rankItemAdapter.notifyDataSetChanged();
             }
         });
-    }
 
-    private void showMarketPage() {
-        Intent intent = new Intent().setClass(getActivity(), MarketRankActivity.class);
-        startActivity(intent);
+        mModel.load(getArguments().getString(ARG_START), getArguments().getString(ARG_END));
     }
 
     private void onClickMovie(Movie movie) {

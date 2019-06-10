@@ -7,10 +7,15 @@ import android.support.annotation.Nullable;
 import com.king.app.gross.R;
 import com.king.app.gross.base.MApplication;
 import com.king.app.gross.base.MvvmActivity;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.ActivityHomeBinding;
+import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.page.gross.RankFragment;
+import com.king.app.gross.utils.ScreenUtils;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
+import com.king.app.gross.view.dialog.content.EditMovieFragment;
 import com.king.app.gross.view.dialog.content.LoadFromFragment;
+import com.king.app.gross.view.dialog.content.RankDateRangeFragment;
 import com.king.app.gross.viewmodel.HomeViewModel;
 
 /**
@@ -20,6 +25,12 @@ import com.king.app.gross.viewmodel.HomeViewModel;
  */
 
 public class HomeActivity extends MvvmActivity<ActivityHomeBinding, HomeViewModel> {
+
+    private String mStartDate;
+
+    private String mEndDate;
+
+    private DraggableDialogFragment dateRangeDialog;
 
     private final int REQUEST_SETTING = 34920;
 
@@ -34,6 +45,9 @@ public class HomeActivity extends MvvmActivity<ActivityHomeBinding, HomeViewMode
             switch (menuId) {
                 case R.id.menu_movies:
                     startMovies();
+                    break;
+                case R.id.menu_date:
+                    setDateRange();
                     break;
                 case R.id.menu_load_from:
                     showLoadFrom();
@@ -52,6 +66,23 @@ public class HomeActivity extends MvvmActivity<ActivityHomeBinding, HomeViewMode
                 initData();
             }
         });
+    }
+
+    private void setDateRange() {
+        RankDateRangeFragment content = new RankDateRangeFragment();
+        content.initDate(mStartDate, mEndDate);
+        content.setOnDateRangeListener((start, end) -> {
+            mStartDate = start;
+            mEndDate = end;
+            dateRangeDialog.dismissAllowingStateLoss();
+            showRankFragment();
+        });
+        dateRangeDialog = new DraggableDialogFragment.Builder()
+                .setTitle("Set Date Range")
+                .setMaxHeight(ScreenUtils.getScreenHeight() * 3 / 5)
+                .setContentFragment(content)
+                .build();
+        dateRangeDialog.show(getSupportFragmentManager(), "EditMovie");
     }
 
     @Override
@@ -82,8 +113,20 @@ public class HomeActivity extends MvvmActivity<ActivityHomeBinding, HomeViewMode
 
     @Override
     protected void initData() {
+        mModel.openMarketRankPage.observe(this, show -> showMarketPage());
+        showRankFragment();
+    }
+
+    private void showMarketPage() {
+        Intent intent = new Intent().setClass(this, MarketRankActivity.class);
+        intent.putExtra(MarketRankActivity.EXTRA_START, mStartDate);
+        intent.putExtra(MarketRankActivity.EXTRA_END, mEndDate);
+        startActivity(intent);
+    }
+
+    private void showRankFragment() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.group_ft, new RankFragment(), "RankFragment")
+                .replace(R.id.group_ft, RankFragment.newInstance(mStartDate, mEndDate), "RankFragment")
                 .commit();
     }
 

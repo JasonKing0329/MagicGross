@@ -53,11 +53,20 @@ public class RankViewModel extends BaseViewModel {
 
     private RankModel rankModel;
 
+    private String mStartDate;
+
+    private String mEndDate;
+
     public RankViewModel(@NonNull Application application) {
         super(application);
         mRegion = Region.NA;
         mRankType = RankType.TOTAL;
         rankModel = new RankModel();
+    }
+
+    public void load(String startDate, String endDate) {
+        mStartDate = startDate;
+        mEndDate = endDate;
         updateRankTitle();
         loadRegionTags();
         loadTypeTags();
@@ -120,6 +129,12 @@ public class RankViewModel extends BaseViewModel {
             QueryBuilder<Movie> builder = getDaoSession().getMovieDao().queryBuilder();
             if (!SettingProperty.isEnableVirtualMovie()) {
                 builder.where(MovieDao.Properties.IsReal.eq(AppConstants.MOVIE_REAL));
+            }
+            if (mStartDate != null) {
+                builder.where(MovieDao.Properties.Debut.ge(mStartDate));
+            }
+            if (mEndDate != null) {
+                builder.where(MovieDao.Properties.Debut.le(mEndDate));
             }
             List<Movie> list = builder.build().list();
             e.onNext(list);

@@ -24,6 +24,8 @@ public class HomeViewModel extends BaseViewModel {
 
     public MutableLiveData<Boolean> onEnableVirtualChanged = new MutableLiveData<>();
 
+    public MutableLiveData<Boolean> openMarketRankPage = new MutableLiveData<>();
+
     private boolean isEnableVirtualMovie;
 
     public HomeViewModel(@NonNull Application application) {

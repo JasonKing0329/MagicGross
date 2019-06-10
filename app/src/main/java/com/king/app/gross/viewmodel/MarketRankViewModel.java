@@ -32,6 +32,10 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MarketRankViewModel extends BaseViewModel {
 
+    private String mStartDate;
+
+    private String mEndDate;
+
     public MutableLiveData<List<Object>> marketsObserver = new MutableLiveData<>();
     public MutableLiveData<List<RankItem<MarketGross>>> rankObserver = new MutableLiveData<>();
 
@@ -39,7 +43,9 @@ public class MarketRankViewModel extends BaseViewModel {
         super(application);
     }
 
-    public void loadMarkets() {
+    public void loadMarkets(String startDate, String endDate) {
+        mStartDate = startDate;
+        mEndDate = endDate;
         getMarkets()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -146,7 +152,7 @@ public class MarketRankViewModel extends BaseViewModel {
                 MarketGross gross = marketGrosses.get(i);
                 RankItem item = new RankItem();
                 item.setMovie(gross.getMovie());
-                if (!SettingProperty.isEnableVirtualMovie() && item.getMovie().getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+                if (isMovieDisable(gross.getMovie())) {
                     continue;
                 }
 
@@ -170,6 +176,19 @@ public class MarketRankViewModel extends BaseViewModel {
         });
     }
 
+    private boolean isMovieDisable(Movie movie) {
+        if (!SettingProperty.isEnableVirtualMovie() && movie.getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+            return true;
+        }
+        if (mStartDate != null && movie.getDebut().compareTo(mStartDate) < 0) {
+            return true;
+        }
+        if (mEndDate != null && movie.getDebut().compareTo(mEndDate) > 0) {
+            return true;
+        }
+        return false;
+    }
+
     private Observable<List<RankItem<MarketGross>>> getContinentsRankItems(String continent) {
         return Observable.create(e -> {
             Database database = MApplication.getInstance().getDatabase();
@@ -185,7 +204,7 @@ public class MarketRankViewModel extends BaseViewModel {
                 MarketGross gross = new MarketGross(cursor.getLong(0), cursor.getLong(1), cursor.getLong(2), cursor.getLong(3), cursor.getLong(4)
                     , cursor.getString(5), cursor.getString(6));
                 Movie movie = getDaoSession().getMovieDao().load(gross.getMovieId());
-                if (!SettingProperty.isEnableVirtualMovie() && movie.getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+                if (isMovieDisable(movie)) {
                     continue;
                 }
 
