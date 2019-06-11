@@ -167,6 +167,10 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
                         editMarketGross(position, item);
                     }
                 });
+                groupAdapter.setOnLongClickItemListener((view, position, item) -> {
+                    showMarketPage(item);
+                    return true;
+                });
                 mBinding.rvMarkets.setAdapter(groupAdapter);
             }
             else {
