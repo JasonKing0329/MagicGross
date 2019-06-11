@@ -75,8 +75,41 @@ public class MovieViewModel extends BaseViewModel {
 
     public ObservableField<String> marketRankInfo = new ObservableField<>();
 
+    private PageData pageData;
+
     public MovieViewModel(@NonNull Application application) {
         super(application);
+        pageData = new PageData();
+    }
+
+    private class PageData {
+        String mojoTitle;
+
+        String movieImageUrl;
+
+        String movieName;
+
+        String movieChnName;
+
+        String movieDebut;
+
+        String movieBudget;
+
+        String movieExchangeRate;
+
+        String movieMojoId;
+
+        String grossNa;
+
+        String grossChn;
+
+        String grossMarket;
+
+        String grossOversea;
+
+        String grossWorldWide;
+
+        String marketRankInfo;
     }
 
     public void loadMovie(long movieId) {
@@ -96,6 +129,7 @@ public class MovieViewModel extends BaseViewModel {
                     public void onNext(Movie movie) {
                         loadingObserver.setValue(false);
                         movieObserver.setValue(movie);
+                        bindGrossContent();
                         loadRankInfo();
                     }
 
@@ -111,6 +145,14 @@ public class MovieViewModel extends BaseViewModel {
 
                     }
                 });
+    }
+
+    private void bindGrossContent() {
+        grossNa.set(pageData.grossNa);
+        grossChn.set(pageData.grossChn);
+        grossMarket.set(pageData.grossMarket);
+        grossOversea.set(pageData.grossOversea);
+        grossWorldWide.set(pageData.grossWorldWide);
     }
 
     private Observable<Movie> getMovie(long movieId) {
@@ -159,9 +201,9 @@ public class MovieViewModel extends BaseViewModel {
             GrossStat stat = getDaoSession().getGrossStatDao().queryBuilder()
                     .where(GrossStatDao.Properties.MovieId.eq(movie.getId()))
                     .build().unique();
-            grossNa.set(FormatUtil.formatUsGross(stat.getUs()));
-            grossChn.set(FormatUtil.formatChnGross(stat.getChn()));
-            grossWorldWide.set(FormatUtil.formatUsGross(stat.getWorld()));
+            pageData.grossNa = FormatUtil.formatUsGross(stat.getUs());
+            pageData.grossChn = FormatUtil.formatChnGross(stat.getChn());
+            pageData.grossWorldWide = FormatUtil.formatUsGross(stat.getWorld());
 
             Gross gross = getDaoSession().getGrossDao().queryBuilder()
                     .where(GrossDao.Properties.MovieId.eq(movie.getId()))
@@ -169,16 +211,16 @@ public class MovieViewModel extends BaseViewModel {
                     .where(GrossDao.Properties.Region.eq(Region.OVERSEA.ordinal()))
                     .build().unique();
             if (gross == null) {
-                grossOversea.set("N/A");
+                pageData.grossOversea = "N/A";
             }
             else {
-                grossOversea.set(FormatUtil.formatUsGross(gross.getGross()));
+                pageData.grossOversea = FormatUtil.formatUsGross(gross.getGross());
             }
 
             long marketCount = getDaoSession().getMarketGrossDao().queryBuilder()
                     .where(MarketGrossDao.Properties.MovieId.eq(movie.getId()))
                     .buildCount().count();
-            grossMarket.set(marketCount + " Markets");
+            pageData.grossMarket = marketCount + " Markets";
             observer.onNext(movie);
         };
     }

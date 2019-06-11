@@ -280,7 +280,8 @@ public class ParseMojoViewModel extends BaseViewModel {
     public void confirmInsertLeft() {
         getDaoSession().getGrossDao().insertOrReplace(leftGross);
         getDaoSession().getGrossDao().detachAll();
-        statistic();
+        // 立即统计，不然即使通知了变化也会刷新不过来
+        statModel.statisticMovieInstant(mMovie);
 
         messageObserver.setValue("Success");
         // 通知daily数据变化
