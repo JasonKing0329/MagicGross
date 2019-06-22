@@ -215,6 +215,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
             mBinding.actionbar.showConfirmStatus(ID_SELECT_MODE);
         }
 
+        mBinding.actionbar.setOnSearchListener(words -> mModel.onFilterWordsChanged(words));
     }
 
     private void setSelectResult() {

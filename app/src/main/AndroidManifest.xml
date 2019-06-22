@@ -51,8 +51,10 @@
         <activity android:name=".page.EditMarketGrossActivity" />
         <activity android:name=".page.MarketRankActivity" />
         <activity android:name=".page.MovieActivity"
+            android:launchMode="singleInstance"
             android:theme="@style/OverStatusBarTheme"/>
         <activity android:name=".page.MarketPageActivity"
+            android:launchMode="singleInstance"
             android:theme="@style/OverStatusBarTheme"/>
         <activity
             android:name=".page.FullChartActivity"

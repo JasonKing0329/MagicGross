@@ -3,7 +3,6 @@ package com.king.app.gross.page;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
-import android.view.View;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.HeadChildBindingAdapter;
@@ -11,12 +10,14 @@ import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityMarketRankBinding;
 import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.model.entity.MarketGross;
+import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.page.adapter.MarketRankAdapter;
 import com.king.app.gross.page.adapter.MarketTextAdapter;
 import com.king.app.gross.utils.ScreenUtils;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
 import com.king.app.gross.view.dialog.content.EditMarketGrossFragment;
 import com.king.app.gross.viewmodel.MarketRankViewModel;
+import com.king.app.gross.viewmodel.bean.RankItem;
 
 public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, MarketRankViewModel> {
 
@@ -69,9 +70,17 @@ public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, 
             if (rankAdapter == null) {
                 rankAdapter = new MarketRankAdapter();
                 rankAdapter.setList(list);
-                rankAdapter.setOnItemClickListener((view, position, data) -> {
-                    if (marketAdapter.isMarketSelected()) {
-                        editMarketGross(position, data.getData());
+                rankAdapter.setOnItemListener(new MarketRankAdapter.OnItemListener() {
+                    @Override
+                    public void onClickMovie(int position, RankItem<MarketGross> item) {
+                        showMovie(item.getMovie());
+                    }
+
+                    @Override
+                    public void onClickGross(int position, RankItem<MarketGross> data) {
+                        if (marketAdapter.isMarketSelected()) {
+                            editMarketGross(position, data.getData());
+                        }
                     }
                 });
                 mBinding.rvMovie.setAdapter(rankAdapter);
@@ -83,6 +92,12 @@ public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, 
         });
 
         mModel.loadMarkets(getIntent().getStringExtra(EXTRA_START), getIntent().getStringExtra(EXTRA_END));
+    }
+
+    private void showMovie(Movie data) {
+        Intent intent = new Intent().setClass(this, MovieActivity.class);
+        intent.putExtra(MovieActivity.EXTRA_MOVIE_ID, data.getId());
+        startActivity(intent);
     }
 
     private void showMarketPage(Market market) {

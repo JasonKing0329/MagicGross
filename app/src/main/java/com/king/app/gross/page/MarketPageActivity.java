@@ -1,11 +1,13 @@
 package com.king.app.gross.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.databinding.ActivityMarketPageBinding;
+import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.page.adapter.MarketPageAdapter;
 import com.king.app.gross.viewmodel.MarketPageViewModel;
 
@@ -59,8 +61,23 @@ public class MarketPageActivity extends MvvmActivity<ActivityMarketPageBinding, 
         mModel.moviesObserver.observe(this, list -> {
             adapter = new MarketPageAdapter();
             adapter.setList(list);
+            adapter.setOnItemClickListener((view, position, data) -> showMovie(data.getMovie()));
             mBinding.rvMovie.setAdapter(adapter);
         });
         mModel.loadMarket(getMarketId());
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        mModel.loadMarket(getMarketId());
+    }
+
+    private void showMovie(Movie data) {
+        Intent intent = new Intent().setClass(this, MovieActivity.class);
+        intent.putExtra(MovieActivity.EXTRA_MOVIE_ID, data.getId());
+        startActivity(intent);
+    }
+
 }

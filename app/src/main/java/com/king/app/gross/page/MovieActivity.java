@@ -87,6 +87,13 @@ public class MovieActivity extends MvvmActivity<ActivityMovieBinding, MovieViewM
         mModel.loadMovie(getMovieId());
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        mModel.loadMovie(getMovieId());
+    }
+
     private long getMovieId() {
         return getIntent().getLongExtra(EXTRA_MOVIE_ID, -1);
     }

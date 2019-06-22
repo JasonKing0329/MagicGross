@@ -73,6 +73,8 @@ public class MovieListViewModel extends BaseViewModel {
 
     private String mYear;
 
+    private String mKeywords;
+
     public MovieListViewModel(@NonNull Application application) {
         super(application);
         checkMap = new HashMap<>();
@@ -86,14 +88,14 @@ public class MovieListViewModel extends BaseViewModel {
      */
     public void loadMovies() {
         mYear = AppConstants.TAG_YEAR_ALL;
-        loadMovies(null, true);
+        loadMovies(null, true, true);
     }
 
     /**
      * 改变了排序方式、标签，不需要重新创建标签
      */
-    public void onParamsChanged() {
-        loadMovies(null, false);
+    public void onParamsChanged(boolean showLoading) {
+        loadMovies(null, false, showLoading);
     }
 
     /**
@@ -102,12 +104,15 @@ public class MovieListViewModel extends BaseViewModel {
      */
     public void onMovieInserted(Movie showMovie) {
         mYear = AppConstants.TAG_YEAR_ALL;
-        loadMovies(showMovie, true);
+        loadMovies(showMovie, true, true);
     }
 
-    private void loadMovies(Movie showMovie, boolean createTags) {
-        loadingObserver.setValue(true);
+    private void loadMovies(Movie showMovie, boolean createTags, boolean showLoading) {
+        if (showLoading) {
+            loadingObserver.setValue(true);
+        }
         queryMovies()
+                .flatMap(list -> filterKeywords(list))
                 .flatMap(list -> toGridItems(list))
                 .flatMap(list -> {
                     if (createTags) {
@@ -241,19 +246,44 @@ public class MovieListViewModel extends BaseViewModel {
         return item;
     }
 
-    private Observable<List<MovieGridItem>> toGridItems(List<Movie> list) {
-        return Observable.create(e -> {
+    private ObservableSource<List<Movie>> filterKeywords(List<Movie> list) {
+        return observer -> {
+            if (mKeywords == null || mKeywords.trim().length() == 0) {
+                observer.onNext(list);
+            }
+            else {
+                List<Movie> results = new ArrayList<>();
+                for (Movie movie:list) {
+                    if (isContainKeywords(movie.getName(), mKeywords) || isContainKeywords(movie.getNameChn(), mKeywords)
+                            || isContainKeywords(movie.getSubName(), mKeywords) || isContainKeywords(movie.getSubChnName(), mKeywords)) {
+                        results.add(movie);
+                    }
+                }
+                observer.onNext(results);
+            }
+        };
+    }
+
+    private boolean isContainKeywords(String target, String keywords) {
+        if (TextUtils.isEmpty(target)) {
+            return false;
+        }
+        return target.toLowerCase().contains(keywords.toLowerCase());
+    }
+
+    private ObservableSource<List<MovieGridItem>> toGridItems(List<Movie> list) {
+        return observer -> {
             List<MovieGridItem> results = new ArrayList<>();
             Random random = new Random();
-            for (Movie movie:list) {
+            for (Movie movie : list) {
                 MovieGridItem item = convertMovie(movie, random);
                 results.add(item);
             }
             if (mSortType == AppConstants.MOVIE_SORT_NA || mSortType == AppConstants.MOVIE_SORT_CHN || mSortType == AppConstants.MOVIE_SORT_WW) {
                 Collections.sort(results, new GrossComparator(mSortType));
             }
-            e.onNext(results);
-        });
+            observer.onNext(results);
+        };
     }
 
     /**
@@ -368,7 +398,12 @@ public class MovieListViewModel extends BaseViewModel {
 
     public void filterYear(String year) {
         mYear = year;
-        onParamsChanged();
+        onParamsChanged(true);
+    }
+
+    public void onFilterWordsChanged(String words) {
+        mKeywords = words;
+        onParamsChanged(false);
     }
 
     private class GrossComparator implements Comparator<MovieGridItem> {
@@ -486,7 +521,7 @@ public class MovieListViewModel extends BaseViewModel {
     public void changeSortType(int sortType) {
         if (mSortType != sortType) {
             mSortType = sortType;
-            onParamsChanged();
+            onParamsChanged(true);
         }
     }
 
@@ -502,7 +537,7 @@ public class MovieListViewModel extends BaseViewModel {
         if (mRegionInList != regionInList) {
             mRegionInList = regionInList;
             SettingProperty.setRegionTypeInMovieList(regionInList);
-            onParamsChanged();
+            onParamsChanged(true);
         }
     }
 

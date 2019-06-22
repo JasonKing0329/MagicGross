@@ -28,8 +28,8 @@
             app:iconColor="@color/white"
             app:title="Movies"
             app:titleSize="18dp"
-            app:maxShowIcon="4"
-            app:supportSearch="false"/>
+            app:maxShowIcon="5"
+            app:supportSearch="true"/>
         <TextView
             android:id="@+id/tv_title_year"
             android:layout_width="wrap_content"

@@ -11,6 +11,13 @@ import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.viewmodel.bean.RankItem;
 
 public class MarketRankAdapter extends BaseBindingAdapter<AdapterMarketRankItemBinding, RankItem<MarketGross>> {
+
+    private OnItemListener onItemListener;
+
+    public void setOnItemListener(OnItemListener onItemListener) {
+        this.onItemListener = onItemListener;
+    }
+
     @Override
     protected int getItemLayoutRes() {
         return R.layout.adapter_market_rank_item;
@@ -41,10 +48,32 @@ public class MarketRankAdapter extends BaseBindingAdapter<AdapterMarketRankItemB
                     .load(bean.getImageUrl())
                     .error(R.drawable.bg_movie_default)
                     .into(binding.ivImage);
+            binding.clImage.setOnClickListener(v -> {
+                if (onItemListener != null) {
+                    onItemListener.onClickMovie(position, bean);
+                }
+            });
         }
         else {
             binding.clImage.setVisibility(View.GONE);
+            binding.clImage.setOnClickListener(null);
             binding.tvName.setVisibility(View.VISIBLE);
         }
+
+        binding.tvName.setOnClickListener(v -> {
+            if (onItemListener != null) {
+                onItemListener.onClickMovie(position, bean);
+            }
+        });
+        binding.tvValue.setOnClickListener(v -> {
+            if (onItemListener != null) {
+                onItemListener.onClickGross(position, bean);
+            }
+        });
+    }
+
+    public interface OnItemListener {
+        void onClickMovie(int position, RankItem<MarketGross> item);
+        void onClickGross(int position, RankItem<MarketGross> item);
     }
 }
