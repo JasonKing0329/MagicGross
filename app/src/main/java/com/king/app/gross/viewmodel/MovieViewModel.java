@@ -14,13 +14,14 @@ import com.king.app.gross.model.entity.Gross;
 import com.king.app.gross.model.entity.GrossDao;
 import com.king.app.gross.model.entity.GrossStat;
 import com.king.app.gross.model.entity.GrossStatDao;
-import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.model.gross.StatModel;
 import com.king.app.gross.model.setting.SettingProperty;
+import com.king.app.gross.page.bean.MovieBasicData;
+import com.king.app.gross.page.bean.MovieMarketItem;
 import com.king.app.gross.utils.FormatUtil;
 
 import org.greenrobot.greendao.query.QueryBuilder;
@@ -45,8 +46,6 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class MovieViewModel extends BaseViewModel {
 
-    public ObservableField<String> mojoTitle = new ObservableField<>();
-
     public ObservableField<String> movieImageUrl = new ObservableField<>();
 
     public ObservableField<String> movieName = new ObservableField<>();
@@ -55,61 +54,15 @@ public class MovieViewModel extends BaseViewModel {
 
     public ObservableField<String> movieDebut = new ObservableField<>();
 
-    public ObservableField<String> movieBudget = new ObservableField<>();
-
-    public ObservableField<String> movieExchangeRate = new ObservableField<>();
-
-    public ObservableField<String> movieMojoId = new ObservableField<>();
-
-    public ObservableField<String> grossNa = new ObservableField<>();
-
-    public ObservableField<String> grossChn = new ObservableField<>();
-
-    public ObservableField<String> grossMarket = new ObservableField<>();
-
-    public ObservableField<String> grossOversea = new ObservableField<>();
-
-    public ObservableField<String> grossWorldWide = new ObservableField<>();
-
     public MutableLiveData<Movie> movieObserver = new MutableLiveData<>();
 
-    public ObservableField<String> marketRankInfo = new ObservableField<>();
+    public MutableLiveData<List<Object>> pageDataObserver = new MutableLiveData<>();
 
-    private PageData pageData;
+    private MovieBasicData basicData;
 
     public MovieViewModel(@NonNull Application application) {
         super(application);
-        pageData = new PageData();
-    }
-
-    private class PageData {
-        String mojoTitle;
-
-        String movieImageUrl;
-
-        String movieName;
-
-        String movieChnName;
-
-        String movieDebut;
-
-        String movieBudget;
-
-        String movieExchangeRate;
-
-        String movieMojoId;
-
-        String grossNa;
-
-        String grossChn;
-
-        String grossMarket;
-
-        String grossOversea;
-
-        String grossWorldWide;
-
-        String marketRankInfo;
+        basicData = new MovieBasicData();
     }
 
     public void loadMovie(long movieId) {
@@ -129,7 +82,11 @@ public class MovieViewModel extends BaseViewModel {
                     public void onNext(Movie movie) {
                         loadingObserver.setValue(false);
                         movieObserver.setValue(movie);
-                        bindGrossContent();
+
+                        List<Object> list = new ArrayList<>();
+                        list.add(basicData);
+                        pageDataObserver.setValue(list);
+
                         loadRankInfo();
                     }
 
@@ -145,14 +102,6 @@ public class MovieViewModel extends BaseViewModel {
 
                     }
                 });
-    }
-
-    private void bindGrossContent() {
-        grossNa.set(pageData.grossNa);
-        grossChn.set(pageData.grossChn);
-        grossMarket.set(pageData.grossMarket);
-        grossOversea.set(pageData.grossOversea);
-        grossWorldWide.set(pageData.grossWorldWide);
     }
 
     private Observable<Movie> getMovie(long movieId) {
@@ -177,20 +126,20 @@ public class MovieViewModel extends BaseViewModel {
             }
             movieDebut.set(movie.getDebut());
             movieImageUrl.set(ImageUrlProvider.getMovieImageRandom(movie));
-            movieExchangeRate.set(String.valueOf(movie.getUsToYuan()));
-            movieMojoId.set(movie.getMojoId());
+            basicData.setExchangeRate(String.valueOf(movie.getUsToYuan()));
+            basicData.setMojoId(movie.getMojoId());
             if (movie.getBudget() == 0) {
-                movieBudget.set("N/A");
+                basicData.setBudget("N/A");
             }
             else {
-                movieBudget.set(FormatUtil.formatUsGross(movie.getBudget()));
+                basicData.setBudget(FormatUtil.formatUsGross(movie.getBudget()));
             }
 
             if (movie.getIsReal() == AppConstants.MOVIE_REAL) {
-                mojoTitle.set("Mojo Id");
+                basicData.setMojoTitle("Mojo Id");
             }
             else {
-                mojoTitle.set("Virtual Movie");
+                basicData.setMojoTitle("Virtual Movie");
             }
             observer.onNext(movie);
         };
@@ -201,9 +150,9 @@ public class MovieViewModel extends BaseViewModel {
             GrossStat stat = getDaoSession().getGrossStatDao().queryBuilder()
                     .where(GrossStatDao.Properties.MovieId.eq(movie.getId()))
                     .build().unique();
-            pageData.grossNa = FormatUtil.formatUsGross(stat.getUs());
-            pageData.grossChn = FormatUtil.formatChnGross(stat.getChn());
-            pageData.grossWorldWide = FormatUtil.formatUsGross(stat.getWorld());
+            basicData.setGrossNa(FormatUtil.formatUsGross(stat.getUs()));
+            basicData.setGrossChn(FormatUtil.formatChnGross(stat.getChn()));
+            basicData.setGrossWorldWide(FormatUtil.formatUsGross(stat.getWorld()));
 
             Gross gross = getDaoSession().getGrossDao().queryBuilder()
                     .where(GrossDao.Properties.MovieId.eq(movie.getId()))
@@ -211,16 +160,16 @@ public class MovieViewModel extends BaseViewModel {
                     .where(GrossDao.Properties.Region.eq(Region.OVERSEA.ordinal()))
                     .build().unique();
             if (gross == null) {
-                pageData.grossOversea = "N/A";
+                basicData.setGrossOversea("N/A");
             }
             else {
-                pageData.grossOversea = FormatUtil.formatUsGross(gross.getGross());
+                basicData.setGrossOversea(FormatUtil.formatUsGross(gross.getGross()));
             }
 
             long marketCount = getDaoSession().getMarketGrossDao().queryBuilder()
                     .where(MarketGrossDao.Properties.MovieId.eq(movie.getId()))
                     .buildCount().count();
-            pageData.grossMarket = marketCount + " Markets";
+            basicData.setGrossMarket(marketCount + " Markets");
             observer.onNext(movie);
         };
     }
@@ -253,30 +202,25 @@ public class MovieViewModel extends BaseViewModel {
                 });
     }
 
-    private class RankItem {
-        Market market;
-        int rank;
-        int total;
-    }
-
     private void loadRankInfo() {
         getMarketRankInfo()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<String>() {
+                .subscribe(new Observer<List<Object>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(String s) {
-                        marketRankInfo.set(s);
+                    public void onNext(List<Object> list) {
+                        pageDataObserver.setValue(list);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         e.printStackTrace();
+                        messageObserver.setValue(e.getMessage());
                     }
 
                     @Override
@@ -286,13 +230,13 @@ public class MovieViewModel extends BaseViewModel {
                 });
     }
 
-    private Observable<String> getMarketRankInfo() {
+    private Observable<List<Object>> getMarketRankInfo() {
         return Observable.create(e -> {
             long movieId = movieObserver.getValue().getId();
             List<MarketGross> marketGrosses = getDaoSession().getMarketGrossDao().queryBuilder()
                     .where(MarketGrossDao.Properties.MovieId.eq(movieId))
                     .build().list();
-            List<RankItem> items = new ArrayList<>();
+            List<MovieMarketItem> list = new ArrayList<>();
             for (MarketGross mg:marketGrosses) {
                 QueryBuilder<MarketGross> builder = getDaoSession().getMarketGrossDao().queryBuilder();
                 if (!SettingProperty.isEnableVirtualMovie()) {
@@ -307,18 +251,19 @@ public class MovieViewModel extends BaseViewModel {
 
                 // 只取大市场的排名（market_gross记录超过100）
                 if (movies.size() >= 100) {
-                    RankItem item = new RankItem();
-                    item.market = mg.getMarket();
-                    item.total = movies.size();
-                    item.rank = findRankInMarket(movieId, movies);
-                    items.add(item);
+                    MovieMarketItem item = new MovieMarketItem();
+                    item.setMarket(mg.getMarket());
+                    item.setTotal(movies.size());
+                    item.setRank(findRankInMarket(movieId, movies));
+                    mg.getMarket().setImageUrl(ImageUrlProvider.getMarketFlag(mg.getMarket()));
+                    list.add(item);
                 }
             }
             // 按rank升序排名
-            Collections.sort(items, new RankComparator());
+            Collections.sort(list, new RankComparator());
 
-            String info = formatRankInfo(items);
-            e.onNext(info);
+            List<Object> items = formatRankInfo(list);
+            e.onNext(items);
         });
     }
 
@@ -331,18 +276,17 @@ public class MovieViewModel extends BaseViewModel {
         return 0;
     }
 
-    private String formatRankInfo(List<RankItem> items) {
-        StringBuffer buffer = new StringBuffer();
+    private List<Object> formatRankInfo(List<MovieMarketItem> items) {
         String lastGroup = null;
-        for (RankItem item:items) {
-            String group = getGroupRank(item.rank);
+        for (MovieMarketItem item:items) {
+            String group = getGroupRank(item.getRank());
             if (!group.equals(lastGroup)) {
                 lastGroup = group;
-                buffer.append("\n").append(group).append("\n");
+                pageDataObserver.getValue().add(group);
             }
-            buffer.append(item.market.getName()).append("(").append(item.rank).append("/").append(item.total).append(")  ");
+            pageDataObserver.getValue().add(item);
         }
-        return buffer.toString();
+        return pageDataObserver.getValue();
     }
 
     private String getGroupRank(int rank) {
@@ -372,11 +316,11 @@ public class MovieViewModel extends BaseViewModel {
         }
     }
 
-    private class RankComparator implements Comparator<RankItem> {
+    private class RankComparator implements Comparator<MovieMarketItem> {
 
         @Override
-        public int compare(RankItem left, RankItem right) {
-            return left.rank - right.rank;
+        public int compare(MovieMarketItem left, MovieMarketItem right) {
+            return left.getRank() - right.getRank();
         }
     }
 }
