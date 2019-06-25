@@ -45,6 +45,7 @@ public class RankViewModel extends BaseViewModel {
     public MutableLiveData<List<RankItem>> itemsObserver = new MutableLiveData<>();
 
     public ObservableField<String> titleValueText = new ObservableField<>();
+    public ObservableField<String> titleRateText = new ObservableField<>();
     public ObservableInt titleRateVisibility = new ObservableInt();
 
     private Region mRegion;
@@ -185,6 +186,7 @@ public class RankViewModel extends BaseViewModel {
         // 仅total与opening计算相对全球占比
         if ((mRankType == RankType.TOTAL || mRankType == RankType.OPENING)
                 && mRegion != Region.WORLDWIDE) {
+            titleRateText.set("占比");
             titleRateVisibility.set(View.VISIBLE);
         }
         else {
@@ -195,8 +197,10 @@ public class RankViewModel extends BaseViewModel {
         if (mRankType == RankType.RATE) {
             titleValueText.set("指数");
         }
-        else if (mRankType == RankType.BUDGET) {
+        else if (mRankType == RankType.BUDGET || mRankType == RankType.BUDGET_RATE) {
+            titleRateText.set("回报率");
             titleValueText.set("Budget");
+            titleRateVisibility.set(View.VISIBLE);
         }
         else {
             titleValueText.set("票房");
@@ -204,7 +208,7 @@ public class RankViewModel extends BaseViewModel {
     }
 
     public boolean isShowRate() {
-        return mRankType == RankType.TOTAL || mRankType == RankType.OPENING;
+        return mRankType == RankType.TOTAL || mRankType == RankType.OPENING || mRankType == RankType.BUDGET || mRankType == RankType.BUDGET_RATE;
     }
 
     private class ValueComparator implements Comparator<RankItem> {

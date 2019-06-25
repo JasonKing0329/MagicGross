@@ -87,6 +87,9 @@ public class RankModel {
             case BUDGET:
                 loadBudgetValue(movie, item);
                 break;
+            case BUDGET_RATE:
+                loadBudgetRateValue(movie, item);
+                break;
             case TOP_DAY:
                 loadTopDay(movie, region, item);
                 break;
@@ -209,8 +212,23 @@ public class RankModel {
     }
 
     private void loadBudgetValue(Movie movie, RankItem item) {
-        item.setSortValue(movie.getBudget());
-        item.setValue(FormatUtil.formatUsGross(movie.getBudget()));
+        if (movie.getBudget() > 0) {
+            long gross = getTotalGross(movie, Region.WORLDWIDE);
+            item.setValue(FormatUtil.formatUsGross(movie.getBudget()));
+            double rate = (double) gross / (double) movie.getBudget();
+            item.setSortValue(movie.getBudget());
+            item.setRate(FormatUtil.pointZZ(rate));
+        }
+    }
+
+    private void loadBudgetRateValue(Movie movie, RankItem item) {
+        if (movie.getBudget() > 0) {
+            long gross = getTotalGross(movie, Region.WORLDWIDE);
+            item.setValue(FormatUtil.formatUsGross(movie.getBudget()));
+            double rate = (double) gross / (double) movie.getBudget();
+            item.setSortValue(rate);
+            item.setRate(FormatUtil.pointZZ(rate));
+        }
     }
 
     private void loadTopDay(Movie movie, Region region, RankItem item) {
