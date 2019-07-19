@@ -99,4 +99,42 @@
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
+    <style name="EtRatingScore">
+        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">numberDecimal</item>
+        <item name="android:textSize">14dp</item>
+    </style>
+
+    <style name="EtRatingPerson">
+        <item name="android:layout_width">70dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">numberDecimal</item>
+        <item name="android:textSize">14dp</item>
+        <item name="android:hint">Persons</item>
+    </style>
+
+    <style name="TvMovieRatingPerson">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_sub</item>
+        <item name="android:textSize">10dp</item>
+    </style>
+
+    <style name="TvMovieRatingScore">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_red</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="IvMovieRatingIcon">
+        <item name="android:layout_width">@dimen/rating_icon</item>
+        <item name="android:layout_height">@dimen/rating_icon</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
 </resources>

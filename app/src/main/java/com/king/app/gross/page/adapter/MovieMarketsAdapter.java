@@ -1,6 +1,7 @@
 package com.king.app.gross.page.adapter;
 
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.king.app.gross.R;
+import com.king.app.gross.conf.RatingSystem;
 import com.king.app.gross.databinding.AdapterMovieBasicBinding;
 import com.king.app.gross.databinding.AdapterMovieMarketItemBinding;
 import com.king.app.gross.databinding.AdapterMovieMarketTopBinding;
@@ -130,6 +132,29 @@ public class MovieMarketsAdapter extends RecyclerView.Adapter {
         binding.rlOversea.setOnClickListener(e -> onBasicDataListener.onClickGrossOversea());
         binding.rlWw.setOnClickListener(e -> onBasicDataListener.onClickGrossWorld());
 
+        if (data.getRottenPro() != null && data.getRottenPro().getRating() != null) {
+            double score = data.getRottenPro().getRating().getScore();
+            if (score < RatingSystem.ROTTEN_SCORE_ROTTEN) {
+                binding.ivRottenPro.setImageResource(R.drawable.rotten_rotten);
+            }
+            else {
+                binding.ivRottenPro.setImageResource(R.drawable.rotten_fresh);
+            }
+        }
+        if (data.getMetaScore() != null && data.getMetaScore().getRating() != null) {
+            double score = data.getMetaScore().getRating().getScore();
+            GradientDrawable drawable = (GradientDrawable) binding.tvMetaScore.getBackground();
+            if (score >= RatingSystem.META_GREEN) {
+                drawable.setColor(binding.tvMetaScore.getResources().getColor(R.color.meta_good));
+            }
+            else if (score >= RatingSystem.META_YELLOW) {
+                drawable.setColor(binding.tvMetaScore.getResources().getColor(R.color.meta_normal));
+            }
+            else {
+                drawable.setColor(binding.tvMetaScore.getResources().getColor(R.color.meta_bad));
+            }
+            binding.tvMetaScore.setBackground(drawable);
+        }
     }
 
     protected void onClickItem(View view, int position, MovieMarketItem item) {

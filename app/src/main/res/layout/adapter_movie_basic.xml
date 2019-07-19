@@ -2,6 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
+        <import type="android.view.View"/>
         <variable
             name="data"
             type="com.king.app.gross.page.bean.MovieBasicData"/>
@@ -231,6 +232,237 @@
                 android:layout_alignParentRight="true"
                 android:text="@{data.grossMarket}"/>
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tv_title_rating"
+            android:text="Ratings"
+            style="@style/TvMovieParamTitle"
+            android:paddingBottom="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rl_market" />
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/rl_imdb"
+            style="@style/GroupMovieParam"
+            android:visibility="@{data.imdb == null ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_rating">
+            <ImageView
+                style="@style/IvMovieRatingIcon"
+                android:src="@drawable/imdb"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+            <TextView
+                android:id="@+id/tv_imdb_person"
+                style="@style/TvMovieRatingPerson"
+                android:text="@{data.imdb.person}"
+                android:visibility="@{data.imdb.person == null ? View.GONE : View.VISIBLE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_imdb_score" />
+            <TextView
+                android:id="@+id/tv_imdb_score"
+                style="@style/TvMovieRatingScore"
+                android:text="@{data.imdb.score}"
+                android:layout_marginEnd="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_imdb_person"/>
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/rl_meta"
+            style="@style/GroupMovieParam"
+            android:visibility="@{data.metaScore == null ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rl_imdb">
+            <ImageView
+                style="@style/IvMovieRatingIcon"
+                android:src="@drawable/metascore"/>
+            <TextView
+                android:id="@+id/tv_meta_person"
+                style="@style/TvMovieRatingPerson"
+                android:text="@{data.metaScore.person}"
+                android:visibility="@{data.metaScore.person == null ? View.GONE : View.VISIBLE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_meta_score" />
+            <TextView
+                android:id="@+id/tv_meta_score"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/shape_round_2"
+                android:text="@{data.metaScore.score}"
+                android:textColor="@color/white"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginEnd="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_meta_person"/>
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/cl_rotten"
+            style="@style/GroupMovieParam"
+            android:visibility="@{data.isRottenEmpty() ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rl_meta">
+            <ImageView
+                android:id="@+id/iv_rotten_pro"
+                style="@style/IvMovieRatingIcon"
+                android:src="@drawable/rotten_fresh"
+                android:visibility="@{data.rottenPro == null ? View.GONE : View.VISIBLE}"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ll_rotten_pro"/>
+            <LinearLayout
+                android:id="@+id/ll_rotten_pro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp"
+                android:visibility="@{data.rottenPro == null ? View.GONE : View.VISIBLE}"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toEndOf="@id/iv_rotten_pro"
+                app:layout_constraintEnd_toStartOf="@+id/iv_rotten_aud"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+                <TextView
+                    android:id="@+id/tv_rotten_pro_score"
+                    style="@style/TvMovieRatingScore"
+                    android:text="@{data.rottenPro.score}"/>
+                <TextView
+                    android:id="@+id/tv_rotten_pro_person"
+                    style="@style/TvMovieRatingPerson"
+                    android:text="@{data.rottenPro.person}"
+                    android:visibility="@{data.rottenPro.person == null ? View.GONE : View.VISIBLE}" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_rotten_aud"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp"
+                android:visibility="@{data.rottenAud == null ? View.GONE : View.VISIBLE}"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toEndOf="@+id/iv_rotten_aud"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+                <TextView
+                    android:id="@+id/tv_rotten_aud"
+                    style="@style/TvMovieRatingScore"
+                    android:text="@{data.rottenAud.score}"/>
+                <TextView
+                    android:id="@+id/tv_rotten_aud_person"
+                    style="@style/TvMovieRatingPerson"
+                    android:text="@{data.rottenAud.person}"
+                    android:visibility="@{data.rottenAud.person == null ? View.GONE : View.VISIBLE}" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/iv_rotten_aud"
+                style="@style/IvMovieRatingIcon"
+                android:src="@drawable/rotten_audience"
+                android:visibility="@{data.rottenAud == null ? View.GONE : View.VISIBLE}"
+                android:layout_marginStart="50dp"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toEndOf="@+id/ll_rotten_pro"
+                app:layout_constraintEnd_toStartOf="@id/ll_rotten_aud"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/rl_douban"
+            style="@style/GroupMovieParam"
+            android:visibility="@{data.douBan == null ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_rotten">
+            <ImageView
+                style="@style/IvMovieRatingIcon"
+                android:src="@drawable/douban" />
+            <TextView
+                android:id="@+id/tv_db_person"
+                style="@style/TvMovieRatingPerson"
+                android:text="@{data.douBan.person}"
+                android:visibility="@{data.douBan.person == null ? View.GONE : View.VISIBLE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_db_score" />
+            <TextView
+                android:id="@+id/tv_db_score"
+                style="@style/TvMovieRatingScore"
+                android:text="@{data.douBan.score}"
+                android:layout_marginEnd="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_db_person"/>
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/rl_maoyan"
+            style="@style/GroupMovieParam"
+            android:visibility="@{data.maoYan == null ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rl_douban">
+            <ImageView
+                style="@style/IvMovieRatingIcon"
+                android:src="@drawable/maoyan"/>
+            <TextView
+                android:id="@+id/tv_my_person"
+                style="@style/TvMovieRatingPerson"
+                android:text="@{data.maoYan.person}"
+                android:visibility="@{data.maoYan.person == null ? View.GONE : View.VISIBLE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_my_score" />
+            <TextView
+                android:id="@+id/tv_my_score"
+                style="@style/TvMovieRatingScore"
+                android:text="@{data.maoYan.score}"
+                android:layout_marginEnd="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_my_person"/>
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/rl_tpp"
+            style="@style/GroupMovieParam"
+            android:visibility="@{data.taoPiaoPiao == null ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rl_maoyan">
+            <ImageView
+                style="@style/IvMovieRatingIcon"
+                android:src="@drawable/taopiaopiao"/>
+            <TextView
+                android:id="@+id/tv_tpp_person"
+                style="@style/TvMovieRatingPerson"
+                android:text="@{data.taoPiaoPiao.person}"
+                android:visibility="@{data.taoPiaoPiao.person == null ? View.GONE : View.VISIBLE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_tpp_score" />
+            <TextView
+                android:id="@+id/tv_tpp_score"
+                style="@style/TvMovieRatingScore"
+                android:layout_marginEnd="10dp"
+                android:text="@{data.taoPiaoPiao.score}"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_tpp_person"/>
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.constraint.ConstraintLayout>
 </layout>

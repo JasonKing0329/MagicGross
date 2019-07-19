@@ -30,4 +30,8 @@
     <color name="rank_other">#8f9296</color>
     <color name="transparent">#00ffffff</color>
     <color name="group_menu_bg">#99eeeeee</color>
+
+    <color name="meta_good">#32b448</color>
+    <color name="meta_normal">#fec31d</color>
+    <color name="meta_bad">#f04220</color>
 </resources>

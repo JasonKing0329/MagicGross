@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.conf.AppConstants;
+import com.king.app.gross.conf.RatingSystem;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.ImageUrlProvider;
 import com.king.app.gross.model.entity.Gross;
@@ -18,11 +19,14 @@ import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
+import com.king.app.gross.model.entity.MovieRating;
 import com.king.app.gross.model.gross.StatModel;
 import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.page.bean.MovieBasicData;
 import com.king.app.gross.page.bean.MovieMarketItem;
+import com.king.app.gross.page.bean.RatingData;
 import com.king.app.gross.utils.FormatUtil;
+import com.king.app.gross.utils.ListUtil;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
@@ -141,6 +145,45 @@ public class MovieViewModel extends BaseViewModel {
             else {
                 basicData.setMojoTitle("Virtual Movie");
             }
+
+            // ratings
+            if (!ListUtil.isEmpty(movie.getRatingList())) {
+                for (MovieRating rating:movie.getRatingList()) {
+                    if (rating.getScore() > 0) {
+                        RatingData data = new RatingData();
+                        if (rating.getPerson() > 0) {
+                            data.setPerson(FormatUtil.formatDivideNumber(rating.getPerson()));
+                        }
+                        data.setRating(rating);
+                        data.setScore(FormatUtil.formatNumber(rating.getScore()));
+
+                        if (rating.getSystemId() == RatingSystem.IMDB) {
+                            basicData.setImdb(data);
+                        }
+                        else if (rating.getSystemId() == RatingSystem.META) {
+                            basicData.setMetaScore(data);
+                        }
+                        else if (rating.getSystemId() == RatingSystem.ROTTEN_AUD) {
+                            data.setScore(data.getScore() + "%");
+                            basicData.setRottenAud(data);
+                        }
+                        else if (rating.getSystemId() == RatingSystem.ROTTEN_PRO) {
+                            data.setScore(data.getScore() + "%");
+                            basicData.setRottenPro(data);
+                        }
+                        else if (rating.getSystemId() == RatingSystem.DOUBAN) {
+                            basicData.setDouBan(data);
+                        }
+                        else if (rating.getSystemId() == RatingSystem.MAOYAN) {
+                            basicData.setMaoYan(data);
+                        }
+                        else if (rating.getSystemId() == RatingSystem.TAOPP) {
+                            basicData.setTaoPiaoPiao(data);
+                        }
+                    }
+                }
+            }
+
             observer.onNext(movie);
         };
     }

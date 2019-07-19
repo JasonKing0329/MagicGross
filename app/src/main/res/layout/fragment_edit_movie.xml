@@ -108,7 +108,8 @@
             android:text="@string/ok"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_tpp"/>
 
         <TextView
             android:id="@+id/tv_title_date"
@@ -157,6 +158,171 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/et_mojo"
             app:srcCompat="@drawable/ic_cloud_download_red_500_24dp" />
+
+        <TextView
+            android:id="@+id/tv_imdb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="IMDB"
+            app:layout_constraintBottom_toBottomOf="@+id/et_imdb"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/et_imdb" />
+
+        <EditText
+            android:id="@+id/et_imdb"
+            style="@style/EtRatingScore"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_imdb"
+            app:layout_constraintTop_toBottomOf="@+id/btn_debut" />
+
+        <EditText
+            android:id="@+id/et_imdb_person"
+            style="@style/EtRatingPerson"
+            app:layout_constraintBottom_toBottomOf="@+id/et_imdb"
+            app:layout_constraintStart_toEndOf="@+id/et_imdb"
+            app:layout_constraintTop_toTopOf="@+id/et_imdb" />
+
+        <TextView
+            android:id="@+id/tv_meta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Metascore"
+            app:layout_constraintBottom_toBottomOf="@+id/et_imdb"
+            app:layout_constraintStart_toEndOf="@+id/et_imdb_person"
+            app:layout_constraintTop_toTopOf="@+id/et_imdb" />
+
+        <EditText
+            android:id="@+id/et_meta"
+            style="@style/EtRatingScore"
+            app:layout_constraintBottom_toBottomOf="@+id/et_imdb"
+            app:layout_constraintStart_toEndOf="@+id/tv_meta"
+            app:layout_constraintTop_toTopOf="@+id/et_imdb" />
+
+        <EditText
+            android:id="@+id/et_meta_person"
+            style="@style/EtRatingPerson"
+            app:layout_constraintBottom_toBottomOf="@+id/et_imdb"
+            app:layout_constraintStart_toEndOf="@+id/et_meta"
+            app:layout_constraintTop_toTopOf="@+id/et_imdb" />
+
+        <EditText
+            android:id="@+id/et_rotten_pro"
+            style="@style/EtRatingScore"
+            app:layout_constraintStart_toEndOf="@+id/tv_rotten_pro"
+            app:layout_constraintTop_toBottomOf="@+id/et_imdb" />
+
+        <EditText
+            android:id="@+id/et_rotten_pro_person"
+            style="@style/EtRatingPerson"
+            app:layout_constraintBottom_toBottomOf="@+id/et_rotten_pro"
+            app:layout_constraintStart_toEndOf="@+id/et_rotten_pro"
+            app:layout_constraintTop_toTopOf="@+id/et_rotten_pro" />
+
+        <TextView
+            android:id="@+id/tv_rotten_pro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Rotten Pro"
+            app:layout_constraintBottom_toBottomOf="@+id/et_rotten_pro"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/et_rotten_pro" />
+
+        <TextView
+            android:id="@+id/tv_rotten_aud"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Audience"
+            app:layout_constraintBottom_toBottomOf="@+id/et_rotten_pro"
+            app:layout_constraintStart_toEndOf="@+id/et_rotten_pro_person"
+            app:layout_constraintTop_toTopOf="@+id/et_rotten_pro" />
+
+        <EditText
+            android:id="@+id/et_rotten_aud"
+            style="@style/EtRatingScore"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_rotten_aud"
+            app:layout_constraintStart_toEndOf="@+id/tv_rotten_aud"
+            app:layout_constraintTop_toTopOf="@+id/tv_rotten_aud" />
+
+        <EditText
+            android:id="@+id/et_rotten_aud_person"
+            style="@style/EtRatingPerson"
+            app:layout_constraintBottom_toBottomOf="@+id/et_rotten_pro"
+            app:layout_constraintStart_toEndOf="@+id/et_rotten_aud"
+            app:layout_constraintTop_toTopOf="@+id/et_rotten_pro" />
+
+        <EditText
+            android:id="@+id/et_douban"
+            style="@style/EtRatingScore"
+            app:layout_constraintStart_toEndOf="@+id/tv_douban"
+            app:layout_constraintTop_toBottomOf="@+id/et_rotten_pro" />
+
+        <EditText
+            android:id="@+id/et_douban_person"
+            style="@style/EtRatingPerson"
+            app:layout_constraintBottom_toBottomOf="@+id/et_douban"
+            app:layout_constraintStart_toEndOf="@+id/et_douban"
+            app:layout_constraintTop_toTopOf="@+id/et_douban" />
+
+        <TextView
+            android:id="@+id/tv_douban"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="豆瓣"
+            app:layout_constraintBottom_toBottomOf="@+id/et_douban"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/et_douban" />
+
+        <TextView
+            android:id="@+id/tv_maoyan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="猫眼"
+            app:layout_constraintBottom_toBottomOf="@+id/et_douban"
+            app:layout_constraintStart_toEndOf="@+id/et_douban_person"
+            app:layout_constraintTop_toTopOf="@+id/et_douban" />
+
+        <EditText
+            android:id="@+id/et_maoyan"
+            style="@style/EtRatingScore"
+            app:layout_constraintBottom_toBottomOf="@+id/et_douban"
+            app:layout_constraintStart_toEndOf="@+id/tv_maoyan"
+            app:layout_constraintTop_toTopOf="@+id/et_douban" />
+
+        <EditText
+            android:id="@+id/et_maoyan_person"
+            style="@style/EtRatingPerson"
+            app:layout_constraintBottom_toBottomOf="@+id/et_douban"
+            app:layout_constraintStart_toEndOf="@+id/et_maoyan"
+            app:layout_constraintTop_toTopOf="@+id/et_douban" />
+
+        <TextView
+            android:id="@+id/tv_tpp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="淘票票"
+            app:layout_constraintBottom_toBottomOf="@+id/et_tpp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/et_tpp" />
+
+        <EditText
+            android:id="@+id/et_tpp"
+            style="@style/EtRatingScore"
+            app:layout_constraintTop_toBottomOf="@+id/et_douban"
+            app:layout_constraintStart_toEndOf="@+id/tv_tpp" />
+
+        <EditText
+            android:id="@+id/et_tpp_person"
+            style="@style/EtRatingPerson"
+            app:layout_constraintBottom_toBottomOf="@+id/et_tpp"
+            app:layout_constraintStart_toEndOf="@+id/et_tpp"
+            app:layout_constraintTop_toTopOf="@+id/et_tpp" />
 
     </android.support.constraint.ConstraintLayout>
 </layout>

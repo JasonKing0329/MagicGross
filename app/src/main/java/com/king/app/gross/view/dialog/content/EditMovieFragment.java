@@ -3,21 +3,30 @@ package com.king.app.gross.view.dialog.content;
 import android.arch.lifecycle.ViewModelProviders;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.EditText;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.IFragmentHolder;
 import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.AppConstants;
+import com.king.app.gross.conf.RatingSystem;
 import com.king.app.gross.databinding.FragmentEditMovieBinding;
+import com.king.app.gross.model.entity.MovieRating;
+import com.king.app.gross.model.entity.MovieRatingDao;
 import com.king.app.gross.model.gross.StatModel;
 import com.king.app.gross.model.entity.GrossStat;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.setting.SettingProperty;
+import com.king.app.gross.utils.FormatUtil;
+import com.king.app.gross.utils.ListUtil;
 import com.king.app.gross.view.dialog.DatePickerFragment;
 import com.king.app.gross.viewmodel.EditMovieViewModel;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Desc:
@@ -74,6 +83,7 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
             mDebutDate = mEditMovie.getDebut();
             mBinding.btnDebut.setText(mEditMovie.getDebut());
             mBinding.cbIsReal.setChecked(mEditMovie.getIsReal() == AppConstants.MOVIE_REAL);
+            initRatings(mEditMovie.getRatingList());
         }
         mBinding.btnDebut.setOnClickListener(view -> selectDate());
 
@@ -94,6 +104,41 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
             mDebutDate = movie.getDebut();
             mBinding.btnDebut.setText(movie.getDebut());
         });
+    }
+
+    private void initRatings(List<MovieRating> ratingList) {
+        if (!ListUtil.isEmpty(ratingList)) {
+            for (MovieRating rating:ratingList) {
+                if (rating.getSystemId() == RatingSystem.IMDB) {
+                    mBinding.etImdb.setText(FormatUtil.formatNumber(rating.getScore()));
+                    mBinding.etImdbPerson.setText(String.valueOf(rating.getPerson()));
+                }
+                else if (rating.getSystemId() == RatingSystem.ROTTEN_PRO) {
+                    mBinding.etRottenPro.setText(FormatUtil.formatNumber(rating.getScore()));
+                    mBinding.etRottenProPerson.setText(String.valueOf(rating.getPerson()));
+                }
+                else if (rating.getSystemId() == RatingSystem.ROTTEN_AUD) {
+                    mBinding.etRottenAud.setText(FormatUtil.formatNumber(rating.getScore()));
+                    mBinding.etRottenAudPerson.setText(String.valueOf(rating.getPerson()));
+                }
+                else if (rating.getSystemId() == RatingSystem.META) {
+                    mBinding.etMeta.setText(FormatUtil.formatNumber(rating.getScore()));
+                    mBinding.etMetaPerson.setText(String.valueOf(rating.getPerson()));
+                }
+                else if (rating.getSystemId() == RatingSystem.DOUBAN) {
+                    mBinding.etDouban.setText(FormatUtil.formatNumber(rating.getScore()));
+                    mBinding.etDoubanPerson.setText(String.valueOf(rating.getPerson()));
+                }
+                else if (rating.getSystemId() == RatingSystem.MAOYAN) {
+                    mBinding.etMaoyan.setText(FormatUtil.formatNumber(rating.getScore()));
+                    mBinding.etMaoyanPerson.setText(String.valueOf(rating.getPerson()));
+                }
+                else if (rating.getSystemId() == RatingSystem.TAOPP) {
+                    mBinding.etTpp.setText(FormatUtil.formatNumber(rating.getScore()));
+                    mBinding.etTppPerson.setText(String.valueOf(rating.getPerson()));
+                }
+            }
+        }
     }
 
     private void selectDate() {
@@ -173,6 +218,7 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         createImageFolder();
         boolean isInsert = mEditMovie.getId() == null;
         MApplication.getInstance().getDaoSession().getMovieDao().insertOrReplace(mEditMovie);
+        updateRatings(mEditMovie.getId());
 
         if (isInsert) {
             GrossStat stat = new GrossStat();
@@ -199,6 +245,44 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
                 }
             }
         }
+    }
+
+    private void updateRatings(long movieId) {
+        updateRatingSystem(movieId, RatingSystem.IMDB, mBinding.etImdb, mBinding.etImdbPerson);
+        updateRatingSystem(movieId, RatingSystem.ROTTEN_PRO, mBinding.etRottenPro, mBinding.etRottenProPerson);
+        updateRatingSystem(movieId, RatingSystem.ROTTEN_AUD, mBinding.etRottenAud, mBinding.etRottenAudPerson);
+        updateRatingSystem(movieId, RatingSystem.META, mBinding.etMeta, mBinding.etMetaPerson);
+        updateRatingSystem(movieId, RatingSystem.DOUBAN, mBinding.etDouban, mBinding.etDoubanPerson);
+        updateRatingSystem(movieId, RatingSystem.MAOYAN, mBinding.etMaoyan, mBinding.etMaoyanPerson);
+        updateRatingSystem(movieId, RatingSystem.TAOPP, mBinding.etTpp, mBinding.etTppPerson);
+    }
+
+    private void updateRatingSystem(long movieId, long systemId, EditText etScore, EditText etPerson) {
+        MovieRatingDao dao = MApplication.getInstance().getDaoSession().getMovieRatingDao();
+        MovieRating rating = dao.queryBuilder()
+                .where(MovieRatingDao.Properties.MovieId.eq(movieId))
+                .where(MovieRatingDao.Properties.SystemId.eq(systemId))
+                .build().unique();
+        if (rating == null) {
+            rating = new MovieRating();
+            rating.setMovieId(movieId);
+            rating.setSystemId(systemId);
+        }
+        double score = 0;
+        try {
+            score = Double.parseDouble(etScore.getText().toString());
+        } catch (Exception e) {}
+        rating.setScore(score);
+        int person = 0;
+        try {
+            person = Integer.parseInt(etPerson.getText().toString());
+        } catch (Exception e) {}
+        rating.setPerson(person);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        rating.setUpdateDate(sdf.format(new Date()));
+        dao.insertOrReplace(rating);
+        dao.detachAll();
     }
 
     private void createImageFolder() {

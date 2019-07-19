@@ -179,7 +179,7 @@ public class MovieActivity extends MvvmActivity<ActivityMovieBinding, MovieViewM
         });
         DraggableDialogFragment dialog = new DraggableDialogFragment.Builder()
                 .setTitle(movie == null ? "New movie":"Edit movie")
-                .setMaxHeight(ScreenUtils.getScreenHeight() * 4 / 5)
+                .setMaxHeight(ScreenUtils.getScreenHeight())
                 .setContentFragment(content)
                 .build();
         dialog.show(getSupportFragmentManager(), "EditMovie");

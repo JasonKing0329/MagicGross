@@ -19,6 +19,20 @@ public class MovieBasicData {
 
     private String mojoId;
 
+    private RatingData imdb;
+
+    private RatingData rottenPro;
+
+    private RatingData rottenAud;
+
+    private RatingData metaScore;
+
+    private RatingData douBan;
+
+    private RatingData maoYan;
+
+    private RatingData taoPiaoPiao;
+
     public String getExchangeRate() {
         return exchangeRate;
     }
@@ -89,5 +103,65 @@ public class MovieBasicData {
 
     public void setMojoTitle(String mojoTitle) {
         this.mojoTitle = mojoTitle;
+    }
+
+    public RatingData getImdb() {
+        return imdb;
+    }
+
+    public void setImdb(RatingData imdb) {
+        this.imdb = imdb;
+    }
+
+    public RatingData getRottenPro() {
+        return rottenPro;
+    }
+
+    public void setRottenPro(RatingData rottenPro) {
+        this.rottenPro = rottenPro;
+    }
+
+    public RatingData getRottenAud() {
+        return rottenAud;
+    }
+
+    public void setRottenAud(RatingData rottenAud) {
+        this.rottenAud = rottenAud;
+    }
+
+    public RatingData getMetaScore() {
+        return metaScore;
+    }
+
+    public void setMetaScore(RatingData metaScore) {
+        this.metaScore = metaScore;
+    }
+
+    public RatingData getDouBan() {
+        return douBan;
+    }
+
+    public void setDouBan(RatingData douBan) {
+        this.douBan = douBan;
+    }
+
+    public RatingData getMaoYan() {
+        return maoYan;
+    }
+
+    public void setMaoYan(RatingData maoYan) {
+        this.maoYan = maoYan;
+    }
+
+    public RatingData getTaoPiaoPiao() {
+        return taoPiaoPiao;
+    }
+
+    public void setTaoPiaoPiao(RatingData taoPiaoPiao) {
+        this.taoPiaoPiao = taoPiaoPiao;
+    }
+
+    public boolean isRottenEmpty() {
+        return rottenAud == null && rottenPro == null;
     }
 }

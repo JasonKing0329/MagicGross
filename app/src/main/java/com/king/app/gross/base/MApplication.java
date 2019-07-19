@@ -14,6 +14,7 @@ import com.king.app.gross.model.entity.LabelMovieDao;
 import com.king.app.gross.model.entity.MarketDao;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.MovieDao;
+import com.king.app.gross.model.entity.MovieRatingDao;
 import com.king.app.gross.utils.DebugLog;
 
 import org.greenrobot.greendao.database.Database;
@@ -100,6 +101,8 @@ public class MApplication extends Application {
                     LabelDao.createTable(db, true);
                     LabelMovieDao.createTable(db, true);
                     GrossStatDao.createTable(db, true);
+                case 6:
+                    MovieRatingDao.createTable(db, true);
                     break;
             }
         }

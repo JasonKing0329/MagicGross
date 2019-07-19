@@ -3,8 +3,11 @@ package com.king.app.gross.model.entity;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.DaoException;
+
+import java.util.List;
 
 /**
  * Desc:
@@ -40,6 +43,9 @@ public class Movie {
 
     @ToOne(joinProperty = "id")
     private GrossStat grossStat;
+
+    @ToMany(referencedJoinProperty = "movieId")
+    private List<MovieRating> ratingList;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -225,6 +231,34 @@ public class Movie {
             throw new DaoException("Entity is detached from DAO context");
         }
         myDao.update(this);
+    }
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 666793017)
+    public List<MovieRating> getRatingList() {
+        if (ratingList == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            MovieRatingDao targetDao = daoSession.getMovieRatingDao();
+            List<MovieRating> ratingListNew = targetDao._queryMovie_RatingList(id);
+            synchronized (this) {
+                if (ratingList == null) {
+                    ratingList = ratingListNew;
+                }
+            }
+        }
+        return ratingList;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 1813496621)
+    public synchronized void resetRatingList() {
+        ratingList = null;
     }
 
     /** called by internal mechanisms, do not call yourself. */

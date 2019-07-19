@@ -11,6 +11,11 @@ import java.text.NumberFormat;
  */
 public class FormatUtil {
 
+    public static String formatDivideNumber(int number) {
+        DecimalFormat df = new DecimalFormat("###,###,###,###");
+        return df.format(number);
+    }
+
     public static String formatUsGross(long gross) {
         DecimalFormat df = new DecimalFormat("###,###,###,###");
         return "$" + df.format(gross);
@@ -60,6 +65,10 @@ public class FormatUtil {
     public static String pointZ(Double beforeFloat) {
         NumberFormat formatter = new DecimalFormat("####0.0");
         return formatter.format(beforeFloat) + "";
+    }
+
+    public static String formatNumber(double number) {
+        return formatNumber(pointZ(number));
     }
 
     /**

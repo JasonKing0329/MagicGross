@@ -9,4 +9,5 @@
 
     <dimen name="dlg_fingerprint_width">320dp</dimen>
     <dimen name="dlg_fingerprint_height">200dp</dimen>
+    <dimen name="rating_icon">36dp</dimen>
 </resources>
