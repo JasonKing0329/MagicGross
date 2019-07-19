@@ -16,6 +16,7 @@ import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.setting.SettingProperty;
+import com.king.app.gross.model.single.DateRangeInstance;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.RankItem;
 
@@ -32,10 +33,6 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MarketRankViewModel extends BaseViewModel {
 
-    private String mStartDate;
-
-    private String mEndDate;
-
     public MutableLiveData<List<Object>> marketsObserver = new MutableLiveData<>();
     public MutableLiveData<List<RankItem<MarketGross>>> rankObserver = new MutableLiveData<>();
 
@@ -43,9 +40,7 @@ public class MarketRankViewModel extends BaseViewModel {
         super(application);
     }
 
-    public void loadMarkets(String startDate, String endDate) {
-        mStartDate = startDate;
-        mEndDate = endDate;
+    public void loadMarkets() {
         getMarkets()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -177,13 +172,16 @@ public class MarketRankViewModel extends BaseViewModel {
     }
 
     private boolean isMovieDisable(Movie movie) {
+        if (movie == null) {
+            return true;
+        }
         if (!SettingProperty.isEnableVirtualMovie() && movie.getIsReal() == AppConstants.MOVIE_VIRTUAL) {
             return true;
         }
-        if (mStartDate != null && movie.getDebut().compareTo(mStartDate) < 0) {
+        if (DateRangeInstance.getInstance().getStartDate() != null && movie.getDebut().compareTo(DateRangeInstance.getInstance().getStartDate()) < 0) {
             return true;
         }
-        if (mEndDate != null && movie.getDebut().compareTo(mEndDate) > 0) {
+        if (DateRangeInstance.getInstance().getEndDate() != null && movie.getDebut().compareTo(DateRangeInstance.getInstance().getEndDate()) > 0) {
             return true;
         }
         return false;

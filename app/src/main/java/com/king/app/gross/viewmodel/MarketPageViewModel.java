@@ -12,7 +12,9 @@ import com.king.app.gross.model.ImageUrlProvider;
 import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
+import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.setting.SettingProperty;
+import com.king.app.gross.model.single.DateRangeInstance;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.RankItem;
 
@@ -117,11 +119,10 @@ public class MarketPageViewModel extends BaseViewModel {
             for (int i = 0; i < marketGrosses.size(); i ++) {
                 MarketGross gross = marketGrosses.get(i);
                 RankItem item = new RankItem();
-                item.setMovie(gross.getMovie());
-                if (!SettingProperty.isEnableVirtualMovie() && item.getMovie().getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+                if (isMovieDisable(gross.getMovie())) {
                     continue;
                 }
-
+                item.setMovie(gross.getMovie());
                 item.setData(gross);
                 item.setSortValue(gross.getGross());
                 item.setValue(FormatUtil.formatUsGross(gross.getGross()));
@@ -138,6 +139,22 @@ public class MarketPageViewModel extends BaseViewModel {
             }
             e.onNext(list);
         });
+    }
+
+    private boolean isMovieDisable(Movie movie) {
+        if (movie == null) {
+            return true;
+        }
+        if (!SettingProperty.isEnableVirtualMovie() && movie.getIsReal() == AppConstants.MOVIE_VIRTUAL) {
+            return true;
+        }
+        if (DateRangeInstance.getInstance().getStartDate() != null && movie.getDebut().compareTo(DateRangeInstance.getInstance().getStartDate()) < 0) {
+            return true;
+        }
+        if (DateRangeInstance.getInstance().getEndDate() != null && movie.getDebut().compareTo(DateRangeInstance.getInstance().getEndDate()) > 0) {
+            return true;
+        }
+        return false;
     }
 
 }

@@ -11,6 +11,7 @@ import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.model.ImageUrlProvider;
 import com.king.app.gross.model.entity.GrossDao;
+import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.model.setting.SettingProperty;
@@ -503,11 +504,16 @@ public class MovieListViewModel extends BaseViewModel {
             if (list.size() > 0) {
                 // delete from table movie
                 MApplication.getInstance().getDaoSession().getMovieDao().deleteInTx(list);
-                // delete data in table gross
+                // delete data in table gross, market
                 for (Movie movie:list) {
                     MApplication.getInstance().getDaoSession().getGrossDao()
                             .queryBuilder()
                             .where(GrossDao.Properties.MovieId.eq(movie.getId()))
+                            .buildDelete()
+                            .executeDeleteWithoutDetachingEntities();
+                    MApplication.getInstance().getDaoSession().getMarketGrossDao()
+                            .queryBuilder()
+                            .where(MarketGrossDao.Properties.MovieId.eq(movie.getId()))
                             .buildDelete()
                             .executeDeleteWithoutDetachingEntities();
                 }

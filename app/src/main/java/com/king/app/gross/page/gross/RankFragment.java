@@ -28,18 +28,13 @@ import com.king.app.gross.viewmodel.RankViewModel;
 
 public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewModel> {
 
-    private static final String ARG_START = "start_date";
-    private static final String ARG_END = "end_date";
-
     private HomeViewModel homeViewModel;
 
     private RankItemAdapter rankItemAdapter;
 
-    public static RankFragment newInstance(String startDate, String endDate) {
+    public static RankFragment newInstance() {
         RankFragment fragment = new RankFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(ARG_START, startDate);
-        bundle.putString(ARG_END, endDate);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -106,7 +101,7 @@ public class RankFragment extends MvvmFragment<FragmentRankBinding, RankViewMode
             }
         });
 
-        mModel.load(getArguments().getString(ARG_START), getArguments().getString(ARG_END));
+        mModel.load();
     }
 
     private void onClickMovie(Movie movie) {

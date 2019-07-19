@@ -255,7 +255,7 @@ public class MovieViewModel extends BaseViewModel {
                     item.setMarket(mg.getMarket());
                     item.setTotal(movies.size());
                     item.setRank(findRankInMarket(movieId, movies));
-                    mg.getMarket().setImageUrl(ImageUrlProvider.getMarketFlag(mg.getMarket()));
+                    item.setImageUrl(ImageUrlProvider.getMarketFlag(mg.getMarket()));
                     list.add(item);
                 }
             }

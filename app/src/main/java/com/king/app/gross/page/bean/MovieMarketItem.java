@@ -6,6 +6,7 @@ public class MovieMarketItem {
     private Market market;
     private int rank;
     private int total;
+    private String imageUrl;
 
     public Market getMarket() {
         return market;
@@ -29,5 +30,13 @@ public class MovieMarketItem {
 
     public void setTotal(int total) {
         this.total = total;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

@@ -16,6 +16,7 @@ import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.model.entity.MovieDao;
 import com.king.app.gross.model.gross.RankModel;
 import com.king.app.gross.model.setting.SettingProperty;
+import com.king.app.gross.model.single.DateRangeInstance;
 import com.king.app.gross.viewmodel.bean.RankItem;
 import com.king.app.gross.viewmodel.bean.RankTag;
 
@@ -54,10 +55,6 @@ public class RankViewModel extends BaseViewModel {
 
     private RankModel rankModel;
 
-    private String mStartDate;
-
-    private String mEndDate;
-
     public RankViewModel(@NonNull Application application) {
         super(application);
         mRegion = Region.NA;
@@ -65,9 +62,7 @@ public class RankViewModel extends BaseViewModel {
         rankModel = new RankModel();
     }
 
-    public void load(String startDate, String endDate) {
-        mStartDate = startDate;
-        mEndDate = endDate;
+    public void load() {
         updateRankTitle();
         loadRegionTags();
         loadTypeTags();
@@ -131,11 +126,11 @@ public class RankViewModel extends BaseViewModel {
             if (!SettingProperty.isEnableVirtualMovie()) {
                 builder.where(MovieDao.Properties.IsReal.eq(AppConstants.MOVIE_REAL));
             }
-            if (mStartDate != null) {
-                builder.where(MovieDao.Properties.Debut.ge(mStartDate));
+            if (DateRangeInstance.getInstance().getStartDate() != null) {
+                builder.where(MovieDao.Properties.Debut.ge(DateRangeInstance.getInstance().getStartDate()));
             }
-            if (mEndDate != null) {
-                builder.where(MovieDao.Properties.Debut.le(mEndDate));
+            if (DateRangeInstance.getInstance().getEndDate() != null) {
+                builder.where(MovieDao.Properties.Debut.le(DateRangeInstance.getInstance().getEndDate()));
             }
             List<Movie> list = builder.build().list();
             e.onNext(list);

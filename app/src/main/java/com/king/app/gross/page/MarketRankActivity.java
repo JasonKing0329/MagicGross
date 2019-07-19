@@ -21,9 +21,6 @@ import com.king.app.gross.viewmodel.bean.RankItem;
 
 public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, MarketRankViewModel> {
 
-    public static final String EXTRA_START = "start_date";
-    public static final String EXTRA_END = "end_date";
-
     private MarketTextAdapter marketAdapter;
     private MarketRankAdapter rankAdapter;
 
@@ -91,7 +88,7 @@ public class MarketRankActivity extends MvvmActivity<ActivityMarketRankBinding, 
             }
         });
 
-        mModel.loadMarkets(getIntent().getStringExtra(EXTRA_START), getIntent().getStringExtra(EXTRA_END));
+        mModel.loadMarkets();
     }
 
     private void showMovie(Movie data) {

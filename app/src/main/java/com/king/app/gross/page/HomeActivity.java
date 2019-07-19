@@ -10,6 +10,7 @@ import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.databinding.ActivityHomeBinding;
 import com.king.app.gross.model.entity.Movie;
+import com.king.app.gross.model.single.DateRangeInstance;
 import com.king.app.gross.page.gross.RankFragment;
 import com.king.app.gross.utils.ScreenUtils;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
@@ -25,10 +26,6 @@ import com.king.app.gross.viewmodel.HomeViewModel;
  */
 
 public class HomeActivity extends MvvmActivity<ActivityHomeBinding, HomeViewModel> {
-
-    private String mStartDate;
-
-    private String mEndDate;
 
     private DraggableDialogFragment dateRangeDialog;
 
@@ -70,10 +67,10 @@ public class HomeActivity extends MvvmActivity<ActivityHomeBinding, HomeViewMode
 
     private void setDateRange() {
         RankDateRangeFragment content = new RankDateRangeFragment();
-        content.initDate(mStartDate, mEndDate);
+        content.initDate(DateRangeInstance.getInstance().getStartDate(), DateRangeInstance.getInstance().getEndDate());
         content.setOnDateRangeListener((start, end) -> {
-            mStartDate = start;
-            mEndDate = end;
+            DateRangeInstance.getInstance().setStartDate(start);
+            DateRangeInstance.getInstance().setEndDate(end);
             dateRangeDialog.dismissAllowingStateLoss();
             showRankFragment();
         });
@@ -119,14 +116,12 @@ public class HomeActivity extends MvvmActivity<ActivityHomeBinding, HomeViewMode
 
     private void showMarketPage() {
         Intent intent = new Intent().setClass(this, MarketRankActivity.class);
-        intent.putExtra(MarketRankActivity.EXTRA_START, mStartDate);
-        intent.putExtra(MarketRankActivity.EXTRA_END, mEndDate);
         startActivity(intent);
     }
 
     private void showRankFragment() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.group_ft, RankFragment.newInstance(mStartDate, mEndDate), "RankFragment")
+                .replace(R.id.group_ft, RankFragment.newInstance(), "RankFragment")
                 .commit();
     }
 
