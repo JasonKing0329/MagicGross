@@ -272,6 +272,11 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         try {
             score = Double.parseDouble(etScore.getText().toString());
         } catch (Exception e) {}
+
+        if (score == 0) {
+            return;
+        }
+
         rating.setScore(score);
         int person = 0;
         try {
