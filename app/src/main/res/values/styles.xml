@@ -40,6 +40,14 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <style name="RatingSystemDialog" parent="Theme.AppCompat.Light">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
     <style name="EtActionSearch" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorControlNormal">@color/white</item>
         <item name="colorControlActivated">@color/white</item>
@@ -135,6 +143,13 @@
         <item name="android:layout_width">@dimen/rating_icon</item>
         <item name="android:layout_height">@dimen/rating_icon</item>
         <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <style name="IvRatingSystem">
+        <item name="android:layout_width">72dp</item>
+        <item name="android:layout_height">72dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:background">@drawable/ripple_white_bg_trans</item>
     </style>
 
 </resources>

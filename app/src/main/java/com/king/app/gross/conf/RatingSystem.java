@@ -29,4 +29,26 @@ public class RatingSystem {
      */
     public static final long META_GREEN = 61;
     public static final long META_YELLOW = 40;
+
+    public static String getTitle(long systemId) {
+        if (systemId == IMDB) {
+            return "IMDB";
+        }
+        else if (systemId == ROTTEN_PRO) {
+            return "Rotten Tomato";
+        }
+        else if (systemId == META) {
+            return "Meta Critic";
+        }
+        else if (systemId == DOUBAN) {
+            return "豆瓣";
+        }
+        else if (systemId == MAOYAN) {
+            return "猫眼";
+        }
+        else if (systemId == TAOPP) {
+            return "淘票票";
+        }
+        return "";
+    }
 }

@@ -30,6 +30,7 @@ import com.king.app.gross.page.adapter.TagRegionAdapter;
 import com.king.app.gross.utils.ScreenUtils;
 import com.king.app.gross.view.dialog.AlertDialogFragment;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
+import com.king.app.gross.view.dialog.RatingSystemDialogFragment;
 import com.king.app.gross.view.dialog.content.EditMovieFragment;
 import com.king.app.gross.viewmodel.MovieListViewModel;
 import com.king.app.gross.viewmodel.bean.MovieGridItem;
@@ -103,6 +104,10 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
             switch (menuId) {
                 case R.id.menu_top:
                     mBinding.rvMovies.scrollToPosition(0);
+                    break;
+                case R.id.menu_ratings:
+                    new RatingSystemDialogFragment()
+                            .show(getSupportFragmentManager(), "RatingSystemDialogFragment");
                     break;
                 case R.id.menu_index:
                     if (mBinding.rvIndex.getVisibility() == View.GONE) {

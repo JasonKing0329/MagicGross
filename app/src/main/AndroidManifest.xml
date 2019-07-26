@@ -64,6 +64,7 @@
             android:name=".page.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme"></activity>
+        <activity android:name=".page.rating.RatingPageActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"

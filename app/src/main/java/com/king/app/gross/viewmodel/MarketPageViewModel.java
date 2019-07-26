@@ -260,10 +260,10 @@ public class MarketPageViewModel extends BaseViewModel {
             long total1 = o1.getData().getGross();
             long total2 = o2.getData().getGross();
             long result = total2 - total1;
-            if (result > 1) {
+            if (result > 0) {
                 return 1;
             }
-            else if (result < 1) {
+            else if (result < 0) {
                 return -1;
             }
             else {
@@ -282,10 +282,10 @@ public class MarketPageViewModel extends BaseViewModel {
             long total1 = o1.getData().getOpening();
             long total2 = o2.getData().getOpening();
             long result = total2 - total1;
-            if (result > 1) {
+            if (result > 0) {
                 return 1;
             }
-            else if (result < 1) {
+            else if (result < 0) {
                 return -1;
             }
             else {

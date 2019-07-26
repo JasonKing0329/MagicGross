@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/iv_imdb"
+            style="@style/IvRatingSystem"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_rotten"
+            app:layout_constraintBottom_toTopOf="@+id/iv_douban"
+            app:srcCompat="@drawable/imdb" />
+
+        <ImageView
+            android:id="@+id/iv_rotten"
+            style="@style/IvRatingSystem"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_imdb"
+            app:layout_constraintStart_toEndOf="@+id/iv_imdb"
+            app:layout_constraintTop_toTopOf="@+id/iv_imdb"
+            app:layout_constraintEnd_toStartOf="@+id/iv_meta"
+            app:srcCompat="@drawable/rotten_fresh" />
+
+        <ImageView
+            android:id="@+id/iv_meta"
+            style="@style/IvRatingSystem"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_imdb"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_rotten"
+            app:layout_constraintTop_toTopOf="@+id/iv_imdb"
+            app:srcCompat="@drawable/metascore" />
+
+        <ImageView
+            android:id="@+id/iv_douban"
+            style="@style/IvRatingSystem"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_imdb"
+            app:layout_constraintEnd_toStartOf="@+id/iv_maoyan"
+            app:srcCompat="@drawable/douban" />
+
+        <ImageView
+            android:id="@+id/iv_maoyan"
+            style="@style/IvRatingSystem"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_douban"
+            app:layout_constraintStart_toEndOf="@+id/iv_douban"
+            app:layout_constraintTop_toTopOf="@+id/iv_douban"
+            app:layout_constraintEnd_toStartOf="@+id/iv_tpp"
+            app:srcCompat="@drawable/maoyan" />
+
+        <ImageView
+            android:id="@+id/iv_tpp"
+            style="@style/IvRatingSystem"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_douban"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_maoyan"
+            app:layout_constraintTop_toTopOf="@+id/iv_douban"
+            app:srcCompat="@drawable/taopiaopiao" />
+    </android.support.constraint.ConstraintLayout>
+</layout>
