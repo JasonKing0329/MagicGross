@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_sort_date"
+        android:title="Sort by debut date"
+        app:showAsAction="never"/>
+    <item android:id="@+id/menu_sort_name"
+        android:title="Sort by name"
+        app:showAsAction="never"/>
+    <item android:id="@+id/menu_sort_total"
+        android:title="Sort by total gross"
+        app:showAsAction="never"/>
+    <item android:id="@+id/menu_sort_opening"
+        android:title="Sort by opening"
+        app:showAsAction="never"/>
+</menu>

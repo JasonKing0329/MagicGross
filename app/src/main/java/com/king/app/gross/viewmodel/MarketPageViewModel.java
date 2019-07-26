@@ -19,6 +19,8 @@ import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.RankItem;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -47,8 +49,11 @@ public class MarketPageViewModel extends BaseViewModel {
 
     public MutableLiveData<List<RankItem<MarketGross>>> moviesObserver = new MutableLiveData<>();
 
+    private int mSortType;
+
     public MarketPageViewModel(@NonNull Application application) {
         super(application);
+        mSortType = AppConstants.MOVIE_SORT_TOTAL;
     }
 
     public void loadMarket(long marketId) {
@@ -157,4 +162,135 @@ public class MarketPageViewModel extends BaseViewModel {
         return false;
     }
 
+    public void sort(int sortType) {
+        if (sortType != mSortType) {
+            mSortType = sortType;
+            onSortTypeChanged();
+        }
+    }
+
+    private void onSortTypeChanged() {
+        loadingObserver.setValue(true);
+        sortItems()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<RankItem<MarketGross>>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(List<RankItem<MarketGross>> rankItems) {
+                        loadingObserver.setValue(false);
+                        moviesObserver.setValue(rankItems);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        loadingObserver.setValue(false);
+                        messageObserver.setValue(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private Observable<List<RankItem<MarketGross>>> sortItems() {
+        return Observable.create(e -> {
+            List<RankItem<MarketGross>> items = moviesObserver.getValue();
+            switch (mSortType) {
+                case AppConstants.MOVIE_SORT_DATE:
+                    Collections.sort(items, new DebutComparator());
+                    break;
+                case AppConstants.MOVIE_SORT_NAME:
+                    Collections.sort(items, new NameComparator());
+                    break;
+                case AppConstants.MOVIE_SORT_TOTAL:
+                    Collections.sort(items, new TotalComparator());
+                    break;
+                case AppConstants.MOVIE_SORT_OPENING:
+                    Collections.sort(items, new OpeningComparator());
+                    break;
+            }
+            for (int i = 0; i < items.size(); i ++) {
+                items.get(i).setRank(String.valueOf(i + 1));
+            }
+            e.onNext(items);
+        });
+    }
+
+    /**
+     * 倒序
+     */
+    private class DebutComparator implements Comparator<RankItem<MarketGross>> {
+
+        @Override
+        public int compare(RankItem<MarketGross> o1, RankItem<MarketGross> o2) {
+            String date1 = o1.getMovie().getDebut();
+            String date2 = o2.getMovie().getDebut();
+            return date2.compareTo(date1);
+        }
+    }
+
+    /**
+     * 顺序
+     */
+    private class NameComparator implements Comparator<RankItem<MarketGross>> {
+
+        @Override
+        public int compare(RankItem<MarketGross> o1, RankItem<MarketGross> o2) {
+            String name1 = o1.getMovie().getName().toLowerCase();
+            String name2 = o2.getMovie().getName().toLowerCase();
+            return name1.compareTo(name2);
+        }
+    }
+
+    /**
+     * 倒序
+     */
+    private class TotalComparator implements Comparator<RankItem<MarketGross>> {
+
+        @Override
+        public int compare(RankItem<MarketGross> o1, RankItem<MarketGross> o2) {
+            long total1 = o1.getData().getGross();
+            long total2 = o2.getData().getGross();
+            long result = total2 - total1;
+            if (result > 1) {
+                return 1;
+            }
+            else if (result < 1) {
+                return -1;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * 倒序
+     */
+    private class OpeningComparator implements Comparator<RankItem<MarketGross>> {
+
+        @Override
+        public int compare(RankItem<MarketGross> o1, RankItem<MarketGross> o2) {
+            long total1 = o1.getData().getOpening();
+            long total2 = o2.getData().getOpening();
+            long result = total2 - total1;
+            if (result > 1) {
+                return 1;
+            }
+            else if (result < 1) {
+                return -1;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
 }
