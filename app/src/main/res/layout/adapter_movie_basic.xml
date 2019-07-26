@@ -374,7 +374,7 @@
                 style="@style/IvMovieRatingIcon"
                 android:src="@drawable/rotten_audience"
                 android:visibility="@{data.rottenAud == null ? View.GONE : View.VISIBLE}"
-                android:layout_marginStart="50dp"
+                android:layout_marginStart="30dp"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toEndOf="@+id/ll_rotten_pro"
                 app:layout_constraintEnd_toStartOf="@id/ll_rotten_aud"

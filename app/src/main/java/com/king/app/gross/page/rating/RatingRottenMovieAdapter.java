@@ -33,5 +33,14 @@ public class RatingRottenMovieAdapter extends BaseBindingAdapter<AdapterRatingRo
                 binding.ivRottenPro.setImageResource(R.drawable.rotten_fresh);
             }
         }
+        if (bean.getRottenAud() != null) {
+            double score = bean.getRottenAud().getRating().getScore();
+            if (score < RatingSystem.ROTTEN_SCORE_ROTTEN) {
+                binding.ivRottenAud.setImageResource(R.drawable.rotten_aud_rotten);
+            }
+            else {
+                binding.ivRottenAud.setImageResource(R.drawable.rotten_audience);
+            }
+        }
     }
 }

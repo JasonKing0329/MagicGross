@@ -141,6 +141,15 @@ public class MovieMarketsAdapter extends RecyclerView.Adapter {
                 binding.ivRottenPro.setImageResource(R.drawable.rotten_fresh);
             }
         }
+        if (data.getRottenAud() != null && data.getRottenAud().getRating() != null) {
+            double score = data.getRottenAud().getRating().getScore();
+            if (score < RatingSystem.ROTTEN_SCORE_ROTTEN) {
+                binding.ivRottenAud.setImageResource(R.drawable.rotten_aud_rotten);
+            }
+            else {
+                binding.ivRottenAud.setImageResource(R.drawable.rotten_audience);
+            }
+        }
         if (data.getMetaScore() != null && data.getMetaScore().getRating() != null) {
             double score = data.getMetaScore().getRating().getScore();
             GradientDrawable drawable = (GradientDrawable) binding.tvMetaScore.getBackground();
