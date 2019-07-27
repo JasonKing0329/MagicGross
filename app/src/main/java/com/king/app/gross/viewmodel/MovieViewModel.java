@@ -25,14 +25,17 @@ import com.king.app.gross.model.setting.SettingProperty;
 import com.king.app.gross.page.bean.MovieBasicData;
 import com.king.app.gross.page.bean.MovieMarketItem;
 import com.king.app.gross.page.bean.RatingData;
+import com.king.app.gross.page.bean.RatingMovie;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.utils.ListUtil;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -357,6 +360,89 @@ public class MovieViewModel extends BaseViewModel {
         else {
             return "Out of 100";
         }
+    }
+
+    public RatingMovie getRatingMovie(long systemId) {
+        RatingMovie rm = new RatingMovie();
+        rm.setMovie(movieObserver.getValue());
+        List<MovieRating> list = movieObserver.getValue().getRatingList();
+        if (list != null) {
+            for (MovieRating rating:list) {
+                if (rating.getSystemId() == systemId) {
+                    rm.setRating(rating);
+                }
+            }
+        }
+        return rm;
+    }
+
+    public RatingMovie getRottenRating() {
+        RatingMovie rm = new RatingMovie();
+        rm.setMovie(movieObserver.getValue());
+        List<MovieRating> list = movieObserver.getValue().getRatingList();
+        if (list != null) {
+            for (MovieRating rating:list) {
+                if (rating.getSystemId() == RatingSystem.ROTTEN_AUD) {
+                    RatingData data = new RatingData();
+                    data.setRating(rating);
+                    rm.setRottenAud(data);
+                }
+                else if (rating.getSystemId() == RatingSystem.ROTTEN_PRO) {
+                    RatingData data = new RatingData();
+                    data.setRating(rating);
+                    rm.setRottenPro(data);
+                }
+            }
+        }
+        return rm;
+    }
+
+    public void updateScore(RatingMovie ratingMovie, double score, int person) {
+        MovieRating rating = ratingMovie.getRating();
+        if (rating == null) {
+            rating = new MovieRating();
+            rating.setSystemId(ratingMovie.getRating().getSystemId());
+            rating.setMovieId(ratingMovie.getMovie().getId());
+        }
+        rating.setPerson(person);
+        rating.setScore(score);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        rating.setUpdateDate(sdf.format(new Date()));
+        getDaoSession().getMovieRatingDao().insertOrReplace(rating);
+        getDaoSession().getMovieRatingDao().detachAll();
+    }
+
+    public void updateRottenScore(RatingMovie ratingMovie, double scorePro, int personPro, double scoreAud, int personAud) {
+        MovieRating pro;
+        if (ratingMovie.getRottenPro() == null) {
+            pro = new MovieRating();
+            pro.setSystemId(RatingSystem.ROTTEN_PRO);
+            pro.setMovieId(ratingMovie.getMovie().getId());
+        }
+        else {
+            pro = ratingMovie.getRottenPro().getRating();
+        }
+        pro.setPerson(personPro);
+        pro.setScore(scorePro);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        pro.setUpdateDate(sdf.format(new Date()));
+        getDaoSession().getMovieRatingDao().insertOrReplace(pro);
+
+        MovieRating aud;
+        if (ratingMovie.getRottenAud() == null) {
+            aud = new MovieRating();
+            aud.setSystemId(RatingSystem.ROTTEN_AUD);
+            aud.setMovieId(ratingMovie.getMovie().getId());
+        }
+        else {
+            aud = ratingMovie.getRottenAud().getRating();
+        }
+        aud.setPerson(personAud);
+        aud.setScore(scoreAud);
+        aud.setUpdateDate(sdf.format(new Date()));
+        getDaoSession().getMovieRatingDao().insertOrReplace(aud);
+
+        getDaoSession().getMovieRatingDao().detachAll();
     }
 
     private class RankComparator implements Comparator<MovieMarketItem> {

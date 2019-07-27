@@ -5,7 +5,6 @@ import android.view.View;
 import com.king.app.gross.R;
 import com.king.app.gross.base.IFragmentHolder;
 import com.king.app.gross.databinding.FragmentEditRatingBinding;
-import com.king.app.gross.model.entity.MovieRating;
 import com.king.app.gross.page.bean.RatingMovie;
 
 /**
@@ -63,7 +62,7 @@ public class EditRatingFragment extends DraggableContentFragment<FragmentEditRat
             mBinding.etScoreAud.setVisibility(View.GONE);
             mBinding.tvPersonAud.setVisibility(View.GONE);
             mBinding.tvScoreAud.setVisibility(View.GONE);
-            if (mRating != null) {
+            if (mRating != null && mRating.getRating() != null) {
                 mBinding.etPerson.setText(String.valueOf(mRating.getRating().getPerson()));
                 mBinding.etScore.setText(String.valueOf(mRating.getRating().getScore()));
             }

@@ -131,6 +131,12 @@ public class MovieMarketsAdapter extends RecyclerView.Adapter {
         binding.rlMarket.setOnClickListener(e -> onBasicDataListener.onClickGrossMarket());
         binding.rlOversea.setOnClickListener(e -> onBasicDataListener.onClickGrossOversea());
         binding.rlWw.setOnClickListener(e -> onBasicDataListener.onClickGrossWorld());
+        binding.rlImdb.setOnClickListener(e -> onBasicDataListener.onClickImdb());
+        binding.rlMeta.setOnClickListener(e -> onBasicDataListener.onClickMeta());
+        binding.clRotten.setOnClickListener(e -> onBasicDataListener.onClickRotten());
+        binding.rlDouban.setOnClickListener(e -> onBasicDataListener.onClickDouban());
+        binding.rlMaoyan.setOnClickListener(e -> onBasicDataListener.onClickMaoyan());
+        binding.rlTpp.setOnClickListener(e -> onBasicDataListener.onClickTaopp());
 
         if (data.getRottenPro() != null && data.getRottenPro().getRating() != null) {
             double score = data.getRottenPro().getRating().getScore();
@@ -205,6 +211,12 @@ public class MovieMarketsAdapter extends RecyclerView.Adapter {
         void onClickGrossOversea();
         void onClickGrossWorld();
         void onClickGrossMarket();
+        void onClickImdb();
+        void onClickRotten();
+        void onClickMeta();
+        void onClickDouban();
+        void onClickMaoyan();
+        void onClickTaopp();
     }
     
 }

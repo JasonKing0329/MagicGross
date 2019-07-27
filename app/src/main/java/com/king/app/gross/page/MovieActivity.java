@@ -8,14 +8,17 @@ import android.support.v7.widget.GridLayoutManager;
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
 import com.king.app.gross.conf.AppConstants;
+import com.king.app.gross.conf.RatingSystem;
 import com.king.app.gross.conf.Region;
 import com.king.app.gross.databinding.ActivityMovieBinding;
 import com.king.app.gross.model.entity.Market;
 import com.king.app.gross.model.entity.Movie;
 import com.king.app.gross.page.adapter.MovieMarketsAdapter;
+import com.king.app.gross.page.bean.RatingMovie;
 import com.king.app.gross.utils.ScreenUtils;
 import com.king.app.gross.view.dialog.DraggableDialogFragment;
 import com.king.app.gross.view.dialog.content.EditMovieFragment;
+import com.king.app.gross.view.dialog.content.EditRatingFragment;
 import com.king.app.gross.view.dialog.content.EditTotalFragment;
 import com.king.app.gross.view.dialog.content.ParseMojoFragment;
 import com.king.app.gross.viewmodel.MovieViewModel;
@@ -126,6 +129,36 @@ public class MovieActivity extends MvvmActivity<ActivityMovieBinding, MovieViewM
                     public void onClickGrossMarket() {
                         showMarketPage();
                     }
+
+                    @Override
+                    public void onClickImdb() {
+                        editRating(RatingSystem.IMDB);
+                    }
+
+                    @Override
+                    public void onClickRotten() {
+                        editRotten();
+                    }
+
+                    @Override
+                    public void onClickMeta() {
+                        editRating(RatingSystem.META);
+                    }
+
+                    @Override
+                    public void onClickDouban() {
+                        editRating(RatingSystem.DOUBAN);
+                    }
+
+                    @Override
+                    public void onClickMaoyan() {
+                        editRating(RatingSystem.MAOYAN);
+                    }
+
+                    @Override
+                    public void onClickTaopp() {
+                        editRating(RatingSystem.TAOPP);
+                    }
                 });
 
                 mBinding.rvMarkets.setAdapter(marketAdapter);
@@ -137,6 +170,37 @@ public class MovieActivity extends MvvmActivity<ActivityMovieBinding, MovieViewM
         });
 
         mModel.loadMovie(getMovieId());
+    }
+
+    private void editRating(long systemId) {
+        RatingMovie data = mModel.getRatingMovie(systemId);
+        EditRatingFragment content = new EditRatingFragment();
+        content.setRating(data);
+        content.setOnRatingListener((score, person) -> {
+            mModel.updateScore(data, score, person);
+            marketAdapter.notifyItemChanged(0);
+        });
+        DraggableDialogFragment dialog = new DraggableDialogFragment.Builder()
+                .setTitle("Update Score")
+                .setContentFragment(content)
+                .build();
+        dialog.show(getSupportFragmentManager(), "EditRatingFragment");
+    }
+
+    private void editRotten() {
+        RatingMovie data = mModel.getRottenRating();
+        EditRatingFragment content = new EditRatingFragment();
+        content.setRating(data);
+        content.setRottenSystem(true);
+        content.setOnRateRottenListener((scorePro, personPro, scoreAud, personAud) -> {
+            mModel.updateRottenScore(data, scorePro, personPro, scoreAud, personAud);
+            marketAdapter.notifyItemChanged(0);
+        });
+        DraggableDialogFragment dialog = new DraggableDialogFragment.Builder()
+                .setTitle("Update Score")
+                .setContentFragment(content)
+                .build();
+        dialog.show(getSupportFragmentManager(), "EditRatingFragment");
     }
 
     private void showMarketPage(Market market) {
