@@ -7,8 +7,8 @@ android {
         applicationId "com.king.app.gross"
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 76
-        versionName "4.8.2"
+        versionCode 77
+        versionName "4.8.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {

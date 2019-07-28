@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.View;
+import android.widget.PopupMenu;
 
 import com.king.app.gross.R;
 import com.king.app.gross.base.MvvmActivity;
+import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.conf.RatingSystem;
 import com.king.app.gross.databinding.ActivityRatingPageBinding;
 import com.king.app.gross.page.MovieActivity;
@@ -52,6 +55,14 @@ public class RatingPageActivity extends MvvmActivity<ActivityRatingPageBinding, 
                     break;
             }
         });
+        mBinding.actionbar.registerPopupMenu(R.id.menu_sort);
+        mBinding.actionbar.setPopupMenuProvider((iconMenuId, anchorView) -> {
+            switch (iconMenuId) {
+                case R.id.menu_sort:
+                    return createDateMenu(anchorView);
+            }
+            return null;
+        });
         mBinding.actionbar.setOnConfirmListener(new OnConfirmListener() {
             @Override
             public boolean disableInstantDismissConfirm() {
@@ -89,6 +100,46 @@ public class RatingPageActivity extends MvvmActivity<ActivityRatingPageBinding, 
         });
     }
 
+    private PopupMenu createDateMenu(View anchorView) {
+        PopupMenu menu = new PopupMenu(this, anchorView);
+        if (isRottenSystem()) {
+            menu.getMenuInflater().inflate(R.menu.rating_sort_rotten, menu.getMenu());
+        }
+        else {
+            menu.getMenuInflater().inflate(R.menu.rating_sort, menu.getMenu());
+        }
+        menu.setOnMenuItemClickListener(menuItem -> {
+            switch (menuItem.getItemId()) {
+                case R.id.menu_sort_date:
+                    mModel.changeSortType(AppConstants.RATING_SORT_DEBUT);
+                    break;
+                case R.id.menu_sort_name:
+                    mModel.changeSortType(AppConstants.RATING_SORT_NAME);
+                    break;
+                case R.id.menu_sort_rating:
+                    mModel.changeSortType(AppConstants.RATING_SORT_RATING);
+                    break;
+                case R.id.menu_sort_person:
+                    mModel.changeSortType(AppConstants.RATING_SORT_PERSON);
+                    break;
+                case R.id.menu_sort_rating_pro:
+                    mModel.changeSortType(AppConstants.RATING_SORT_RATING_PRO);
+                    break;
+                case R.id.menu_sort_person_pro:
+                    mModel.changeSortType(AppConstants.RATING_SORT_PERSON_PRO);
+                    break;
+                case R.id.menu_sort_rating_aud:
+                    mModel.changeSortType(AppConstants.RATING_SORT_RATING_AUD);
+                    break;
+                case R.id.menu_sort_person_aud:
+                    mModel.changeSortType(AppConstants.RATING_SORT_PERSON_AUD);
+                    break;
+            }
+            return true;
+        });
+        return menu;
+    }
+
     private void expandUnratedList() {
         isUnratedLarge = true;
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mBinding.rvUnrated.getLayoutParams();
@@ -124,6 +175,10 @@ public class RatingPageActivity extends MvvmActivity<ActivityRatingPageBinding, 
 
     private long getSystemId() {
         return getIntent().getLongExtra(RATING_SYSTEM, 0);
+    }
+
+    public boolean isRottenSystem() {
+        return getSystemId() == RatingSystem.ROTTEN_PRO;
     }
 
     @Override

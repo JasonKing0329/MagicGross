@@ -51,6 +51,7 @@ public class RatingViewModel extends BaseViewModel {
 
     public RatingViewModel(@NonNull Application application) {
         super(application);
+        mSortType = AppConstants.RATING_SORT_RATING;
     }
 
     public boolean isRottenSystem() {
@@ -159,8 +160,16 @@ public class RatingViewModel extends BaseViewModel {
                     ratedList.add(rm);
                 }
             }
-            // 暂时只支持按pro排序
-            Collections.sort(ratedList, new RottenProComparator());
+
+            if (mSortType == AppConstants.RATING_SORT_DEBUT) {
+                Collections.sort(ratedList, new DebutComparator());
+            }
+            else if (mSortType == AppConstants.RATING_SORT_NAME) {
+                Collections.sort(ratedList, new NameComparator());
+            }
+            else {
+                Collections.sort(ratedList, new RottenProComparator(mSortType));
+            }
             Collections.sort(unRatedList, new DebutComparator());
 
             ratedMovies.postValue(ratedList);
@@ -212,7 +221,15 @@ public class RatingViewModel extends BaseViewModel {
                     ratedList.add(rm);
                 }
             }
-            Collections.sort(ratedList, new ScoreComparator());
+            if (mSortType == AppConstants.RATING_SORT_DEBUT) {
+                Collections.sort(ratedList, new DebutComparator());
+            }
+            else if (mSortType == AppConstants.RATING_SORT_NAME) {
+                Collections.sort(ratedList, new NameComparator());
+            }
+            else {
+                Collections.sort(ratedList, new ScoreComparator(mSortType));
+            }
             Collections.sort(unRatedList, new DebutComparator());
 
             ratedMovies.postValue(ratedList);
@@ -273,31 +290,42 @@ public class RatingViewModel extends BaseViewModel {
         loadRatings(systemId);
     }
 
-    private class RottenProComparator implements Comparator<RatingMovie> {
-
-        @Override
-        public int compare(RatingMovie o1, RatingMovie o2) {
-            double score1 = o1.getRottenPro() == null ? 0:o1.getRottenPro().getRating().getScore();
-            double score2 = o2.getRottenPro() == null ? 0:o2.getRottenPro().getRating().getScore();
-            double result = score2 - score1;
-            if (result > 0) {
-                return 1;
-            }
-            else if (result < 0) {
-                return -1;
-            }
-            else {
-                return 0;
-            }
-        }
+    public void changeSortType(int sortType) {
+        mSortType = sortType;
+        loadRatings(systemId);
     }
 
-    private class RottenAudComparator implements Comparator<RatingMovie> {
+    private class RottenProComparator implements Comparator<RatingMovie> {
+
+        private final int mSortType;
+
+        public RottenProComparator(int mSortType) {
+            this.mSortType = mSortType;
+        }
 
         @Override
         public int compare(RatingMovie o1, RatingMovie o2) {
-            double score1 = o1.getRottenAud() == null ? 0:o1.getRottenAud().getRating().getScore();
-            double score2 = o2.getRottenAud() == null ? 0:o2.getRottenAud().getRating().getScore();
+            double score1;
+            double score2;
+            switch (mSortType) {
+                case AppConstants.RATING_SORT_PERSON_PRO:
+                    score1 = o1.getRottenPro() == null ? 0:o1.getRottenPro().getRating().getPerson();
+                    score2 = o2.getRottenPro() == null ? 0:o2.getRottenPro().getRating().getPerson();
+                    break;
+                case AppConstants.RATING_SORT_RATING_AUD:
+                    score1 = o1.getRottenAud() == null ? 0:o1.getRottenAud().getRating().getScore();
+                    score2 = o2.getRottenAud() == null ? 0:o2.getRottenAud().getRating().getScore();
+                    break;
+                case AppConstants.RATING_SORT_PERSON_AUD:
+                    score1 = o1.getRottenAud() == null ? 0:o1.getRottenAud().getRating().getPerson();
+                    score2 = o2.getRottenAud() == null ? 0:o2.getRottenAud().getRating().getPerson();
+                    break;
+                case AppConstants.RATING_SORT_RATING_PRO:
+                default:
+                    score1 = o1.getRottenPro() == null ? 0:o1.getRottenPro().getRating().getScore();
+                    score2 = o2.getRottenPro() == null ? 0:o2.getRottenPro().getRating().getScore();
+                    break;
+            }
             double result = score2 - score1;
             if (result > 0) {
                 return 1;
@@ -306,16 +334,66 @@ public class RatingViewModel extends BaseViewModel {
                 return -1;
             }
             else {
-                return 0;
+                // 第二关键字
+                double secondScore1;
+                double secondScore2;
+                switch (mSortType) {
+                    case AppConstants.RATING_SORT_PERSON_PRO:
+                        secondScore1 = o1.getRottenPro() == null ? 0:o1.getRottenPro().getRating().getScore();
+                        secondScore2 = o2.getRottenPro() == null ? 0:o2.getRottenPro().getRating().getScore();
+                        break;
+                    case AppConstants.RATING_SORT_RATING_AUD:
+                        secondScore1 = o1.getRottenAud() == null ? 0:o1.getRottenAud().getRating().getPerson();
+                        secondScore2 = o2.getRottenAud() == null ? 0:o2.getRottenAud().getRating().getPerson();
+                        break;
+                    case AppConstants.RATING_SORT_PERSON_AUD:
+                        secondScore1 = o1.getRottenAud() == null ? 0:o1.getRottenAud().getRating().getScore();
+                        secondScore2 = o2.getRottenAud() == null ? 0:o2.getRottenAud().getRating().getScore();
+                        break;
+                    case AppConstants.RATING_SORT_RATING_PRO:
+                    default:
+                        secondScore1 = o1.getRottenPro() == null ? 0:o1.getRottenPro().getRating().getPerson();
+                        secondScore2 = o2.getRottenPro() == null ? 0:o2.getRottenPro().getRating().getPerson();
+                        break;
+                }
+                result = secondScore2 - secondScore1;
+                if (result > 0) {
+                    return 1;
+                }
+                else if (result < 0) {
+                    return -1;
+                }
+                else {
+                    return 0;
+                }
             }
         }
     }
 
     private class ScoreComparator implements Comparator<RatingMovie> {
 
+        private final int mSortType;
+
+        public ScoreComparator(int mSortType) {
+            this.mSortType = mSortType;
+        }
+
         @Override
         public int compare(RatingMovie o1, RatingMovie o2) {
-            double result = o2.getRating().getScore() - o1.getRating().getScore();
+            double score1;
+            double score2;
+            switch (mSortType) {
+                case AppConstants.RATING_SORT_PERSON:
+                    score1 = o1.getRating().getPerson();
+                    score2 = o2.getRating().getPerson();
+                    break;
+                case AppConstants.RATING_SORT_RATING:
+                default:
+                    score1 = o1.getRating().getScore();
+                    score2 = o2.getRating().getScore();
+                    break;
+            }
+            double result = score2 - score1;
             if (result > 0) {
                 return 1;
             }
@@ -323,7 +401,30 @@ public class RatingViewModel extends BaseViewModel {
                 return -1;
             }
             else {
-                return 0;
+                // 第二关键字
+                double secondScore1;
+                double secondScore2;
+                switch (mSortType) {
+                    case AppConstants.RATING_SORT_PERSON:
+                        secondScore1 = o1.getRating().getScore();
+                        secondScore2 = o2.getRating().getScore();
+                        break;
+                    case AppConstants.RATING_SORT_RATING:
+                    default:
+                        secondScore1 = o1.getRating().getPerson();
+                        secondScore2 = o2.getRating().getPerson();
+                        break;
+                }
+                result = secondScore2 - secondScore1;
+                if (result > 0) {
+                    return 1;
+                }
+                else if (result < 0) {
+                    return -1;
+                }
+                else {
+                    return 0;
+                }
             }
         }
     }
@@ -335,6 +436,16 @@ public class RatingViewModel extends BaseViewModel {
             String debut1 = o1.getMovie().getDebut();
             String debut2 = o2.getMovie().getDebut();
             return debut1.compareTo(debut2);
+        }
+    }
+
+    private class NameComparator implements Comparator<RatingMovie> {
+
+        @Override
+        public int compare(RatingMovie o1, RatingMovie o2) {
+            String name1 = o1.getMovie().getName();
+            String name2 = o2.getMovie().getName();
+            return name1.compareTo(name2);
         }
     }
 }

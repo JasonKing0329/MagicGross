@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_sort_date"
+        android:title="Sort by debut date"/>
+    <item android:id="@+id/menu_sort_name"
+        android:title="Sort by name"/>
+    <item android:id="@+id/menu_sort_rating_pro"
+        android:title="Sort by pro rating"/>
+    <item android:id="@+id/menu_sort_person_pro"
+        android:title="Sort by pro person"/>
+    <item android:id="@+id/menu_sort_rating_aud"
+        android:title="Sort by audience rating"/>
+    <item android:id="@+id/menu_sort_person_aud"
+        android:title="Sort by audience person"/>
+</menu>

@@ -26,6 +26,15 @@ public class AppConstants {
     public static final int MARKET_GROSS_SORT_OPENING = 2;
     public static final int MARKET_GROSS_SORT_DEBUT = 3;
 
+    public static final int RATING_SORT_DEBUT = 0;
+    public static final int RATING_SORT_NAME = 1;
+    public static final int RATING_SORT_RATING = 2;
+    public static final int RATING_SORT_PERSON = 3;
+    public static final int RATING_SORT_RATING_PRO = 4;
+    public static final int RATING_SORT_PERSON_PRO = 5;
+    public static final int RATING_SORT_RATING_AUD = 6;
+    public static final int RATING_SORT_PERSON_AUD = 7;
+
     public static final String[] REGION_TITLES = new String[] {
             "North America", "China", "Oversea except China", "Oversea", "World Wide", "Market"
     };
