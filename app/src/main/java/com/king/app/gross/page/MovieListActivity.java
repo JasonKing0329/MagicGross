@@ -135,7 +135,7 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                     break;
                 case R.id.menu_edit:
                     isEditMode = true;
-                    mBinding.actionbar.showConfirmStatus(menuId);
+                    mBinding.actionbar.showConfirmStatus(menuId, true, "Cancel");
                     break;
                 case R.id.menu_compare:
                     showCompare();
@@ -146,65 +146,47 @@ public class MovieListActivity extends MvvmActivity<ActivityMovieListBinding, Mo
                     break;
             }
         });
-        mBinding.actionbar.setOnConfirmListener(new OnConfirmListener() {
-            @Override
-            public boolean disableInstantDismissConfirm() {
-                return false;
-            }
-
-            @Override
-            public boolean disableInstantDismissCancel() {
-                return false;
-            }
-
-            @Override
-            public boolean onConfirm(int actionId) {
-                switch (actionId) {
-                    case ID_SELECT_MODE:
-                        setSelectResult();
-                        finish();
-                        break;
-                    case R.id.menu_delete:
-                        mModel.delete();
+        mBinding.actionbar.setOnConfirmListener(actionId -> {
+            switch (actionId) {
+                case ID_SELECT_MODE:
+                    setSelectResult();
+                    finish();
+                    break;
+                case R.id.menu_delete:
+                    mModel.delete();
+                    return false;
+                case R.id.menu_edit:
+                    isEditMode = false;
+                    break;
+                case R.id.menu_compare:
+                    // 目前最多只支持3个
+                    int compareSize = CompareInstance.getInstance().getMovieList().size();
+                    if (compareSize < 2) {
+                        showMessageShort("Please select at least 2 movies to compare");
                         return false;
-                    case R.id.menu_edit:
-                        isEditMode = false;
-                        break;
-                    case R.id.menu_compare:
-                        // 目前最多只支持3个
-                        int compareSize = CompareInstance.getInstance().getMovieList().size();
-                        if (compareSize < 2) {
-                            showMessageShort("Please select at least 2 movies to compare");
-                            return false;
-                        }
-                        startActivity(new Intent().setClass(MovieListActivity.this, CompareActivity.class));
-                        hideCompare();
-                        break;
-                }
-                return true;
+                    }
+                    startActivity(new Intent().setClass(MovieListActivity.this, CompareActivity.class));
+                    hideCompare();
+                    break;
             }
-
-            @Override
-            public boolean onCancel(int actionId) {
-                switch (actionId) {
-                    case ID_SELECT_MODE:
-                        finish();
-                        break;
-                    case R.id.menu_delete:
-                        adapter.setSelectionMode(false);
-                        adapter.notifyDataSetChanged();
-                        mBinding.actionbar.cancelConfirmStatus();
-                        break;
-                    case R.id.menu_edit:
-                        isEditMode = false;
-                        break;
-                    case R.id.menu_compare:
-                        hideCompare();
-                        mBinding.actionbar.cancelConfirmStatus();
-                        break;
-                }
-                return true;
+            return true;
+        });
+        mBinding.actionbar.setOnCancelListener(actionId -> {
+            switch (actionId) {
+                case ID_SELECT_MODE:
+                    finish();
+                    break;
+                case R.id.menu_delete:
+                    adapter.setSelectionMode(false);
+                    adapter.notifyDataSetChanged();
+                    mBinding.actionbar.cancelConfirmStatus();
+                    break;
+                case R.id.menu_compare:
+                    hideCompare();
+                    mBinding.actionbar.cancelConfirmStatus();
+                    break;
             }
+            return true;
         });
 
         mBinding.actionbar.registerPopupMenu(R.id.menu_sort);

@@ -51,28 +51,13 @@ public class EditMarketGrossActivity extends MvvmActivity<ActivityEditMarketGros
 
         mBinding.actionbar.setOnBackListener(() -> onBackPressed());
         mBinding.actionbar.showConfirmStatus(ID_CONFIRM);
-        mBinding.actionbar.setOnConfirmListener(new OnConfirmListener() {
-            @Override
-            public boolean disableInstantDismissConfirm() {
-                return false;
-            }
-
-            @Override
-            public boolean disableInstantDismissCancel() {
-                return true;
-            }
-
-            @Override
-            public boolean onConfirm(int actionId) {
-                mModel.executeUpdate();
-                return false;
-            }
-
-            @Override
-            public boolean onCancel(int actionId) {
-                cancelAndExit();
-                return false;
-            }
+        mBinding.actionbar.setOnConfirmListener(actionId -> {
+            mModel.executeUpdate();
+            return false;
+        });
+        mBinding.actionbar.setOnCancelListener(actionId -> {
+            cancelAndExit();
+            return false;
         });
         mBinding.tvRef.setOnClickListener(v -> selectRef());
         mBinding.tvRef1.setOnClickListener(v -> selectRef());

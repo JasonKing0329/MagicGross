@@ -51,7 +51,7 @@ public class RatingPageActivity extends MvvmActivity<ActivityRatingPageBinding, 
             switch (menuId) {
                 case R.id.menu_edit:
                     isEditScore = true;
-                    mBinding.actionbar.showConfirmStatus(menuId);
+                    mBinding.actionbar.showConfirmStatus(menuId, true, "Cancel");
                     break;
             }
         });
@@ -63,28 +63,9 @@ public class RatingPageActivity extends MvvmActivity<ActivityRatingPageBinding, 
             }
             return null;
         });
-        mBinding.actionbar.setOnConfirmListener(new OnConfirmListener() {
-            @Override
-            public boolean disableInstantDismissConfirm() {
-                return false;
-            }
-
-            @Override
-            public boolean disableInstantDismissCancel() {
-                return false;
-            }
-
-            @Override
-            public boolean onConfirm(int actionId) {
-                isEditScore = false;
-                return true;
-            }
-
-            @Override
-            public boolean onCancel(int actionId) {
-                isEditScore = false;
-                return true;
-            }
+        mBinding.actionbar.setOnConfirmListener(actionId -> {
+            isEditScore = false;
+            return true;
         });
 
         mBinding.rvMovies.setLayoutManager(new GridLayoutManager(this, 2));
