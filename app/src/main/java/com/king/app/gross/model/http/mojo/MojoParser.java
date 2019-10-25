@@ -16,7 +16,6 @@ import com.king.app.gross.viewmodel.bean.MojoDefaultBean;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.io.File;
@@ -25,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -33,20 +33,24 @@ import okhttp3.ResponseBody;
 
 public class MojoParser extends AbsParser {
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-    private SimpleDateFormat targetDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
+    private SimpleDateFormat targetDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private DecimalFormat moneyFormat = new DecimalFormat(",###");
 
-    public String getMojoForeignUrl(String movieId) {
-        return MojoConstants.FOREIGN_URL + movieId + MojoConstants.URL_END;
+    public String getMojoForeignUrl(String groupId) {
+        return MojoConstants.FOREIGN_URL + groupId;
     }
 
     public String getMojoDailyUrl(String movieId) {
-        return MojoConstants.DAILY_URL + movieId + MojoConstants.URL_END;
+        return MojoConstants.DAILY_URL + movieId;
     }
 
     public String getMojoDefaultUrl(String movieId) {
-        return MojoConstants.DEFAULT_URL + movieId + MojoConstants.URL_END;
+        return MojoConstants.DAILY_URL + movieId;
+    }
+
+    public String getMojoTitleSummaryUrl(String titleId) {
+        return MojoConstants.TITLE_SUMMARY_URL + titleId;
     }
 
     public ObservableSource<File> saveFile(ResponseBody responseBody, String path) {
@@ -69,22 +73,22 @@ public class MojoParser extends AbsParser {
 //                Document document = Jsoup.parseForeign(file, "UTF-8", AtpWorldTourParams.URL_RANK);
 
             Document document = Jsoup.parse(file, "UTF-8");
-            Elements tables = document.select("table");
-            Element table = tables.get(tables.size() - 1);
-            Elements trs = table.select("tr");
-            for (int i = 0; i < trs.size(); i ++) {
-                Element tr = trs.get(i);
-                try {
-                    String toString = tr.child(0).toString();
-                    if (toString.contains("country=")) {
+            Elements tables = document.select("table.releases-by-region");
+            for (Element table:tables) {
+                Elements trs = table.select("tr");
+                for (int i = 2; i < trs.size(); i ++) {
+                    Element tr = trs.get(i);
+                    try {
                         MarketGross gross = new MarketGross();
                         parseForeignTr(tr, gross);
                         DebugLog.e("i=" + i + ", market:" + gross.getMarketEn() + ", debut:" + gross.getDebut() + ", opening:" + gross.getOpening()
                                 + ", total:" + gross.getGross() + ", endDate:" + gross.getEndDate());
-                        insertList.add(gross);
+                        if (!"Domestic".equals(gross.getMarketEn())) {
+                            insertList.add(gross);
+                        }
+                    } catch (Exception exception) {
+                        DebugLog.e("[error] i=" + i + ", " + exception.getMessage());
                     }
-                } catch (Exception exception) {
-                    DebugLog.e("[error] i=" + i + ", " + exception.getMessage());
                 }
             }
 
@@ -94,30 +98,24 @@ public class MojoParser extends AbsParser {
 
     private void parseForeignTr(Element tr, MarketGross gross){
         Elements tds = tr.select("td");
-        TextNode marketNode = (TextNode) tds.get(0).child(0).child(0).child(0).childNode(0);
-        TextNode dateNode = (TextNode) tds.get(2).child(0).childNode(0);
-        TextNode openingNode = (TextNode) tds.get(3).child(0).childNode(0);
-        TextNode rateNode = (TextNode) tds.get(4).child(0).childNode(0);
-        TextNode grossNode = (TextNode) tds.get(5).child(0).child(0).childNode(0);
-        TextNode endDateNode = (TextNode) tds.get(6).child(0).childNode(0);
-        if (!"-".equals(dateNode.text())) {
-            String debut = parseDate(dateNode.text());
+        String country = tds.get(0).text();
+        String date = tds.get(1).text();
+        String openingText = tds.get(2).text();
+        String totalText = tds.get(3).text();
+        if (!"-".equals(date)) {
+            String debut = parseDate(date);
             gross.setDebut(debut);
         }
-        if (!"-".equals(endDateNode.text())) {
-            String endDate = parseDate(endDateNode.text());
-            gross.setEndDate(endDate);
-        }
-        if (!"-".equals(openingNode.text())) {
-            long opening = parseMoney(openingNode.text());
+        if (!"-".equals(openingText)) {
+            long opening = parseMoney(openingText);
             gross.setOpening(opening);
         }
-        if (!"-".equals(grossNode.text())) {
-            long total = parseMoney(grossNode.text());
+        if (!"-".equals(totalText)) {
+            long total = parseMoney(totalText);
             gross.setGross(total);
         }
 
-        gross.setMarketEn(marketNode.text());
+        gross.setMarketEn(country);
     }
 
     private long parseMoney(String text) {
@@ -131,10 +129,6 @@ public class MojoParser extends AbsParser {
 
     private String parseDate(String text) {
         try {
-            String[] arrays = text.split("/");
-            if (arrays[2].length() == 2) {
-                text = arrays[0] + "/" + arrays[1] + "/20" + arrays[2];
-            }
             Date debut = dateFormat.parse(text);
             String date = targetDateFormat.format(debut);
             return date;
@@ -227,21 +221,18 @@ public class MojoParser extends AbsParser {
 //                Document document = Jsoup.parseForeign(file, "UTF-8", AtpWorldTourParams.URL_RANK);
 
             Document document = Jsoup.parse(file, "UTF-8");
-            Elements tables = document.select("table");
-            Element table = tables.get(tables.size() - 1);
+            Elements tableDiv = document.select("div#table");
+            Element table = tableDiv.get(0).selectFirst("table");
             Elements trs = table.select("tr");
-            for (int i = 0; i < trs.size(); i ++) {
+            for (int i = 1; i < trs.size(); i ++) {
                 Element tr = trs.get(i);
                 try {
-                    String toString = tr.toString();
-                    if (toString.contains("/daily/chart/?sortdate=")) {
-                        Gross gross = parseDailyTr(i, tr, movieId);
-                        DebugLog.e("i=" + i + ", dayOfWeek=:" + gross.getDayOfWeek() + ", day:" + gross.getDay() + ", gross:" + gross.getGross());
-                        insertList.add(gross);
-                        // 只保存前35天数据
-                        if (gross.getDay() > 34) {
-                            break;
-                        }
+                    Gross gross = parseDailyTr(tr, movieId);
+                    DebugLog.e("i=" + i + ", dayOfWeek=:" + gross.getDayOfWeek() + ", day:" + gross.getDay() + ", gross:" + gross.getGross());
+                    insertList.add(gross);
+                    // 只保存前35天数据
+                    if (gross.getDay() > 34) {
+                        break;
                     }
                 } catch (Exception exception) {
                     DebugLog.e("[error] i=" + i + ", " + exception.getMessage());
@@ -252,7 +243,7 @@ public class MojoParser extends AbsParser {
         }).flatMap(list -> insertAndRelateDaily(list, movieId, clearAll));
     }
 
-    private Gross parseDailyTr(int index, Element tr, long movieId){
+    private Gross parseDailyTr(Element tr, long movieId){
 //        String wholeText = td.wholeText();
 //        String text = td.text();
 //        String data = td.data();
@@ -260,14 +251,16 @@ public class MojoParser extends AbsParser {
 //        String toString = td.toString();
 //        String val = td.val();
         Elements tds = tr.select("td");
-        String weekday = tds.get(0).text();
+        String dayText = tds.get(0).text();
+        String weekday = tds.get(1).text();
         String dayGross = tds.get(3).text();
-        String day = tds.get(tds.size() - 1).text();
+        String day = tds.get(tds.size() - 2).text();
         Gross gross = new Gross();
         gross.setDay(Integer.parseInt(day));
         gross.setRegion(Region.NA.ordinal());
         gross.setSymbol(0);
         gross.setMovieId(movieId);
+        gross.setDayText(dayText);
         gross.setGross(parseMoney(dayGross));
         gross.setDayOfWeek(parseWeekday(weekday));
         return gross;
@@ -276,25 +269,25 @@ public class MojoParser extends AbsParser {
     private int parseWeekday(String text) {
         int day = 0;
         switch (text) {
-            case "Fri":
+            case "Friday":
                 day = 5;
                 break;
-            case "Sat":
+            case "Saturday":
                 day = 6;
                 break;
-            case "Sun":
+            case "Sunday":
                 day = 7;
                 break;
-            case "Mon":
+            case "Monday":
                 day = 1;
                 break;
-            case "Tue":
+            case "Tuesday":
                 day = 2;
                 break;
-            case "Wed":
+            case "Wednesday":
                 day = 3;
                 break;
-            case "Thu":
+            case "Thursday":
                 day = 4;
                 break;
         }
@@ -349,6 +342,12 @@ public class MojoParser extends AbsParser {
         };
     }
 
+    /**
+     * domestic & international & worldwide total gross data
+     * from entry page(daily)
+     * @param file
+     * @return
+     */
     public Observable<MojoDefaultBean> parseDefault(File file) {
         return Observable.create(e -> {
             MojoDefaultBean bean = new MojoDefaultBean();
@@ -357,93 +356,117 @@ public class MojoParser extends AbsParser {
 //                Document document = Jsoup.parseForeign(file, "UTF-8", AtpWorldTourParams.URL_RANK);
 
             Document document = Jsoup.parse(file, "UTF-8");
-            Elements divs = document.select("div.mp_box_content");
-            Element div = divs.get(0);
-            Element table = div.selectFirst("table");
-            Elements trs = table.select("tr");
-            Element domestic = trs.get(0);
-            Element td = domestic.select("td").get(1);
-            bean.setDomestic(parseMoney(td.text()));
-            Element foreign = trs.get(1);
-            td = foreign.select("td").get(1);
-            bean.setForeign(parseMoney(td.text()));
-            Element wolrdwide = trs.get(3);
-            td = wolrdwide.select("td").get(1);
-            bean.setWorldwide(parseMoney(td.text()));
+            Element summary = document.select("div.mojo-performance-summary-table").get(0);
+            Elements divs = summary.select("div");
+            // 从<div>select div，第一(0)个是它自身
+            Element domestic = divs.get(1).select("span.money").get(0);
+            bean.setDomestic(parseMoney(domestic.text()));
+            Element foreign = divs.get(2).select("span.money").get(0);
+            bean.setForeign(parseMoney(foreign.text()));
+            Element wolrdwide = divs.get(3).select("span.money").get(0);
+            bean.setWorldwide(parseMoney(wolrdwide.text()));
 
             e.onNext(bean);
         });
     }
 
-
+    /**
+     * movie name & debut & groupId & titleId
+     * from entry page(daily)
+     * @param file
+     * @return
+     */
     public Observable<Movie> parseDefaultMovie(File file) {
         return Observable.create(e -> {
-            MojoDefaultBean bean = new MojoDefaultBean();
             // 文件不存在则从网络里重新，虽然这个可以满足文件不存在是从网络里重新下载并且还存到file里，
             // 但是这种方式不能自定义user agent
 //                Document document = Jsoup.parseForeign(file, "UTF-8", AtpWorldTourParams.URL_RANK);
 
             Movie movie = new Movie();
             Document document = Jsoup.parse(file, "UTF-8");
-            Elements divs = document.select("table");
-            try {
-                Element table = divs.get(3);
-                Element tr = table.selectFirst("tr");
-                Element td = tr.select("td").get(1);
-                Element br = td.selectFirst("b");
-                String name = br.text();
-                DebugLog.e("name " + name);
-                if (name.contains(":")) {
-                    String[] arr = name.split(":");
-                    movie.setName(arr[0]);
-                    movie.setSubName(arr[1]);
-                }
-                else {
-                    movie.setName(name);
-                }
-            } catch (Exception exp) {}
-            Element table = divs.get(5);
-            Elements trs = table.select("tr");
-            for (int i = 0; i < trs.size(); i ++) {
-                Element tr = trs.get(i);
-                Elements tds = tr.select("td");
-                for (int j = 0; j < tds.size(); j ++) {
-                    Element td = tds.get(j);
-                    String text = td.text();
-                    DebugLog.e("td " + text);
-                    try {
-                        if (text.startsWith("Domestic Total Gross")) {
-                            String gross = text.substring(text.indexOf(":") + 1).trim();
-                            DebugLog.e("gross " + gross);
-                        }
-//                        else if (text.startsWith("Distributor")) {
-//                            String distributor = text.substring(text.indexOf(":") + 1).trim();
-//                        }
-                        else if (text.startsWith("Release Date")) {
-                            String date = text.substring(text.indexOf(":") + 1).trim();
-                            parseMovieDate(date, movie);
-                            DebugLog.e("debut " + movie.getDebut());
-                        }
-//                        else if (text.startsWith("Genre")) {
-//                            String genre = text.substring(text.indexOf(":") + 1).trim();
-//                        }
-//                        else if (text.startsWith("Runtime")) {
-//                            String runtime = text.substring(text.indexOf(":") + 1).trim();
-//                        }
-//                        else if (text.startsWith("MPAA Rating")) {
-//                            String rating = text.substring(text.indexOf(":") + 1).trim();
-//                        }
-                        else if (text.startsWith("Production Budget")) {
-                            String budgetStr = text.substring(text.indexOf(":") + 1).trim();
-                            long budget = parseBudget(budgetStr);
-                            movie.setBudget(budget);
-                            DebugLog.e("budget " + budget);
-                        }
-                    } catch (Exception exp) {
-                        DebugLog.e("error: td " + text);
-                    }
+
+            // title
+            // <div>的children如果也是<div>，那么select("div").get(0)或者selectFirst("div") 是他自身。可以用children来实现
+            Element headDiv = document.select("div.mojo-heading-summary").get(0);
+            headDiv = headDiv.children().get(0).children().get(0);
+            Element titleDiv = headDiv.children().get(1);
+            Element title = titleDiv.selectFirst("h1");
+            String name = title.text();
+            DebugLog.e("name " + name);
+            if (name.contains(":")) {
+                String[] arr = name.split(":");
+                movie.setName(arr[0]);
+                movie.setSubName(arr[1]);
+            }
+            else {
+                movie.setName(name);
+            }
+
+            // groupId & titleId
+            Element select = document.select("select#releasegroup-picker-navSelector").get(0);
+            Element optionTitle = select.children().first();
+            String value = optionTitle.attributes().get("value");
+            String[] arr = value.split("/");
+            movie.setMojoTitleId(arr[arr.length - 1]);
+            Element optionGroup = select.children().last();
+            value = optionGroup.attributes().get("value");
+            arr = value.split("/");
+            movie.setMojoGrpId(arr[arr.length - 1]);
+
+            // release information
+            Elements releaseDivs = document.select("div.mojo-summary-values").get(0).children();
+            for (Element element:releaseDivs) {
+                String type = element.select("span").get(0).text();
+                if ("Release Date".equals(type)) {
+                    String date = element.select("span").get(1).text();
+                    movie.setDebut(parseDate(date));
+                    DebugLog.e("debut " + movie.getDebut());
+                    break;
                 }
             }
+            // 这个是全面的正常顺序
+//            Element distributor = releaseDivs.get(0);
+//            Element runtime = releaseDivs.get(1);
+//            Element opening = releaseDivs.get(2);
+//            Element genres = releaseDivs.get(3);
+//            Element releaseDate = releaseDivs.get(4);
+//            Element wildRelease = releaseDivs.get(5);
+//            Element inRelease = releaseDivs.get(6);
+//            Element imdbPro = releaseDivs.get(7);
+            e.onNext(movie);
+        });
+    }
+
+    /**
+     * movie budget
+     * from TitleSummary page
+     * @param file
+     * @return
+     */
+    public Observable<Movie> parseTitleSummary(File file, Movie movie) {
+        return Observable.create(e -> {
+            Document document = Jsoup.parse(file, "UTF-8");
+
+            // release information
+            Elements releaseDivs = document.select("div.mojo-summary-values").get(0).children();
+            for (Element element:releaseDivs) {
+                String type = element.select("span").get(0).text();
+                if ("Budget".equals(type)) {
+                    String budgetText = element.select("span").get(1).text();
+                    movie.setBudget(parseBudget(budgetText));
+                    DebugLog.e("budget " + movie.getDebut());
+                    break;
+                }
+            }
+            // 这个是全面的正常顺序，有的会没有budget，所以用上面的遍历方法
+//            Element distributor = releaseDivs.get(0);
+//            Element opening = releaseDivs.get(1);
+//            Element budget = releaseDivs.get(2);
+//            Element debut = releaseDivs.get(3);
+//            Element mpaa = releaseDivs.get(4);
+//            Element runningTime = releaseDivs.get(5);
+//            Element genres = releaseDivs.get(6);
+//            Element imdbPro = releaseDivs.get(7);
             e.onNext(movie);
         });
     }
@@ -452,56 +475,7 @@ public class MojoParser extends AbsParser {
         if ("N/A".equals(budgetStr)) {
             return 0;
         }
-        String[] arr = budgetStr.split(" ");
-        int num = Integer.parseInt(arr[0].substring(1));
-        return num * 1000000;
-    }
-
-    private void parseMovieDate(String dateStr, Movie movie) {
-        String[] arr = dateStr.split(",");
-        int year = Integer.parseInt(arr[1].trim());
-        movie.setYear(year);
-        arr = arr[0].split(" ");
-        int day = Integer.parseInt(arr[1]);
-        String dayStr = day < 10 ? "0" + day : String.valueOf(day);
-        String month;
-        if (arr[0].equals("January")) {
-            month = "01";
-        }
-        else if (arr[0].equals("February")) {
-            month = "02";
-        }
-        else if (arr[0].equals("March")) {
-            month = "03";
-        }
-        else if (arr[0].equals("April")) {
-            month = "04";
-        }
-        else if (arr[0].equals("May")) {
-            month = "05";
-        }
-        else if (arr[0].equals("June")) {
-            month = "06";
-        }
-        else if (arr[0].equals("July")) {
-            month = "07";
-        }
-        else if (arr[0].equals("August")) {
-            month = "08";
-        }
-        else if (arr[0].equals("September")) {
-            month = "09";
-        }
-        else if (arr[0].equals("October")) {
-            month = "10";
-        }
-        else if (arr[0].equals("November")) {
-            month = "11";
-        }
-        else {
-            month = "12";
-        }
-        movie.setDebut(year + "-" + month + "-" + dayStr);
+        return parseMoney(budgetStr);
     }
 
 }

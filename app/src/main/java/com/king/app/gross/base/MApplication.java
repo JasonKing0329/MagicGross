@@ -104,6 +104,11 @@ public class MApplication extends Application {
                 case 6:
                     MovieRatingDao.createTable(db, true);
                     break;
+                case 7:
+                    db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.MojoGrpId.columnName + " TEXT");
+                    db.execSQL("ALTER TABLE " + MovieDao.TABLENAME + " ADD COLUMN " + MovieDao.Properties.MojoTitleId.columnName + " TEXT");
+                    db.execSQL("ALTER TABLE " + GrossDao.TABLENAME + " ADD COLUMN " + GrossDao.Properties.DayText.columnName + " TEXT");
+                    break;
             }
         }
     }

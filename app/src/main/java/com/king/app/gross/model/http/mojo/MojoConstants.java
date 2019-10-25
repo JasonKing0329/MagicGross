@@ -2,19 +2,17 @@ package com.king.app.gross.model.http.mojo;
 
 public class MojoConstants {
 
-    public static final String MOJO_URL = "https://www.boxofficemojo.com/movies/";
+    public static final String MOJO_URL = "https://www.boxofficemojo.com/";
     /**
-     * https://www.boxofficemojo.com/movies/?page=intl&id=avatar.htm
+     * https://www.boxofficemojo.com/releasegroup/gr403788293/
      */
-    public static final String FOREIGN_URL = MOJO_URL + "?page=intl&id=";
+    public static final String FOREIGN_URL = MOJO_URL + "releasegroup/";
     /**
-     * https://www.boxofficemojo.com/movies/?page=daily&view=chart&id=marvel2018a.htm
+     * https://www.boxofficemojo.com/release/rl3321923073/
      */
-    public static final String DAILY_URL = MOJO_URL + "?page=daily&view=chart&id=";
+    public static final String DAILY_URL = MOJO_URL + "release/";
     /**
-     * https://www.boxofficemojo.com/movies/default.htm?id=detectivepikachu.htm
+     * https://www.boxofficemojo.com/title/tt7286456/
      */
-    public static final String DEFAULT_URL = MOJO_URL + "default.htm?id=";
-
-    public static final String URL_END = ".htm";
+    public static final String TITLE_SUMMARY_URL = MOJO_URL + "title/";
 }

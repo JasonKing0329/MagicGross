@@ -19,6 +19,14 @@ public class MovieBasicData {
 
     private String mojoId;
 
+    private int mojoGrpVisibility;
+
+    private String mojoGrpId;
+
+    private int mojoTitleVisibility;
+
+    private String mojoTitleId;
+
     private RatingData imdb;
 
     private RatingData rottenPro;
@@ -105,6 +113,14 @@ public class MovieBasicData {
         this.mojoTitle = mojoTitle;
     }
 
+    public String getMojoGrpId() {
+        return mojoGrpId;
+    }
+
+    public void setMojoGrpId(String mojoGrpId) {
+        this.mojoGrpId = mojoGrpId;
+    }
+
     public RatingData getImdb() {
         return imdb;
     }
@@ -163,5 +179,29 @@ public class MovieBasicData {
 
     public boolean isRottenEmpty() {
         return rottenAud == null && rottenPro == null;
+    }
+
+    public int getMojoGrpVisibility() {
+        return mojoGrpVisibility;
+    }
+
+    public void setMojoGrpVisibility(int mojoGrpVisibility) {
+        this.mojoGrpVisibility = mojoGrpVisibility;
+    }
+
+    public int getMojoTitleVisibility() {
+        return mojoTitleVisibility;
+    }
+
+    public void setMojoTitleVisibility(int mojoTitleVisibility) {
+        this.mojoTitleVisibility = mojoTitleVisibility;
+    }
+
+    public String getMojoTitleId() {
+        return mojoTitleId;
+    }
+
+    public void setMojoTitleId(String mojoTitleId) {
+        this.mojoTitleId = mojoTitleId;
     }
 }

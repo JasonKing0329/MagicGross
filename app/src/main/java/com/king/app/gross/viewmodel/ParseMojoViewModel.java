@@ -24,6 +24,8 @@ import com.king.app.gross.model.http.mojo.MojoParser;
 import com.king.app.gross.utils.FormatUtil;
 import com.king.app.gross.viewmodel.bean.MojoDefaultBean;
 
+import java.io.File;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -89,7 +91,7 @@ public class ParseMojoViewModel extends BaseViewModel {
         MojoClient.getInstance().getService().getHtmlPage(mojoParser.getMojoDailyUrl(mMovie.getMojoId()))
                 .flatMap(responseBody -> mojoParser.saveFile(responseBody, AppConfig.FILE_HTML_DAILY))
                 .flatMap(file -> mojoParser.parseDaily(file, mMovie.getId(), clearAll))
-//        mojoParser.parseDaily(new File(AppConfig.FILE_HTML_DAILY), mMovie.getId())
+//        mojoParser.parseDaily(new File(AppConfig.FILE_HTML_DAILY), mMovie.getId(), clearAll)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<Boolean>() {
@@ -122,10 +124,10 @@ public class ParseMojoViewModel extends BaseViewModel {
 
     public void fetchMarketData(boolean clearAll) {
         loadingObserver.setValue(true);
-        MojoClient.getInstance().getService().getHtmlPage(mojoParser.getMojoForeignUrl(mMovie.getMojoId()))
+        MojoClient.getInstance().getService().getHtmlPage(mojoParser.getMojoForeignUrl(mMovie.getMojoGrpId()))
                 .flatMap(responseBody -> mojoParser.saveFile(responseBody, AppConfig.FILE_HTML_FOREIGN))
                 .flatMap(file -> mojoParser.parseForeign(file, mMovie.getId(), clearAll))
-//        mojoParser.parseForeign(new File(AppConfig.FILE_HTML_FOREIGN), mMovie.getId())
+//        mojoParser.parseForeign(new File(AppConfig.FILE_HTML_FOREIGN), mMovie.getId(), clearAll)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<Boolean>() {

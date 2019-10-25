@@ -7,8 +7,8 @@ android {
         applicationId "com.king.app.gross"
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 78
-        versionName "4.8.4"
+        versionCode 79
+        versionName "4.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -31,7 +31,7 @@ android {
     }
 
     greendao {
-        schemaVersion 7
+        schemaVersion 8
     }
 
     dataBinding {

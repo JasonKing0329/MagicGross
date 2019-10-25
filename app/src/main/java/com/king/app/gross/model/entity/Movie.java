@@ -41,6 +41,10 @@ public class Movie {
 
     private String mojoId;
 
+    private String mojoGrpId;
+
+    private String mojoTitleId;
+
     @ToOne(joinProperty = "id")
     private GrossStat grossStat;
 
@@ -58,10 +62,10 @@ public class Movie {
     @Generated(hash = 859527616)
     private transient Long grossStat__resolvedKey;
 
-    @Generated(hash = 667280219)
-    public Movie(Long id, String name, String nameChn, String subName,
-            String subChnName, double usToYuan, int year, String debut, int isReal,
-            long budget, String mojoId) {
+    @Generated(hash = 9270807)
+    public Movie(Long id, String name, String nameChn, String subName, String subChnName,
+            double usToYuan, int year, String debut, int isReal, long budget, String mojoId,
+            String mojoGrpId, String mojoTitleId) {
         this.id = id;
         this.name = name;
         this.nameChn = nameChn;
@@ -73,6 +77,8 @@ public class Movie {
         this.isReal = isReal;
         this.budget = budget;
         this.mojoId = mojoId;
+        this.mojoGrpId = mojoGrpId;
+        this.mojoTitleId = mojoTitleId;
     }
 
     @Generated(hash = 1263461133)
@@ -259,6 +265,22 @@ public class Movie {
     @Generated(hash = 1813496621)
     public synchronized void resetRatingList() {
         ratingList = null;
+    }
+
+    public String getMojoGrpId() {
+        return this.mojoGrpId;
+    }
+
+    public void setMojoGrpId(String mojoGrpId) {
+        this.mojoGrpId = mojoGrpId;
+    }
+
+    public String getMojoTitleId() {
+        return this.mojoTitleId;
+    }
+
+    public void setMojoTitleId(String mojoTitleId) {
+        this.mojoTitleId = mojoTitleId;
     }
 
     /** called by internal mechanisms, do not call yourself. */

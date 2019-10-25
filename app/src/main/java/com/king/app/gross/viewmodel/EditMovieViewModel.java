@@ -24,6 +24,8 @@ public class EditMovieViewModel extends BaseViewModel {
 
     public MutableLiveData<Movie> mojoMovie = new MutableLiveData<>();
 
+    public MutableLiveData<Movie> getBudget = new MutableLiveData<>();
+
     public EditMovieViewModel(@NonNull Application application) {
         super(application);
         mojoParser = new MojoParser();
@@ -67,4 +69,37 @@ public class EditMovieViewModel extends BaseViewModel {
                 });
     }
 
+    public void fetchBudget(String titleId, Movie movie) {
+        loadingObserver.setValue(true);
+        MojoClient.getInstance().getService().getHtmlPage(mojoParser.getMojoTitleSummaryUrl(titleId))
+                .flatMap(responseBody -> mojoParser.saveFile(responseBody, AppConfig.FILE_HTML_TITLE_SUMMARY))
+                .flatMap(file -> mojoParser.parseTitleSummary(file, movie))
+//        mojoParser.parseTitleSummary(new File(AppConfig.FILE_HTML_TITLE_SUMMARY), movie)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<Movie>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(Movie movie) {
+                        loadingObserver.setValue(false);
+                        getBudget.setValue(movie);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        loadingObserver.setValue(false);
+                        messageObserver.setValue("下载失败" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
 }

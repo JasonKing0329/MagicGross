@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.databinding.ObservableField;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.view.View;
 
 import com.king.app.gross.base.BaseViewModel;
 import com.king.app.gross.conf.AppConstants;
@@ -135,6 +136,8 @@ public class MovieViewModel extends BaseViewModel {
             movieImageUrl.set(ImageUrlProvider.getMovieImageRandom(movie));
             basicData.setExchangeRate(String.valueOf(movie.getUsToYuan()));
             basicData.setMojoId(movie.getMojoId());
+            basicData.setMojoGrpId(movie.getMojoGrpId());
+            basicData.setMojoTitleId(movie.getMojoTitleId());
             if (movie.getBudget() == 0) {
                 basicData.setBudget("N/A");
             }
@@ -144,9 +147,13 @@ public class MovieViewModel extends BaseViewModel {
 
             if (movie.getIsReal() == AppConstants.MOVIE_REAL) {
                 basicData.setMojoTitle("Mojo Id");
+                basicData.setMojoGrpVisibility(View.VISIBLE);
+                basicData.setMojoTitleVisibility(View.VISIBLE);
             }
             else {
                 basicData.setMojoTitle("Virtual Movie");
+                basicData.setMojoGrpVisibility(View.GONE);
+                basicData.setMojoTitleVisibility(View.GONE);
             }
 
             // ratings

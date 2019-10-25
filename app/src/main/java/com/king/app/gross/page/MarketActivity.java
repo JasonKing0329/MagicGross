@@ -48,8 +48,8 @@ public class MarketActivity extends MvvmActivity<ActivityMovieMarketBinding, Moj
                         showMessageShort("Virtual movie doesn't have Mojo data");
                         return;
                     }
-                    if (TextUtils.isEmpty(mModel.movieObserver.getValue().getMojoId())) {
-                        showMessageShort("Mojo id is null");
+                    if (TextUtils.isEmpty(mModel.movieObserver.getValue().getMojoGrpId())) {
+                        showMessageShort("Mojo groupId is null");
                         return;
                     }
                     mModel.fetchForeignData();

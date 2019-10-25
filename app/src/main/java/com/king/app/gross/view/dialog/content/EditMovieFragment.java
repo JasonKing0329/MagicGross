@@ -80,6 +80,8 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
             mBinding.etBudget.setText(String.valueOf(mEditMovie.getBudget()));
             mBinding.etExchange.setText(String.valueOf(mEditMovie.getUsToYuan()));
             mBinding.etMojo.setText(mEditMovie.getMojoId());
+            mBinding.etMojoGrp.setText(mEditMovie.getMojoGrpId());
+            mBinding.etMojoTitle.setText(mEditMovie.getMojoTitleId());
             mDebutDate = mEditMovie.getDebut();
             mBinding.btnDebut.setText(mEditMovie.getDebut());
             mBinding.cbIsReal.setChecked(mEditMovie.getIsReal() == AppConstants.MOVIE_REAL);
@@ -93,16 +95,38 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         }
 
         mBinding.ivDownload.setOnClickListener(e -> mModel.fetchMovie(mBinding.etMojo.getText().toString()));
+        mBinding.btnBudget.setOnClickListener(e -> {
+            String titleId = mBinding.etMojoTitle.getText().toString().trim();
+            if (TextUtils.isEmpty(titleId)) {
+                showMessageShort("You need input titleId to get budget information");
+                return;
+            }
+            if (mEditMovie == null && mModel.mojoMovie.getValue() == null) {
+                showMessageShort("You haven't got the basic information");
+                return;
+            }
+            if (mEditMovie != null) {
+                mModel.fetchBudget(titleId, mEditMovie);
+            }
+            else {
+                mModel.fetchBudget(titleId, mModel.mojoMovie.getValue());
+            }
+        });
+
         mModel.mojoMovie.observe(this, movie -> {
+            mBinding.etMojoTitle.setText(movie.getMojoTitleId());
+            mBinding.etMojoGrp.setText(movie.getMojoGrpId());
             if (!TextUtils.isEmpty(movie.getName())) {
                 mBinding.etName.setText(movie.getName().trim());
             }
             if (!TextUtils.isEmpty(movie.getSubName())) {
                 mBinding.etNameSub.setText(movie.getSubName().trim());
             }
-            mBinding.etBudget.setText(String.valueOf(movie.getBudget()));
             mDebutDate = movie.getDebut();
             mBinding.btnDebut.setText(movie.getDebut());
+        });
+        mModel.getBudget.observe(this, movie -> {
+            mBinding.etBudget.setText(String.valueOf(movie.getBudget()));
         });
     }
 
@@ -214,6 +238,8 @@ public class EditMovieFragment extends DraggableContentFragment<FragmentEditMovi
         mEditMovie.setBudget(budget);
         mEditMovie.setYear(Integer.parseInt(mDebutDate.substring(0, 4)));
         mEditMovie.setMojoId(mBinding.etMojo.getText().toString());
+        mEditMovie.setMojoGrpId(mBinding.etMojoGrp.getText().toString());
+        mEditMovie.setMojoTitleId(mBinding.etMojoTitle.getText().toString());
 
         createImageFolder();
         boolean isInsert = mEditMovie.getId() == null;

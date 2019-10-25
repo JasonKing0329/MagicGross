@@ -10,6 +10,7 @@ import com.king.app.gross.base.MApplication;
 import com.king.app.gross.conf.AppConfig;
 import com.king.app.gross.conf.AppConstants;
 import com.king.app.gross.model.entity.GrossStat;
+import com.king.app.gross.model.entity.GrossStatDao;
 import com.king.app.gross.model.entity.MarketGross;
 import com.king.app.gross.model.entity.MarketGrossDao;
 import com.king.app.gross.model.entity.Movie;
@@ -168,23 +169,32 @@ public class MojoViewModel extends BaseViewModel {
     }
 
     private void getRealTotal() {
-        MarketGross total = MApplication.getInstance().getDaoSession().getMarketGrossDao().queryBuilder()
-                .where(MarketGrossDao.Properties.MovieId.eq(movieObserver.getValue().getId()))
-                .where(MarketGrossDao.Properties.MarketId.eq(AppConstants.MARKET_TOTAL_ID))
+        GrossStat stat = getDaoSession().getGrossStatDao().queryBuilder()
+                .where(GrossStatDao.Properties.MovieId.eq(movieObserver.getValue().getId()))
                 .build().unique();
-        if (total != null) {
-            marketTotal.setGross(FormatUtil.formatUsGross(total.getGross()));
-            marketTotal.setOpening(FormatUtil.formatUsGross(total.getOpening()));
+        if (stat != null) {
+            marketTotal.setGross(FormatUtil.formatUsGross(stat.getWorld()));
+            if (stat.getWorldOpening() > 0) {
+                marketTotal.setOpening(FormatUtil.formatUsGross(stat.getWorldOpening()));
+            }
 
             Cursor cursor = MApplication.getInstance().getDatabase().rawQuery(
                     "SELECT SUM(opening), SUM(gross) FROM market_gross WHERE movie_id=? AND market_id!=0", new String[]{String.valueOf(movieObserver.getValue().getId())});
             if (cursor.moveToNext()) {
+                long calcTotal = stat.getWorld() - stat.getUs();
+                long calcOpening = stat.getWorldOpening() - stat.getUsOpening();
+                if (calcOpening < 0) {
+                    calcOpening = 0;
+                }
+
                 long opening = cursor.getLong(0);
                 marketTotal.setMarketOpening(FormatUtil.formatUsGross(opening));
-                marketTotal.setUndisclosedOpening(FormatUtil.formatUsGross(total.getOpening() - opening));
+                if (calcOpening > 0) {
+                    marketTotal.setUndisclosedOpening(FormatUtil.formatUsGross(calcOpening - opening));
+                }
                 long marketGross = cursor.getLong(1);
                 marketTotal.setMarketGross(FormatUtil.formatUsGross(marketGross));
-                marketTotal.setUndisclosedGross(FormatUtil.formatUsGross(total.getGross() - marketGross));
+                marketTotal.setUndisclosedGross(FormatUtil.formatUsGross(calcTotal - marketGross));
             }
         }
     }
@@ -232,7 +242,7 @@ public class MojoViewModel extends BaseViewModel {
 
     public void fetchForeignData() {
         loadingObserver.setValue(true);
-        MojoClient.getInstance().getService().getHtmlPage(parser.getMojoForeignUrl(movieObserver.getValue().getMojoId()))
+        MojoClient.getInstance().getService().getHtmlPage(parser.getMojoForeignUrl(movieObserver.getValue().getMojoGrpId()))
                 .flatMap(responseBody -> parser.saveFile(responseBody, AppConfig.FILE_HTML_FOREIGN))
                 .flatMap(file -> parser.parseForeign(file, movieObserver.getValue().getId(), false))
 //        parser.parseForeign(new File(AppConfig.FILE_HTML_FOREIGN), movieObserver.getValue().getId())
