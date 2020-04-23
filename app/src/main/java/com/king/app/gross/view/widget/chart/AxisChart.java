@@ -204,13 +204,21 @@ public abstract class AxisChart extends View implements View.OnTouchListener {
     }
 
     /**
-     * 总宽度等于 两端延长线的宽度+Y轴显示刻度文字的宽度+X轴所有刻度总宽度
+     * 总宽度等于 扩展宽度+X轴两端刻度端点之间的宽度
      * @param defaultWidth
      * @return
      */
     private int measureDefaultWidth(int defaultWidth) {
+        return getExtendWidth() + measureChartWidth(defaultWidth);
+    }
+
+    /**
+     * 扩展宽度= 两端延长线的宽度+Y轴显示刻度文字的宽度+padding值
+     * @return
+     */
+    protected int getExtendWidth() {
         return getPaddingLeft() + getPaddingRight()
-                + mAxisLineXExtend * 2 + mYAxisTextWidth + measureChartWidth(defaultWidth);
+                + mAxisLineXExtend * 2 + mYAxisTextWidth;
     }
 
     protected abstract int measureChartWidth(int defaultWidth);

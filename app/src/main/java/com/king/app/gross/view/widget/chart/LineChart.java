@@ -77,6 +77,11 @@ public class LineChart extends AxisChart {
         this.mDegreeCombine = mDegreeCombine;
     }
 
+    /**
+     * x轴延长线与y轴的文字，以及padding left, right已经在父类里计算上了。本方法只计算x轴第一个点到最后一个点之间的宽度
+     * @param defaultWidth
+     * @return
+     */
     @Override
     protected int measureChartWidth(int defaultWidth) {
         if (mAdapter != null && mAdapter.getLineCount() > 0) {
@@ -86,15 +91,18 @@ public class LineChart extends AxisChart {
                     max = mAdapter.getLineData(i).getEndX();
                 }
             }
-            // 超过父容器最大宽度应用最小刻度宽度
-            if (mYAxisTextWidth + 2 * mAxisLineXExtend + max * mNormalXCellWidth > getParentWidth()) {
-                mXCellWidth = mMinXCellWidth;
+            // 超过父容器最大宽度重新计算宽度，小于最小刻度宽度采用最小宽度
+            // 虽然最后返回的是端点之间的宽度，但是这里在自适应计算刻度宽度还是要考虑父类延伸的延长线和padding值
+            if (max * mNormalXCellWidth + getExtendWidth() > getParentWidth()) {
+                mXCellWidth = (getParentWidth() - getExtendWidth()) / max;
+                if (mXCellWidth < mMinXCellWidth) {
+                    mXCellWidth = mMinXCellWidth;
+                }
             }
             else {
                 mXCellWidth = mNormalXCellWidth;
             }
-            defaultWidth = getPaddingLeft() + getPaddingRight()
-                    + mXCellWidth * max;
+            defaultWidth = mXCellWidth * max;
         }
         return defaultWidth;
     }

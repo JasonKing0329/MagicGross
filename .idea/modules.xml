@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/MagicGross.iml" filepath="$PROJECT_DIR$/MagicGross.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/groupmenu/groupmenu.iml" filepath="$PROJECT_DIR$/groupmenu/groupmenu.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MagicGross.iml" filepath="$PROJECT_DIR$/MagicGross.iml" group="MagicGross" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="MagicGross/app" />
+      <module fileurl="file://$PROJECT_DIR$/groupmenu/groupmenu.iml" filepath="$PROJECT_DIR$/groupmenu/groupmenu.iml" group="MagicGross/groupmenu" />
     </modules>
   </component>
 </project>
